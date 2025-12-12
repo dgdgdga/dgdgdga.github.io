@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #1a1a1a;
+            --sub-text-color: #555555;
+            --accent-color: #000000;
+            --font-stack: 'SF Mono', 'Fira Code', 'Roboto Mono', 'Courier New', monospace;
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-stack);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: var(--text-color);
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: var(--sub-text-color);
+            margin-top: 10px;
+            font-weight: 400;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 3rem;
+            background-color: var(--accent-color);
+            vertical-align: middle;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .social-links {
+            margin-top: 45px;
+            opacity: 0;
+            animation: fadeIn 2s ease-in-out forwards;
+            animation-delay: 2.2s;
+        }
+
+        .social-links a {
+            color: var(--sub-text-color);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid transparent;
+            font-weight: 500;
+        }
+
+        .social-links a:hover {
+            color: #000000;
+            border-bottom: 1px solid #000000;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .cursor { height: 2rem; }
+            p { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1><span id="typewriter"></span><span class="cursor"></span></h1>
+
+    <p>// Construction in Progress...</p>
+
+    <div class="social-links">
+        <a href="https://github.com/dgdgdga" target="_blank">GitHub</a>
+        <a href="mailto:jiachengyao@connect.hku.hk">Email</a>
+    </div>
+</div>
+
+<script>
+    const textToType = "devcheng.cc";
+    const typeWriterElement = document.getElementById('typewriter');
+    let i = 0;
+
+    function typeWriter() {
+        if (i < textToType.length) {
+            typeWriterElement.innerHTML += textToType.charAt(i);
+            i++;
+            setTimeout(typeWriter, 150);
+        }
+    }
+
+    window.onload = typeWriter;
+</script>
+</body>
+</html>
