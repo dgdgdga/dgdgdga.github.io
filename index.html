@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon</title>
+    <title>DevCheng | Coming Soon</title>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -12,6 +12,7 @@
             --accent-color: #000000;
             --font-stack: 'SF Mono', 'Fira Code', 'Roboto Mono', 'Courier New', monospace;
         }
+
         body, html {
             height: 100%;
             margin: 0;
@@ -29,6 +30,10 @@
             text-align: center;
             padding: 20px;
             z-index: 10;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         h1 {
@@ -37,6 +42,10 @@
             font-weight: 700;
             letter-spacing: -1px;
             color: var(--text-color);
+            min-height: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         p {
@@ -51,9 +60,12 @@
             width: 10px;
             height: 3rem;
             background-color: var(--accent-color);
-            vertical-align: middle;
             margin-left: 5px;
-            animation: blink 1s infinite;
+            animation: blink 1s step-end infinite;
+        }
+
+        .typing .cursor {
+            animation: none;
         }
 
         @keyframes blink {
@@ -65,7 +77,7 @@
             margin-top: 45px;
             opacity: 0;
             animation: fadeIn 2s ease-in-out forwards;
-            animation-delay: 2.2s;
+            animation-delay: 2.5s;
         }
 
         .social-links a {
@@ -88,7 +100,7 @@
         }
 
         @media (max-width: 600px) {
-            h1 { font-size: 2rem; }
+            h1 { font-size: 2rem; min-height: 2.5rem; }
             .cursor { height: 2rem; }
             p { font-size: 1rem; }
         }
@@ -97,9 +109,11 @@
 <body>
 
 <div class="container">
-    <h1><span id="typewriter"></span><span class="cursor"></span></h1>
+    <h1 id="typewriter-wrapper">
+        <span id="typewriter-text"></span><span class="cursor"></span>
+    </h1>
 
-    <p>// Construction in Progress...</p>
+    <p>// System Construction in Progress...</p>
 
     <div class="social-links">
         <a href="https://github.com/dgdgdga" target="_blank">GitHub</a>
@@ -108,19 +122,49 @@
 </div>
 
 <script>
-    const textToType = "devcheng.cc";
-    const typeWriterElement = document.getElementById('typewriter');
-    let i = 0;
+    const texts = ["devcheng.cc", "Coming soon..."];
+    const typeSpeed = 150;
+    const deleteSpeed = 80;
+    const pauseBeforeDelete = 2000;
+    const pauseBeforeNext = 500;
 
-    function typeWriter() {
-        if (i < textToType.length) {
-            typeWriterElement.innerHTML += textToType.charAt(i);
-            i++;
-            setTimeout(typeWriter, 150);
+    // 状态变量
+    let count = 0;
+    let letter = "";
+    let isDeleting = false;
+
+    const textElement = document.getElementById('typewriter-text');
+    const wrapperElement = document.getElementById('typewriter-wrapper');
+
+    function type() {
+        const currentFullText = texts[count % texts.length];
+
+        if (isDeleting) {
+            letter = currentFullText.slice(0, letter.length - 1);
+        } else {
+            letter = currentFullText.slice(0, letter.length + 1);
         }
-    }
 
-    window.onload = typeWriter;
+        textElement.innerHTML = letter;
+
+        let typeSpeedCurrent = isDeleting ? deleteSpeed : typeSpeed;
+
+        if (!isDeleting && letter.length === currentFullText.length) {
+            typeSpeedCurrent = pauseBeforeDelete;
+            isDeleting = true;
+            wrapperElement.classList.remove('typing');
+        } else if (isDeleting && letter.length === 0) {
+
+            isDeleting = false;
+            count++;
+            typeSpeedCurrent = pauseBeforeNext;
+            wrapperElement.classList.remove('typing');
+        } else {
+            wrapperElement.classList.add('typing');
+        }
+        setTimeout(type, typeSpeedCurrent);
+    }
+    window.onload = type;
 </script>
 </body>
 </html>
