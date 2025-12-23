@@ -29,7 +29,7 @@
         /* 强制英文部分使用 Inter 及其特性 */
         .font-sf {
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-            letter-spacing: -0.02em; /* 标题保持紧凑感 */
+            letter-spacing: -0.02em; 
         }
 
         /* 隐藏滚动条 */
@@ -53,10 +53,11 @@
             margin-right: 6px;
         }
         
-        /* 专门针对景点描述段落的样式优化 */
+        /* 景点描述段落样式 */
         .text-body-bold { 
             font-weight: 600; 
             letter-spacing: -0.015em;
+            color: #334155; /* slate-700 */
         }
 
         /* 滚动动画类 */
@@ -88,17 +89,17 @@
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            background-color: #f1f5f9; /* slate-100 */
+            background-color: #f1f5f9; 
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #94a3b8; /* slate-400 */
+            color: #94a3b8; 
             transition: all 0.2s ease;
             margin-left: 8px;
         }
         .gps-btn:hover {
-            background-color: #dbeafe; /* blue-100 */
-            color: #2563eb; /* blue-600 */
+            background-color: #dbeafe; 
+            color: #2563eb; 
             transform: scale(1.1);
         }
     </style>
@@ -128,7 +129,7 @@
                 </div>
             </div>
             
-            <!-- 文案 - 已简化 -->
+            <!-- 文案 -->
             <p class="text-2xl md:text-3xl text-slate-800 font-bold leading-relaxed max-w-2xl font-sf tracking-tight">
                 一路向南，纵贯台湾。
             </p>
@@ -137,7 +138,7 @@
         <!-- 行程列表 -->
         <div class="space-y-16">
 
-            <!-- Day 1: 台北 -->
+            <!-- Day 1: 台北 (抵达) -->
             <section class="reveal-on-scroll">
                 <div class="flex items-center gap-6 mb-6">
                     <span class="text-5xl md:text-7xl font-black text-blue-200/80 select-none tracking-tighter font-sf">Day 1</span>
@@ -153,7 +154,7 @@
 
                 <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] p-8 md:p-10 relative overflow-hidden">
                     
-                    <!-- 航班卡片 Day 1 -->
+                    <!-- 航班卡片 -->
                     <div class="flight-card bg-gradient-to-br from-slate-50 to-white p-6 rounded-2xl mb-10 group relative">
                         <div class="flex justify-between items-center relative z-10">
                             <div>
@@ -185,7 +186,29 @@
 
                     <!-- 时间轴 -->
                     <div class="space-y-12">
-                        <!-- ... Day 1 existing timeline items ... -->
+                        <!-- 14:30 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors font-sf">14:30</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100 last:border-0 last:pb-0">
+                                <div class="mb-2">
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">🏨 Check-in</span>
+                                    <span class="tag bg-yellow-100 text-yellow-700 font-sf">💡 City Vibe</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">初见西门町</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 台北市 · 万华区</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=西门红楼" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    穿越台北车站的地下迷宫，抵达热闹的西门町。这里是青春的秀场，巨大的广告看板与穿梭的人潮构成了一幅赛博朋克般的画面。别忘了在红楼的红砖墙前驻足，感受百年前市场的古雅与今日文创活力的碰撞。
+                                </p>
+                            </div>
+                        </div>
+
                         <!-- 19:30 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
@@ -193,24 +216,24 @@
                             </div>
                             <div class="flex-1">
                                 <div class="mb-2">
-                                    <span class="tag bg-red-100 text-red-700 font-sf">🍜 Must Eat</span>
+                                    <span class="tag bg-red-100 text-red-700 font-sf">🍜 Michelin</span>
                                     <span class="tag bg-slate-100 text-slate-600 font-sf">🌙 Night Market</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">宁夏夜市</h3>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">宁夏夜市的味蕾盛宴</h3>
                                 <div class="flex items-center mb-3">
                                     <div class="text-xs font-bold text-slate-400 font-sf">📍 台北市 · 大同区</div>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=宁夏夜市" target="_blank" class="gps-btn" title="Open in Maps">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=宁夏夜市" target="_blank" class="gps-btn" title="在地图中打开">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                     </a>
                                 </div>
-                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    相比士林，宁夏夜市更短小精悍，美食密度极高。必吃“圆环边蚵仔煎”（米其林推荐）和“刘芋仔蛋黄芋饼”，感受最地道的台式风味。
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    不同于士林的庞大，宁夏夜市短小精悍，却卧虎藏龙。在并不宽敞的街道中，汇聚了数家米其林必比登推介的小吃。点一份圆环边的蚵仔煎，配上一碗猪肝汤，最后以一颗炸得金黄酥脆的刘芋仔蛋黄芋饼收尾，这是台北夜晚最治愈的时刻。
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 住宿信息 Day 1 -->
+                    <!-- 住宿 -->
                     <div class="mt-10 pt-6 border-t border-gray-100 flex items-center gap-4 bg-slate-50/50 -mx-8 -mb-8 px-8 py-6">
                         <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl">🛌</div>
                         <div>
@@ -224,7 +247,6 @@
 
             <!-- Day 2: 台北 (城市探索) -->
             <section class="reveal-on-scroll">
-                <!-- ... Day 2 header ... -->
                 <div class="flex items-center gap-6 mb-6">
                     <span class="text-5xl md:text-7xl font-black text-indigo-200/80 select-none tracking-tighter font-sf">Day 2</span>
                     <div>
@@ -238,7 +260,6 @@
                 </div>
 
                 <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] p-8 md:p-10 relative overflow-hidden">
-                    <!-- ... Day 2 transport ... -->
                     <div class="flex items-start gap-4 mb-10 p-5 bg-indigo-50/50 rounded-2xl border border-indigo-100">
                          <div class="p-2.5 bg-white rounded-xl shadow-sm text-indigo-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
@@ -250,7 +271,75 @@
                     </div>
 
                     <div class="space-y-12">
-                        <!-- ... Day 2 timeline items ... -->
+                        <!-- 09:30 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors font-sf">09:30</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-indigo-100 text-indigo-700 font-sf">🏛️ History</span>
+                                    <span class="tag bg-green-100 text-green-700 font-sf">✨ Must Visit</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">故宫博物院的时光凝视</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 台北市 · 士林区</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=国立故宫博物院" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    隐身于外双溪山脚下的中式宫殿，藏着五千年的中华文明记忆。在这里，你可以与翠玉白菜上的螽斯对视，凝视汝窑温润如玉的天青色，感受古代工匠将时光凝结在器物上的极致美学。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 13:30 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors font-sf">13:30</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-blue-100 text-blue-700 font-sf">🏛️ Landmark</span>
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">👮 Ceremony</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">中正纪念堂的庄严</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 台北市 · 中正区</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=中正纪念堂" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    在那八角顶的蓝白建筑下，时间仿佛变得肃穆。整点时刻，仪仗队的卫兵交接仪式是一场精准的视觉表演，清脆的靴声在空旷的大厅中回荡。走到自由广场，看鸽群飞过巨大的牌楼，感受历史与日常的交错。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 15:30 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors font-sf">15:30</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-yellow-100 text-yellow-700 font-sf">🌇 Old Town</span>
+                                    <span class="tag bg-red-100 text-red-700 font-sf">🙏 Temple</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">大稻埕的旧时风华</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 台北市 · 大同区</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=迪化街" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    漫步迪化街，空气中弥漫着南北干货的咸鲜与中药材的苦香。在霞海城隍庙诚心求一段良缘，然后穿过巷弄去赤峰街，那里曾经的打铁声已换作咖啡机的轰鸣，是新旧台北最迷人的注脚。
+                                </p>
+                            </div>
+                        </div>
+
                         <!-- 19:00 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
@@ -261,21 +350,21 @@
                                     <span class="tag bg-blue-100 text-blue-700 font-sf">📸 Night View</span>
                                     <span class="tag bg-slate-100 text-slate-600 font-sf">🏙️ Landmark</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">四四南村 & 101 合影</h3>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">四四南村 & 101 光影</h3>
                                 <div class="flex items-center mb-3">
                                     <div class="text-xs font-bold text-slate-400 font-sf">📍 台北市 · 信义区</div>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=四四南村" target="_blank" class="gps-btn" title="Open in Maps">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=四四南村" target="_blank" class="gps-btn" title="在地图中打开">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                     </a>
                                 </div>
-                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    晚上去繁华的信义区走走，在四四南村的眷村老房前，与背后高耸入云的台北101合影，新旧交替的视觉冲击感极强。
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    在寸土寸金的信义区，保留着这片矮小的眷村聚落。站在四四南村的草坡上，眼前是老旧的绿色木门，背后是直冲云霄的台北101大楼。这种极具张力的视觉反差，是台北夜晚最独特的风景线。
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 住宿信息 Day 2 -->
+                    <!-- 住宿 -->
                     <div class="mt-10 pt-6 border-t border-gray-100 flex items-center gap-4 bg-slate-50/50 -mx-8 -mb-8 px-8 py-6">
                         <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-xl">🛌</div>
                         <div>
@@ -287,9 +376,8 @@
                 </div>
             </section>
 
-            <!-- Day 3: 日月潭 & 移动到台中 (省钱策略) -->
+            <!-- Day 3: 日月潭 & 移动到台中 -->
             <section class="reveal-on-scroll">
-                <!-- ... Day 3 header ... -->
                 <div class="flex items-center gap-6 mb-6">
                     <span class="text-5xl md:text-7xl font-black text-emerald-200/80 select-none tracking-tighter font-sf">Day 3</span>
                     <div>
@@ -303,7 +391,6 @@
                 </div>
 
                 <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] p-8 md:p-10 relative overflow-hidden">
-                    <!-- ... Day 3 transport ... -->
                     <div class="flex items-start gap-4 mb-10 p-5 bg-emerald-50/50 rounded-2xl border border-emerald-100">
                          <div class="p-2.5 bg-white rounded-xl shadow-sm text-emerald-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
@@ -316,7 +403,52 @@
                     </div>
 
                     <div class="space-y-12">
-                        <!-- ... Day 3 timeline items ... -->
+                        <!-- 08:00 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors font-sf">08:00</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-emerald-100 text-emerald-700 font-sf">🚌 Kuo-Kuang</span>
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">😴 Sleep</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">公路旅行</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 台北转运站</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=台北转运站" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    在台北转运站搭乘早班的国光客运。看着窗外的景色从繁华都市逐渐转变为连绵的翠绿山峦。在车上补个觉，一觉醒来，已身处台湾中心的山水之间。
+                                </p>
+                            </div>
+                        </div>
+
+                         <!-- 12:30 -->
+                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors font-sf">12:30</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-teal-100 text-teal-700 font-sf">🚲 Cycling</span>
+                                    <span class="tag bg-yellow-100 text-yellow-700 font-sf">🥚 Tea Egg</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">全球最美自行车道</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 水社 - 向山 - 玄光寺</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=日月潭向山游客中心" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    抵达水社后，租一辆单车骑上向山段自行车道。这条路悬浮于水面之上，微风拂面，左手峭壁右手碧潭。之后搭船前往玄光寺，买一颗带着茶香和香菇鲜味的阿婆茶叶蛋，坐在码头边，看拉鲁岛在湖心静静伫立。
+                                </p>
+                            </div>
+                        </div>
+
                         <!-- 18:00 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
@@ -327,21 +459,21 @@
                                     <span class="tag bg-slate-200 text-slate-700 font-sf">🚌 Return</span>
                                     <span class="tag bg-orange-100 text-orange-700 font-sf">🏨 Stay Cheap</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">下山前往台中</h3>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">夜宿台中</h3>
                                 <div class="flex items-center mb-3">
                                     <div class="text-xs font-bold text-slate-400 font-sf">📍 台中火车站附近</div>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=台中车站" target="_blank" class="gps-btn" title="Open in Maps">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=台中车站" target="_blank" class="gps-btn" title="在地图中打开">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                     </a>
                                 </div>
-                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    搭乘巴士返回台中市区。建议住在台中火车站附近，青旅选择多且价格亲民。晚上若有体力，可以去宫原眼科吃个冰，欣赏老建筑的改造美学。
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    为了节省预算并方便隔日转场，傍晚搭乘巴士下山前往台中市区。入住火车站附近的青旅，如果有余力，可以去不远处的宫原眼科吃一份华丽的冰淇淋，欣赏老建筑活化的奇迹。
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 住宿信息 Day 3 -->
+                    <!-- 住宿 -->
                     <div class="mt-10 pt-6 border-t border-gray-100 flex items-center gap-4 bg-slate-50/50 -mx-8 -mb-8 px-8 py-6">
                         <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-xl">🛌</div>
                         <div>
@@ -355,7 +487,6 @@
 
             <!-- Day 4: 嘉义 (转场 & 休整) -->
             <section class="reveal-on-scroll">
-                <!-- ... Day 4 header ... -->
                 <div class="flex items-center gap-6 mb-6">
                     <span class="text-5xl md:text-7xl font-black text-amber-200/80 select-none tracking-tighter font-sf">Day 4</span>
                     <div>
@@ -369,7 +500,6 @@
                 </div>
 
                 <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] p-8 md:p-10 relative overflow-hidden">
-                    <!-- ... Day 4 transport ... -->
                     <div class="flex items-start gap-4 mb-10 p-5 bg-amber-50/50 rounded-2xl border border-amber-100">
                          <div class="p-2.5 bg-white rounded-xl shadow-sm text-amber-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
@@ -382,7 +512,52 @@
                     </div>
 
                     <div class="space-y-12">
-                        <!-- ... Day 4 timeline items ... -->
+                        <!-- 11:00 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">11:00</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-amber-100 text-amber-700 font-sf">🚂 Train</span>
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">🏨 Check-in</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">慢火车时光</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 嘉义火车站</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=嘉义车站" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    睡个懒觉，搭乘台铁区间车晃悠到嘉义。这是一座慢节奏的城市，选择住在火车站附近，既方便觅食，也是明天一早前往阿里山的最佳起点。
+                                </p>
+                            </div>
+                        </div>
+
+                         <!-- 14:00 -->
+                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">14:00</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-green-100 text-green-700 font-sf">🌲 Village</span>
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">📸 Photo</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">桧意森活村</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 嘉义市 · 东区</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=桧意森活村" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    漫步在全台保存最完整的日式木造宿舍群中，空气中飘散着淡淡的桧木香气。穿梭在庭院之间，仿佛穿越回了昭和时代。这里的文创小店精致有趣，适合在这里虚度一下午时光。
+                                </p>
+                            </div>
+                        </div>
+
                         <!-- 18:00 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
@@ -393,21 +568,21 @@
                                     <span class="tag bg-red-100 text-red-700 font-sf">🍚 Local Food</span>
                                     <span class="tag bg-slate-100 text-slate-600 font-sf">🐟 Fish Head</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">火鸡肉饭 & 砂锅鱼头</h3>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">嘉义必吃双宝</h3>
                                 <div class="flex items-center mb-3">
                                     <div class="text-xs font-bold text-slate-400 font-sf">📍 喷水圆环 / 文化路夜市</div>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=嘉义喷水圆环" target="_blank" class="gps-btn" title="Open in Maps">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=嘉义文化路夜市" target="_blank" class="gps-btn" title="在地图中打开">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                     </a>
                                 </div>
-                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    嘉义必吃！随便找一家火鸡肉饭都好吃。如果人多可以去排“林聪明沙锅鱼头”（或者吃隔壁几家也不错）。早点休息，明天要早起上山。
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    来嘉义怎能不吃火鸡肉饭？随便找一家路边摊都鲜美多汁。晚餐去文化路夜市，挑战一下“林聪明沙锅鱼头”，浓郁的汤头配上炸得酥脆的鱼肉，是这座城市最豪迈的味觉记忆。
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 住宿信息 Day 4 -->
+                    <!-- 住宿 -->
                     <div class="mt-10 pt-6 border-t border-gray-100 flex items-center gap-4 bg-slate-50/50 -mx-8 -mb-8 px-8 py-6">
                         <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-xl">🛌</div>
                         <div>
@@ -421,7 +596,6 @@
 
             <!-- Day 5: 阿里山 (轻装一日游) -->
             <section class="reveal-on-scroll">
-                <!-- ... Day 5 header ... -->
                 <div class="flex items-center gap-6 mb-6">
                     <span class="text-5xl md:text-7xl font-black text-green-200/80 select-none tracking-tighter font-sf">Day 5</span>
                     <div>
@@ -435,7 +609,6 @@
                 </div>
 
                 <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] p-8 md:p-10 relative overflow-hidden">
-                    <!-- ... Day 5 transport ... -->
                     <div class="flex items-start gap-4 mb-10 p-5 bg-green-50/50 rounded-2xl border border-green-100">
                          <div class="p-2.5 bg-white rounded-xl shadow-sm text-green-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
@@ -448,7 +621,52 @@
                     </div>
 
                     <div class="space-y-12">
-                        <!-- ... Day 5 timeline items ... -->
+                        <!-- 07:00 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-green-600 transition-colors font-sf">07:00</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">🚌 Bus</span>
+                                    <span class="tag bg-green-100 text-green-700 font-sf">⛰️ Up Hill</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">云端巴士之旅</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 嘉义火车站前</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=嘉义火车站前站" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    清晨将大件行李寄存在酒店或火车站，只带随身物品轻装出发。搭乘台湾好行巴士，随着海拔攀升，窗外的植被从热带阔叶林转变为温带针叶林，云雾开始在车窗外缭绕。
+                                </p>
+                            </div>
+                        </div>
+
+                         <!-- 10:30 -->
+                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-green-600 transition-colors font-sf">10:30</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-green-100 text-green-700 font-sf">🚂 Forest Train</span>
+                                    <span class="tag bg-yellow-100 text-yellow-700 font-sf">🌲 Sacred Tree</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">神木与小火车的邂逅</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 阿里山国家森林游乐区</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=阿里山国家森林游乐区" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    换乘复古的红色森林小火车，在林间穿梭。走上巨木栈道，仰望那些千年的红桧神木，呼吸着纯净的芬多精。如果运气眷顾，还能在午后遇见翻腾的云海，那是阿里山最温柔的拥抱。
+                                </p>
+                            </div>
+                        </div>
+
                         <!-- 18:00 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
@@ -459,21 +677,21 @@
                                     <span class="tag bg-slate-100 text-slate-600 font-sf">🔙 Return</span>
                                     <span class="tag bg-amber-100 text-amber-700 font-sf">🛌 Same Hotel</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">下山返回嘉义</h3>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">重返人间烟火</h3>
                                 <div class="flex items-center mb-3">
                                     <div class="text-xs font-bold text-slate-400 font-sf">📍 嘉义市区</div>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=嘉义车站" target="_blank" class="gps-btn" title="Open in Maps">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=嘉义车站" target="_blank" class="gps-btn" title="在地图中打开">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                     </a>
                                 </div>
-                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    搭乘末班车下山，回到熟悉的嘉义市区。不用重新办理入住，直接回房间休息，再去夜市补一碗热腾腾的鸡肉饭。
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    搭乘末班车下山，回到熟悉的嘉义市区。不用折腾行李，直接回房间躺下。晚上如果饿了，去街角补一碗热腾腾的鸡肉饭，这是属于旅人的小确幸。
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 住宿信息 Day 5 -->
+                    <!-- 住宿 -->
                     <div class="mt-10 pt-6 border-t border-gray-100 flex items-center gap-4 bg-slate-50/50 -mx-8 -mb-8 px-8 py-6">
                         <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-xl">🛌</div>
                         <div>
@@ -487,7 +705,6 @@
 
             <!-- Day 6: 高雄 (港都风情) -->
             <section class="reveal-on-scroll">
-                <!-- ... Day 6 header ... -->
                 <div class="flex items-center gap-6 mb-6">
                     <span class="text-5xl md:text-7xl font-black text-cyan-200/80 select-none tracking-tighter font-sf">Day 6</span>
                     <div>
@@ -501,7 +718,6 @@
                 </div>
 
                 <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] p-8 md:p-10 relative overflow-hidden">
-                    <!-- ... Day 6 transport ... -->
                     <div class="flex items-start gap-4 mb-10 p-5 bg-cyan-50/50 rounded-2xl border border-cyan-100">
                          <div class="p-2.5 bg-white rounded-xl shadow-sm text-cyan-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
@@ -514,7 +730,52 @@
                     </div>
 
                     <div class="space-y-12">
-                        <!-- ... Day 6 timeline items ... -->
+                        <!-- 13:00 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-cyan-600 transition-colors font-sf">13:00</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-cyan-100 text-cyan-700 font-sf">🎨 Art District</span>
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">🌉 Harbor</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">驳二的工业艺术</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 高雄市 · 盐埕区</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=驳二艺术特区" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    高雄有种大开大合的港都气质。在驳二穿梭于旧仓库改建的文创店之间，看巨大的变形金刚与斑驳的墙面共存。下午务必守候纯白色的“大港桥”，看桥身为了让船只通过而优雅旋转。
+                                </p>
+                            </div>
+                        </div>
+
+                         <!-- 17:00 -->
+                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-cyan-600 transition-colors font-sf">17:00</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-pink-100 text-pink-700 font-sf">🎵 Music Center</span>
+                                    <span class="tag bg-blue-100 text-blue-700 font-sf">🌊 Love River</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">爱河湾的光影</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 高雄市 · 盐埕区</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=高雄流行音乐中心" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    傍晚沿着爱河湾散步，看着对岸的高雄流行音乐中心亮起灯光，那如蜂巢般的前卫建筑倒映在水中，如梦似幻。这里是感受高雄现代与浪漫气息的最佳地点，海风微凉，心情也随之舒展。
+                                </p>
+                            </div>
+                        </div>
+
                         <!-- 20:00 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
@@ -525,21 +786,21 @@
                                     <span class="tag bg-purple-100 text-purple-700 font-sf">🍲 Street Food</span>
                                     <span class="tag bg-slate-100 text-slate-600 font-sf">🌙 Night Market</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">瑞丰夜市</h3>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">瑞丰夜市的喧嚣</h3>
                                 <div class="flex items-center mb-3">
                                     <div class="text-xs font-bold text-slate-400 font-sf">📍 高雄市 · 左营区</div>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=瑞丰夜市" target="_blank" class="gps-btn" title="Open in Maps">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=瑞丰夜市" target="_blank" class="gps-btn" title="在地图中打开">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                     </a>
                                 </div>
-                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    相比六合夜市，这里才是本地人的最爱。摊位密集，美食选择极多：万国牛排、天使鸡排。在拥挤的人潮中感受高雄最真实的热情。
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    相比六合夜市，这里才是高雄本地人的心头好。摊位密集，人声鼎沸。排队买一份万国牛排或天使鸡排，在拥挤的人潮中感受高雄最真实、最热情的市井气息。
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 住宿信息 Day 6 -->
+                    <!-- 住宿 -->
                     <div class="mt-10 pt-6 border-t border-gray-100 flex items-center gap-4 bg-slate-50/50 -mx-8 -mb-8 px-8 py-6">
                         <div class="w-10 h-10 rounded-full bg-cyan-100 flex items-center justify-center text-xl">🛌</div>
                         <div>
@@ -553,7 +814,6 @@
 
             <!-- Day 7: 返程 (完美句点) -->
             <section class="reveal-on-scroll">
-                <!-- ... Day 7 header ... -->
                 <div class="flex items-center gap-6 mb-6">
                     <span class="text-5xl md:text-7xl font-black text-gray-300 select-none tracking-tighter font-sf">Day 7</span>
                     <div>
@@ -568,7 +828,7 @@
 
                 <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] p-8 md:p-10 relative overflow-hidden">
                     
-                    <!-- 航班卡片 Day 7 -->
+                    <!-- 航班卡片 -->
                     <div class="flight-card bg-gradient-to-br from-slate-50 to-white p-6 rounded-2xl mb-10 group relative">
                         <div class="flex justify-between items-center relative z-10">
                             <div>
@@ -586,7 +846,6 @@
                         </div>
                     </div>
 
-                    <!-- ... Day 7 transport and timeline items ... -->
                     <div class="flex items-start gap-4 mb-10 p-5 bg-zinc-100/50 rounded-2xl border border-zinc-200">
                          <div class="p-2.5 bg-white rounded-xl shadow-sm text-zinc-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -598,6 +857,52 @@
                     </div>
 
                     <div class="space-y-12">
+                        <!-- 10:00 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-zinc-500 transition-colors font-sf">10:00</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-blue-100 text-blue-700 font-sf">⛴️ Ferry</span>
+                                    <span class="tag bg-orange-100 text-orange-700 font-sf">🦐 Seafood</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">旗津半岛的海味</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 高雄市 · 旗津区</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=旗津老街" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    在鼓山轮渡站搭船前往旗津，租一辆电动四轮车，沿着海岸线经过彩虹教堂和星空隧道。一定要去踩踩独特的黑色沙滩，午餐在老街吃一盘新鲜的海鲜热炒，用大海的味道为旅程收尾。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 13:30 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-zinc-500 transition-colors font-sf">13:30</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-red-100 text-red-700 font-sf">🧱 Historic</span>
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">☕ Sea View</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">打狗英国领事馆</h3>
+                                <div class="flex items-center mb-3">
+                                    <div class="text-xs font-bold text-slate-400 font-sf">📍 高雄市 · 鼓山区</div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=打狗英国领事馆" target="_blank" class="gps-btn" title="在地图中打开">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </a>
+                                </div>
+                                <p class="text-body-bold leading-relaxed text-justify">
+                                    爬上Z字型的红砖阶梯，在这座台湾第一栋洋楼前回望。眼下是西子湾的蔚蓝海景，远处是繁忙的高雄港。在此喝一杯告别下午茶，整理心情，准备返程。
+                                </p>
+                            </div>
+                        </div>
+
                         <!-- 18:00 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
@@ -607,14 +912,14 @@
                                 <div class="mb-2">
                                     <span class="tag bg-slate-800 text-white font-sf">✈️ Fly Home</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">一段旅程的完美句点</h3>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">画上完美句点</h3>
                                 <div class="flex items-center mb-3">
                                     <div class="text-xs font-bold text-slate-400 font-sf">📍 高雄市 · 小港区</div>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=高雄小港机场" target="_blank" class="gps-btn" title="Open in Maps">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=高雄小港机场" target="_blank" class="gps-btn" title="在地图中打开">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                     </a>
                                 </div>
-                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
+                                <p class="text-body-bold leading-relaxed text-justify">
                                     高雄机场很紧凑，通关迅速。当飞机冲上云霄，看着底下的港口灯火逐渐变成星点，七天的一路向南之旅画上完美句点。珍藏这份回忆，后会有期。
                                 </p>
                             </div>
