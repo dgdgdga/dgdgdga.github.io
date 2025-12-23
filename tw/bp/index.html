@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Apple Wallet Pass - CI904</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            /* 关键修改：背景改为白色 */
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .wallet-pass {
+            position: relative;
+            width: 100%;
+            max-width: 375px;
+            min-height: 580px; /* 保持修长比例 */
+
+            background: linear-gradient(160deg, #fff5f7 0%, #ffc2d1 100%);
+            border-radius: 14px;
+            overflow: hidden;
+
+            /* 关键修改：因为背景变白了，阴影需要稍微深一点点，不然看不清边界 */
+            box-shadow: 0 15px 35px rgba(216, 27, 96, 0.15), 0 5px 15px rgba(0,0,0,0.05);
+
+            color: #1c1c1e;
+            display: flex;
+            flex-direction: column;
+
+            /* 可选：加一个极淡的边框增强轮廓 */
+            border: 1px solid rgba(255, 193, 209, 0.3);
+        }
+
+        /* 顶部品牌栏 */
+        .pass-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px 0 24px;
+        }
+
+        .brand-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #d81b60;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 核心航线信息 */
+        .route-section {
+            padding: 40px 24px 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .city-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .city-code {
+            font-size: 42px;
+            font-weight: 750;
+            line-height: 1;
+            color: #d81b60;
+            letter-spacing: -0.5px;
+        }
+
+        .city-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #9c6473;
+            margin-top: 6px;
+        }
+
+        .plane-icon {
+            font-size: 22px;
+            color: #ff80ab;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        /* 信息网格布局 */
+        .info-grid {
+            padding: 20px 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px 10px;
+            position: relative;
+            z-index: 2;
+            flex-grow: 1;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #9c6473;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c2c2e;
+            line-height: 1.2;
+        }
+
+        .value.highlight {
+            color: #d81b60;
+            font-weight: 700;
+        }
+
+        /* 底部条形码区域 */
+        .barcode-section {
+            margin-top: auto;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border-top: 1px dashed rgba(216, 27, 96, 0.2);
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .barcode-simulation {
+            height: 45px;
+            background:
+                    linear-gradient(to right,
+                    #333 2px, transparent 2px,
+                    #333 5px, #333 9px, transparent 9px,
+                    transparent 11px, #333 11px, #333 14px,
+                    transparent 14px, #333 16px, #333 22px,
+                    transparent 22px, #333 26px
+                    );
+            background-size: 26px 100%;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .passenger-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            letter-spacing: 0.5px;
+        }
+
+        /* 本地 Logo 水印 */
+        .local-logo-watermark {
+            position: absolute;
+            bottom: 100px;
+            right: -50px;
+            width: 240px;
+            height: auto;
+            opacity: 0.12;
+            z-index: 1;
+            transform: rotate(-10deg);
+            pointer-events: none;
+            mix-blend-mode: multiply;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="wallet-pass">
+    <div class="pass-header">
+        <span class="brand-name">China Airlines</span>
+        <span class="brand-name">CI 904</span>
+    </div>
+
+    <div class="route-section">
+        <div class="city-group" style="align-items: flex-start;">
+            <span class="city-code">HKG</span>
+            <span class="city-name">Hong Kong</span>
+        </div>
+        <div class="plane-icon">✈</div>
+        <div class="city-group" style="align-items: flex-end;">
+            <span class="city-code">TPE</span>
+            <span class="city-name">Taipei</span>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="field">
+            <span class="label">Date</span>
+            <span class="value">May 25</span>
+        </div>
+        <div class="field">
+            <span class="label">Boarding</span>
+            <span class="value highlight">10:30</span>
+        </div>
+        <div class="field">
+            <span class="label">Departure</span>
+            <span class="value">11:10</span>
+        </div>
+        <div class="field">
+            <span class="label">Arrival</span>
+            <span class="value">12:55</span>
+        </div>
+        <div class="field">
+            <span class="label">Gate</span>
+            <span class="value">26</span>
+        </div>
+        <div class="field">
+            <span class="label">Class</span>
+            <span class="value">Economy</span>
+        </div>
+        <div class="field">
+            <span class="label">Seat</span>
+            <span class="value">32A</span>
+        </div>
+        <div class="field">
+            <span class="label">Zone</span>
+            <span class="value">2</span>
+        </div>
+    </div>
+
+    <div class="barcode-section">
+        <div class="barcode-simulation"></div>
+        <div class="passenger-name">WANG / XIAOMING MR</div>
+    </div>
+
+    <img
+            src="cal_logo.png"
+            alt="Watermark"
+            class="local-logo-watermark"
+    >
+</div>
+
+</body>
+</html>
