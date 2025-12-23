@@ -14,6 +14,8 @@
         /* 核心字体设置 - 全局优先使用 Inter */
         :root {
             --font-stack: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            --cal-pink: #d6abc0;
+            --cal-pink-glow: rgba(226, 0, 116, 0.25); /* 华航洋红光晕 */
         }
 
         body {
@@ -72,16 +74,30 @@
             transform: translateY(0);
         }
 
-        /* 航班卡片样式 */
+        /* 航班卡片基础样式 */
         .flight-card {
             position: relative;
             overflow: hidden; /* 确保超出的梅花Logo被裁切 */
             border: 1px solid rgba(0,0,0,0.06);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            display: block; /* 确保a标签表现为块级元素 */
+            text-decoration: none;
         }
-        .flight-card:hover {
+        
+        /* 普通航班卡片 hover (Day 7) */
+        .flight-card:not(.flight-card-interactive):hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05);
+        }
+
+        /* CI904 交互式卡片样式 */
+        .flight-card-interactive {
+            cursor: pointer;
+        }
+        .flight-card-interactive:hover {
+            transform: none !important; /* 不移动 */
+            box-shadow: 0 0 25px var(--cal-pink-glow); /* 粉色光晕 */
+            border-color: rgba(226, 0, 116, 0.2);
         }
 
         /* 华航梅花 Logo 样式 */
@@ -166,11 +182,12 @@
 
                 <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] p-8 md:p-10 relative overflow-hidden">
                     
-                    <!-- 航班卡片 -->
-                    <div class="flight-card bg-gradient-to-br from-slate-50 to-white p-6 rounded-2xl mb-10 group relative">
+                    <!-- 航班卡片 (CI904 - 可点击) -->
+                    <!-- 修改为 a 标签，指向 bp/index.html，添加 flight-card-interactive 类 -->
+                    <a href="bp/index.html" target="_blank" class="flight-card flight-card-interactive bg-gradient-to-br from-slate-50 to-white p-6 rounded-2xl mb-10 group relative" title="点击查看登机牌">
                         <div class="flex justify-between items-center relative z-10">
                             <div>
-                                <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 font-sf">INBOUND FLIGHT</div>
+                                <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 font-sf">INBOUND FLIGHT (Click to view Pass)</div>
                                 <div class="flex items-baseline gap-3">
                                     <span class="text-3xl font-black text-slate-900 font-sf">CI904</span>
                                     <span class="text-sm font-bold text-slate-500 font-sf">China Airlines</span>
@@ -184,7 +201,7 @@
                         </div>
                         <!-- 中华航空梅花 Logo 水印 -->
                         <img src="cal_logo.png" alt="China Airlines Plum Blossom" class="cal-logo-watermark">
-                    </div>
+                    </a>
 
                     <!-- 交通栏 -->
                     <div class="flex items-start gap-4 mb-10 p-5 bg-blue-50/50 rounded-2xl border border-blue-100 reveal-on-scroll">
