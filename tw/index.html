@@ -75,13 +75,25 @@
         /* 航班卡片样式 */
         .flight-card {
             position: relative;
-            overflow: hidden;
+            overflow: hidden; /* 确保超出的梅花Logo被裁切 */
             border: 1px solid rgba(0,0,0,0.06);
             transition: transform 0.3s ease;
         }
         .flight-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05);
+        }
+
+        /* 华航梅花 Logo 样式 */
+        .cal-logo-watermark {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            width: 140px; /* 调整大小 */
+            opacity: 0.12; /* 淡一点作为背景 */
+            transform: rotate(-10deg);
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* GPS 按钮样式 */
@@ -170,6 +182,8 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- 中华航空梅花 Logo 水印 -->
+                        <img src="cal_logo.png" alt="China Airlines Plum Blossom" class="cal-logo-watermark">
                     </div>
 
                     <!-- 交通栏 -->
@@ -844,6 +858,8 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- 中华航空梅花 Logo 水印 -->
+                        <img src="cal_logo.png" alt="China Airlines Plum Blossom" class="cal-logo-watermark">
                     </div>
 
                     <div class="flex items-start gap-4 mb-10 p-5 bg-zinc-100/50 rounded-2xl border border-zinc-200">
