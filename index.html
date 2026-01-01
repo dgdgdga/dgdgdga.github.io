@@ -3,168 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevCheng | Coming Soon</title>
+    <title>My Travel Archive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #ffffff;
-            --text-color: #1a1a1a;
-            --sub-text-color: #555555;
-            --accent-color: #000000;
-            --font-stack: 'SF Mono', 'Fira Code', 'Roboto Mono', 'Courier New', monospace;
+            --font-stack: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
         }
 
-        body, html {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+        body {
             font-family: var(--font-stack);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #F5F5F7;
+            color: #1d1d1f;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        .container {
-            text-align: center;
-            padding: 20px;
-            z-index: 10;
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        .font-sf {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            letter-spacing: -0.02em;
         }
 
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-            color: var(--text-color);
-            min-height: 3.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        p {
-            font-size: 1.2rem;
-            color: var(--sub-text-color);
-            margin-top: 10px;
-            font-weight: 400;
-        }
+        html { scroll-behavior: smooth; }
 
-        .cursor {
-            display: inline-block;
-            width: 10px;
-            height: 3rem;
-            background-color: var(--accent-color);
-            margin-left: 5px;
-            animation: blink 1s step-end infinite;
-        }
-
-        .typing .cursor {
-            animation: none;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        .social-links {
-            margin-top: 45px;
+        .reveal-on-scroll {
             opacity: 0;
-            animation: fadeIn 2s ease-in-out forwards;
-            animation-delay: 2.5s;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .social-links a {
-            color: var(--sub-text-color);
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid transparent;
-            font-weight: 500;
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .social-links a:hover {
-            color: #000000;
-            border-bottom: 1px solid #000000;
+        .trip-card {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .trip-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
         }
 
-        @keyframes fadeIn {
-            to { opacity: 1; }
+        /* 呼吸灯动画 */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 165, 0, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 165, 0, 0); }
         }
-
-        @media (max-width: 600px) {
-            h1 { font-size: 2rem; min-height: 2.5rem; }
-            .cursor { height: 2rem; }
-            p { font-size: 1rem; }
+        .status-pulse::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            margin-right: 6px;
+            animation: pulse-ring 2s infinite;
         }
     </style>
 </head>
-<body>
+<body class="selection:bg-slate-200 min-h-screen pb-20">
 
-<div class="container">
-    <h1 id="typewriter-wrapper">
-        <span id="typewriter-text"></span><span class="cursor"></span>
-    </h1>
+<div class="max-w-5xl mx-auto p-6 md:p-12 pt-16 md:pt-32">
 
-    <p>// System Construction in Progress...</p>
+    <header class="mb-20 reveal-on-scroll is-visible text-left">
+        <h1 class="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 mb-6 font-sf">
+            TRAVEL <span class="text-slate-300">LOG</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-slate-500 font-bold leading-relaxed max-w-2xl font-sf tracking-tight">
+            收集地图上的每一个坐标。
+        </p>
+    </header>
 
-    <div class="social-links">
-        <a href="https://github.com/dgdgdga" target="_blank">GitHub</a>
-        <a href="mailto:jiachengyao@connect.hku.hk">Email</a>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+
+        <a href="./nw/index.html" class="block reveal-on-scroll group">
+            <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full relative">
+                <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-600 p-8 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -ml-16 -mb-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+
+                    <div class="flex justify-between items-start z-10">
+                        <span class="status-pulse inline-flex items-center px-3 py-1 bg-white/25 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-widest uppercase border border-white/20">
+                            Upcoming
+                        </span>
+                        <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">NW</span>
+                    </div>
+
+                    <div class="z-10">
+                        <h2 class="text-3xl font-black text-white leading-none mb-1">Lanzhou & Xining</h2>
+                        <p class="text-orange-100 font-medium text-sm">The Great Northwest Loop</p>
+                    </div>
+                </div>
+
+                <div class="p-6 pt-5">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Departure</div>
+                            <div class="text-slate-800 font-bold font-sf">Jan 06 — Jan 11, 2026</div>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a href="./tw/index.html" class="block reveal-on-scroll group" style="transition-delay: 100ms;">
+            <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
+                <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-blue-400 to-indigo-500 p-8 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+
+                    <div class="flex justify-between items-start z-10">
+                        <span class="inline-flex px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-widest uppercase">Planned</span>
+                        <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">TW</span>
+                    </div>
+
+                    <div class="z-10">
+                        <h2 class="text-3xl font-black text-white leading-none mb-1">Taiwan</h2>
+                        <p class="text-blue-100 font-medium text-sm">Southbound Railway Trip</p>
+                    </div>
+                </div>
+
+                <div class="p-6 pt-5">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Status</div>
+                            <div class="text-slate-400 font-bold font-sf">Date TBD</div>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a href="./bkk/index.html" class="block reveal-on-scroll group" style="transition-delay: 200ms;">
+            <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
+                <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-fuchsia-400 to-purple-500 p-8 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/20 to-transparent"></div>
+
+                    <div class="flex justify-between items-start z-10">
+                        <span class="inline-flex px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-widest uppercase">Planned</span>
+                        <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">BKK</span>
+                    </div>
+
+                    <div class="z-10">
+                        <h2 class="text-3xl font-black text-white leading-none mb-1">Bangkok</h2>
+                        <p class="text-fuchsia-100 font-medium text-sm">City Escape & Nightlife</p>
+                    </div>
+                </div>
+
+                <div class="p-6 pt-5">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Status</div>
+                            <div class="text-slate-400 font-bold font-sf">Date TBD</div>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-fuchsia-600 group-hover:text-white transition-colors duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a href="./kota/index.html" class="block reveal-on-scroll group" style="transition-delay: 300ms;">
+            <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
+                <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-cyan-400 to-teal-500 p-8 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute bottom-0 right-0 w-64 h-64 bg-white opacity-20 rounded-full blur-3xl"></div>
+
+                    <div class="flex justify-between items-start z-10">
+                        <span class="inline-flex px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-widest uppercase">Planned</span>
+                        <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">BKI</span>
+                    </div>
+
+                    <div class="z-10">
+                        <h2 class="text-3xl font-black text-white leading-none mb-1">Kota Kinabalu</h2>
+                        <p class="text-cyan-50 font-medium text-sm">Ocean & Sunset</p>
+                    </div>
+                </div>
+
+                <div class="p-6 pt-5">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Status</div>
+                            <div class="text-slate-400 font-bold font-sf">Date TBD</div>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-cyan-600 group-hover:text-white transition-colors duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
     </div>
+
+    <footer class="mt-32 border-t border-gray-200 pt-10 text-center">
+        <div class="flex flex-col items-center justify-center gap-4">
+            <p class="text-slate-400 text-sm font-bold tracking-widest font-sf uppercase">
+                Life is a journey · 步履不停
+            </p>
+        </div>
+    </footer>
+
 </div>
 
 <script>
-    const texts = ["devcheng.cc", "Coming soon..."];
-    const typeSpeed = 150;
-    const deleteSpeed = 80;
-    const pauseBeforeDelete = 2000;
-    const pauseBeforeNext = 500;
+    document.addEventListener('DOMContentLoaded', () => {
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
 
-    // 状态变量
-    let count = 0;
-    let letter = "";
-    let isDeleting = false;
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
 
-    const textElement = document.getElementById('typewriter-text');
-    const wrapperElement = document.getElementById('typewriter-wrapper');
-
-    function type() {
-        const currentFullText = texts[count % texts.length];
-
-        if (isDeleting) {
-            letter = currentFullText.slice(0, letter.length - 1);
-        } else {
-            letter = currentFullText.slice(0, letter.length + 1);
-        }
-
-        textElement.innerHTML = letter;
-
-        let typeSpeedCurrent = isDeleting ? deleteSpeed : typeSpeed;
-
-        if (!isDeleting && letter.length === currentFullText.length) {
-            typeSpeedCurrent = pauseBeforeDelete;
-            isDeleting = true;
-            wrapperElement.classList.remove('typing');
-        } else if (isDeleting && letter.length === 0) {
-
-            isDeleting = false;
-            count++;
-            typeSpeedCurrent = pauseBeforeNext;
-            wrapperElement.classList.remove('typing');
-        } else {
-            wrapperElement.classList.add('typing');
-        }
-        setTimeout(type, typeSpeedCurrent);
-    }
-    window.onload = type;
+        const elementsToAnimate = document.querySelectorAll('.reveal-on-scroll');
+        elementsToAnimate.forEach(el => observer.observe(el));
+    });
 </script>
 </body>
 </html>
