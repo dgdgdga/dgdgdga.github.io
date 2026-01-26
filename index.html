@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Travel Archive</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,11 +30,12 @@
             letter-spacing: -0.02em;
         }
 
+        /* Utility Utilities */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
         html { scroll-behavior: smooth; }
 
+        /* Scroll Reveal Animation */
         .reveal-on-scroll {
             opacity: 0;
             transform: translateY(30px);
@@ -45,6 +47,7 @@
             transform: translateY(0);
         }
 
+        /* Card Hover Effects */
         .trip-card {
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -53,12 +56,13 @@
             box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
         }
 
-        /* 呼吸灯动画 */
+        /* Pulse Animation Keyframes */
         @keyframes pulse-ring {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 165, 0, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 165, 0, 0); }
         }
+        
         .status-pulse::before {
             content: '';
             display: inline-block;
@@ -77,7 +81,7 @@
 
     <header class="mb-20 reveal-on-scroll is-visible text-left">
         <h1 class="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 mb-6 font-sf">
-            TRAVEL <span class="text-slate-300">LOG</span>
+            TRAVEL <span class="text-slate-300">LOG 26</span>
         </h1>
         <p class="text-xl md:text-2xl text-slate-500 font-bold leading-relaxed max-w-2xl font-sf tracking-tight">
             收集地图上的每一个坐标。
@@ -92,8 +96,8 @@
                     <div class="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -ml-16 -mb-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
 
                     <div class="flex justify-between items-start z-10">
-                        <span class="status-pulse inline-flex items-center px-3 py-1 bg-white/25 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-widest uppercase border border-white/20">
-                            Upcoming
+                        <span class="inline-flex items-center px-3 py-1 bg-white/25 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-widest uppercase border border-white/20">
+                            Completed
                         </span>
                         <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">NW</span>
                     </div>
@@ -107,7 +111,7 @@
                 <div class="p-6 pt-5">
                     <div class="flex justify-between items-end">
                         <div>
-                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Departure</div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date</div>
                             <div class="text-slate-800 font-bold font-sf">Jan 06 — Jan 11, 2026</div>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
@@ -213,7 +217,7 @@
     <footer class="mt-32 border-t border-gray-200 pt-10 text-center">
         <div class="flex flex-col items-center justify-center gap-4">
             <p class="text-slate-400 text-sm font-bold tracking-widest font-sf uppercase">
-                Life is a journey · 步履不停
+                Personal Archive · 仅供个人参考
             </p>
         </div>
     </footer>
