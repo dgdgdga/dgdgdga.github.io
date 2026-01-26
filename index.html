@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Travel Archive</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,18 +58,18 @@
 
         /* Pulse Animation Keyframes */
         @keyframes pulse-ring {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 165, 0, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 165, 0, 0); }
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
-        
+
         .status-pulse::before {
             content: '';
             display: inline-block;
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background-color: #ffffff;
+            background-color: currentColor; /* Use the text color for the pulse dot */
             margin-right: 6px;
             animation: pulse-ring 2s infinite;
         }
@@ -80,55 +80,29 @@
 <div class="max-w-5xl mx-auto p-6 md:p-12 pt-16 md:pt-32">
 
     <header class="mb-20 reveal-on-scroll is-visible text-left">
-        <h1 class="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 mb-6 font-sf">
-            TRAVEL <span class="text-slate-300">LOG 26</span>
+        <h1 class="flex items-start gap-3 md:gap-4 text-6xl md:text-8xl font-black tracking-tighter text-slate-900 mb-6 font-sf">
+            <span>TRAVEL <span class="text-slate-300">LOG</span></span>
+
+            <span class="inline-flex items-center justify-center px-2.5 py-0.5 mt-1 md:mt-2 rounded-full bg-slate-100 border border-slate-200 text-slate-400 text-sm md:text-base font-bold tracking-wide align-top">
+                2026
+            </span>
         </h1>
         <p class="text-xl md:text-2xl text-slate-500 font-bold leading-relaxed max-w-2xl font-sf tracking-tight">
-            收集地图上的每一个坐标。
+            拥抱世界各地的风和日丽。
         </p>
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
 
-        <a href="./nw/index.html" class="block reveal-on-scroll group">
-            <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full relative">
-                <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-600 p-8 flex flex-col justify-between relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -ml-16 -mb-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
-
-                    <div class="flex justify-between items-start z-10">
-                        <span class="inline-flex items-center px-3 py-1 bg-white/25 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-widest uppercase border border-white/20">
-                            Completed
-                        </span>
-                        <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">NW</span>
-                    </div>
-
-                    <div class="z-10">
-                        <h2 class="text-3xl font-black text-white leading-none mb-1">Lanzhou & Xining</h2>
-                        <p class="text-orange-100 font-medium text-sm">The Great Northwest Loop</p>
-                    </div>
-                </div>
-
-                <div class="p-6 pt-5">
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date</div>
-                            <div class="text-slate-800 font-bold font-sf">Jan 06 — Jan 11, 2026</div>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </a>
-
-        <a href="./tw/index.html" class="block reveal-on-scroll group" style="transition-delay: 100ms;">
+        <a href="./tw/index.html" class="block reveal-on-scroll group">
             <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
                 <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-blue-400 to-indigo-500 p-8 flex flex-col justify-between relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
 
                     <div class="flex justify-between items-start z-10">
-                        <span class="inline-flex px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-widest uppercase">Planned</span>
+                        <span class="status-pulse inline-flex items-center px-3 py-1 bg-cyan-500/20 backdrop-blur-md rounded-full text-cyan-100 text-xs font-bold tracking-wide uppercase border border-cyan-200/30">
+                            Upcoming
+                        </span>
                         <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">TW</span>
                     </div>
 
@@ -141,8 +115,8 @@
                 <div class="p-6 pt-5">
                     <div class="flex justify-between items-end">
                         <div>
-                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Status</div>
-                            <div class="text-slate-400 font-bold font-sf">Date TBD</div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Departure</div>
+                            <div class="text-slate-800 font-bold font-sf">Spring 2026</div>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -152,13 +126,15 @@
             </div>
         </a>
 
-        <a href="./bkk/index.html" class="block reveal-on-scroll group" style="transition-delay: 200ms;">
+        <a href="./bkk/index.html" class="block reveal-on-scroll group" style="transition-delay: 100ms;">
             <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
                 <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-fuchsia-400 to-purple-500 p-8 flex flex-col justify-between relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/20 to-transparent"></div>
 
                     <div class="flex justify-between items-start z-10">
-                        <span class="inline-flex px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-widest uppercase">Planned</span>
+                        <span class="inline-flex px-3 py-1 bg-fuchsia-500/20 backdrop-blur-md rounded-full text-fuchsia-100 text-xs font-bold tracking-wide uppercase border border-fuchsia-200/30">
+                            Planned
+                        </span>
                         <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">BKK</span>
                     </div>
 
@@ -182,13 +158,15 @@
             </div>
         </a>
 
-        <a href="./kota/index.html" class="block reveal-on-scroll group" style="transition-delay: 300ms;">
+        <a href="./kota/index.html" class="block reveal-on-scroll group" style="transition-delay: 200ms;">
             <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
                 <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-cyan-400 to-teal-500 p-8 flex flex-col justify-between relative overflow-hidden">
                     <div class="absolute bottom-0 right-0 w-64 h-64 bg-white opacity-20 rounded-full blur-3xl"></div>
 
                     <div class="flex justify-between items-start z-10">
-                        <span class="inline-flex px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-widest uppercase">Planned</span>
+                        <span class="inline-flex px-3 py-1 bg-teal-500/20 backdrop-blur-md rounded-full text-teal-100 text-xs font-bold tracking-wide uppercase border border-teal-200/30">
+                            Planned
+                        </span>
                         <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">BKI</span>
                     </div>
 
@@ -205,6 +183,38 @@
                             <div class="text-slate-400 font-bold font-sf">Date TBD</div>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-cyan-600 group-hover:text-white transition-colors duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a href="./nw/index.html" class="block reveal-on-scroll group" style="transition-delay: 300ms;">
+            <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full relative">
+                <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-600 p-8 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -ml-16 -mb-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+
+                    <div class="flex justify-between items-start z-10">
+                        <span class="inline-flex items-center px-3 py-1 bg-amber-900/20 backdrop-blur-md rounded-full text-amber-100 text-xs font-bold tracking-wide uppercase border border-amber-200/30">
+                            Completed
+                        </span>
+                        <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">NW</span>
+                    </div>
+
+                    <div class="z-10">
+                        <h2 class="text-3xl font-black text-white leading-none mb-1">Lanzhou & Xining</h2>
+                        <p class="text-orange-100 font-medium text-sm">The Great Northwest Loop</p>
+                    </div>
+                </div>
+
+                <div class="p-6 pt-5">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date</div>
+                            <div class="text-slate-800 font-bold font-sf">Jan 06 — Jan 11, 2026</div>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </div>
                     </div>
