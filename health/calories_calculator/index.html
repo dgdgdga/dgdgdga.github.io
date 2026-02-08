@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>热量还债计算器</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #050505;
+            --card-bg: #141416;
+            --text-primary: #ffffff;
+            --text-secondary: #86868b;
+
+            /* 霓虹色系 */
+            --green: #30d158;
+            --yellow: #ffd60a;
+            --red: #ff453a;
+            --purple: #bf5af2;
+
+            --radius: 24px;
+            --header-z: 1000;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0; /* 移除 body padding，由 container 管理 */
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding-bottom: 80px;
+            position: relative;
+        }
+
+        /* --- 顶部吸附区域 (Header + Dashboard) --- */
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: var(--header-z);
+            background: rgba(5, 5, 5, 0.65); /* 半透明背景 */
+            backdrop-filter: blur(20px); /* 磨砂玻璃效果 */
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px 20px 10px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            /* 确保光波不被裁剪，同时背景能遮挡下方滚动内容 */
+        }
+
+        header {
+            margin-bottom: 16px;
+            padding-left: 4px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            line-height: 1;
+            margin: 0;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- 核心仪表盘 --- */
+        .dashboard {
+            background: #1c1c1e;
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow: hidden;
+            position: relative;
+
+            --glow-color: var(--green);
+        }
+
+        /* 光波动画层 */
+        .dashboard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, var(--glow-color) 50%, transparent);
+            opacity: 0;
+            filter: blur(30px);
+            pointer-events: none;
+            z-index: 0;
+            transform: skewX(-15deg);
+        }
+
+        .dashboard.trigger-glow::before {
+            animation: sweep-right 1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+        }
+
+        @keyframes sweep-right {
+            0% {
+                left: -80%;
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            100% {
+                left: 100%;
+                opacity: 0;
+            }
+        }
+
+        .dashboard-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .data-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .main-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .total-kcal {
+            font-size: 60px; /* 稍微调小一点适应吸附 */
+            font-weight: 900;
+            line-height: 0.9;
+            color: #fff;
+            letter-spacing: -2px;
+            transition: color 0.3s ease;
+        }
+
+        .total-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .debt-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .debt-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .debt-val {
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+            font-feature-settings: "tnum";
+        }
+
+        .debt-unit {
+            font-size: 9px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .run-text {
+            color: var(--yellow);
+        }
+
+        .walk-text {
+            color: var(--green);
+        }
+
+        .bar-container {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--green), var(--yellow), var(--red), var(--purple));
+            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .comment-box {
+            font-size: 12px;
+            line-height: 1.4;
+            color: #ccc;
+            text-align: left;
+            font-weight: 500;
+            padding: 0 2px;
+            min-height: 18px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- 滚动内容区域 --- */
+        .scroll-content {
+            padding: 10px 20px 40px 20px;
+        }
+
+        .section-header {
+            font-size: 12px;
+            font-weight: 800;
+            color: #444;
+            margin: 30px 0 14px 4px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #222;
+        }
+
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* 食物卡片 */
+        .food-card {
+            background: var(--card-bg);
+            border: 1px solid #222;
+            border-radius: 18px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .food-card:active {
+            transform: scale(0.96);
+            background: #1e1e20;
+            border-color: #444;
+        }
+
+        .icon-box {
+            font-size: 30px;
+            width: 44px;
+            text-align: center;
+            margin-right: 14px;
+            filter: grayscale(0.2);
+            transition: filter 0.2s;
+        }
+
+        .food-card:active .icon-box {
+            filter: grayscale(0);
+            transform: scale(1.1);
+        }
+
+        .info-box {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .food-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .food-desc {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.2;
+        }
+
+        .price-box {
+            text-align: right;
+        }
+
+        .kcal-num {
+            display: block;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--yellow);
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+
+        .kcal-unit {
+            font-size: 9px;
+            font-weight: 700;
+            color: #444;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        /* 底部按钮 */
+        .reset-btn {
+            margin-top: 50px;
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #333;
+            color: #555;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            color: var(--red);
+            border-color: var(--red);
+            background: rgba(255, 69, 58, 0.05);
+        }
+
+        .shake {
+            animation: shake 0.3s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+            20%, 80% {
+                transform: translate3d(2px, 0, 0);
+            }
+            30%, 50%, 70% {
+                transform: translate3d(-2px, 0, 0);
+            }
+            40%, 60% {
+                transform: translate3d(2px, 0, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="sticky-wrapper">
+        <header>
+            <h1>Calorie Debt</h1>
+        </header>
+
+        <div class="dashboard" id="dashboard">
+            <div class="dashboard-content">
+                <div class="data-layout">
+                    <div class="main-stat">
+                        <div class="total-kcal" id="totalVal">0</div>
+                        <div class="total-label">Current Intake</div>
+                    </div>
+                    <div class="debt-stack">
+                        <div class="debt-item">
+                            <span class="debt-unit">Run (km)</span>
+                            <span class="debt-val run-text" id="runKm">0.0</span>
+                        </div>
+                        <div class="debt-item">
+                            <span class="debt-unit">Walk (min)</span>
+                            <span class="debt-val walk-text" id="walkMin">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="height: 18px;"></div>
+                <div class="bar-container">
+                    <div class="bar-fill" id="progressBar"></div>
+                </div>
+                <div style="height: 12px;"></div>
+                <div class="comment-box" id="comment">
+                    盘子是空的，正如你的内心一样纯洁。保持住。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-content">
+
+        <div class="section-header">Street Food</div>
+        <div class="menu-list">
+            <div class="food-card" onclick="add(500, '烤冷面')">
+                <div class="icon-box">🍜</div>
+                <div class="info-box">
+                    <div class="food-name">烤冷面 (加肠蛋)</div>
+                    <div class="food-desc">碳水包油再刷糖，街头热量炸弹</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">500</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(600, '煎饼果子')">
+                <div class="icon-box">🌯</div>
+                <div class="info-box">
+                    <div class="food-name">煎饼果子 (双蛋)</div>
+                    <div class="food-desc">一张巨大的油炸碳水棉被</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">600</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(700, '螺蛳粉')">
+                <div class="icon-box">🥘</div>
+                <div class="info-box">
+                    <div class="food-name">螺蛳粉 (炸蛋版)</div>
+                    <div class="food-desc">喝下去的每一口汤都是红油</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">700</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(450, '麻辣烫')">
+                <div class="icon-box">🥣</div>
+                <div class="info-box">
+                    <div class="food-name">麻辣烫 (微辣)</div>
+                    <div class="food-desc">主要热量来源：那大勺芝麻酱</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">450</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(300, '羊肉串')">
+                <div class="icon-box">🍢</div>
+                <div class="info-box">
+                    <div class="food-name">羊肉串 (3串)</div>
+                    <div class="food-desc">肥瘦相间？不，是碳烤脂肪粒</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">300</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">Sweet Tooth</div>
+        <div class="menu-list">
+            <div class="food-card" onclick="add(550, '珍珠奶茶')">
+                <div class="icon-box">🥤</div>
+                <div class="info-box">
+                    <div class="food-name">珍珠奶茶 (全糖)</div>
+                    <div class="food-desc">液体方糖，一杯下去胰岛素爆表</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">550</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(450, '提拉米苏')">
+                <div class="icon-box">🍰</div>
+                <div class="info-box">
+                    <div class="food-name">提拉米苏 (1块)</div>
+                    <div class="food-desc">马斯卡彭芝士混合糖分的暴击</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">450</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(250, '蛋挞')">
+                <div class="icon-box">🥧</div>
+                <div class="info-box">
+                    <div class="food-name">蛋挞 (1个)</div>
+                    <div class="food-desc">酥皮就是固体黄油</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">250</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(300, '冰淇淋')">
+                <div class="icon-box">🍦</div>
+                <div class="info-box">
+                    <div class="food-name">甜筒冰淇淋</div>
+                    <div class="food-desc">冰冷的脂肪和糖分混合物</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">300</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(150, '可乐')">
+                <div class="icon-box">🥤</div>
+                <div class="info-box">
+                    <div class="food-name">可乐 (1听)</div>
+                    <div class="food-desc">纯粹的液态糖浆水</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">150</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">Late Night</div>
+        <div class="menu-list">
+            <div class="food-card" onclick="add(500, '方便面')">
+                <div class="icon-box">🍜</div>
+                <div class="info-box">
+                    <div class="food-name">红烧牛肉面 (加蛋)</div>
+                    <div class="food-desc">油炸面饼+钠含量超标</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">500</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(800, '麻辣小龙虾')">
+                <div class="icon-box">🦞</div>
+                <div class="info-box">
+                    <div class="food-name">麻辣小龙虾 (1斤)</div>
+                    <div class="food-desc">肉没多少，全是油汤</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">800</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">Guilty Pleasure</div>
+        <div class="menu-list">
+            <div class="food-card" onclick="add(320, '炸鸡腿')">
+                <div class="icon-box">🍗</div>
+                <div class="info-box">
+                    <div class="food-name">炸鸡腿 (1个)</div>
+                    <div class="food-desc">金黄酥脆的纯粹脂肪块</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">320</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(500, '汉堡')">
+                <div class="icon-box">🍔</div>
+                <div class="info-box">
+                    <div class="food-name">双层芝士堡</div>
+                    <div class="food-desc">碳水+红肉+芝士，今晚别睡了</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">500</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(400, '薯条')">
+                <div class="icon-box">🍟</div>
+                <div class="info-box">
+                    <div class="food-name">大薯条</div>
+                    <div class="food-desc">油炸淀粉条，增肥效率王</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">400</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+            <div class="food-card" onclick="add(350, '披萨')">
+                <div class="icon-box">🍕</div>
+                <div class="info-box">
+                    <div class="food-name">披萨 (1片)</div>
+                    <div class="food-desc">芝士就是力量（和肥肉）</div>
+                </div>
+                <div class="price-box">
+                    <span class="kcal-num">350</span><span class="kcal-unit">kcal</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="reset-btn" onclick="reset()">Reset Plate</button>
+    </div>
+</div>
+
+<script>
+    let totalKcal = 0;
+    const KCAL_PER_KM_RUN = 70;
+    const KCAL_PER_MIN_WALK = 4;
+
+    const elTotal = document.getElementById('totalVal');
+    const elRun = document.getElementById('runKm');
+    const elWalk = document.getElementById('walkMin');
+    const elBar = document.getElementById('progressBar');
+    const elComment = document.getElementById('comment');
+    const elDash = document.getElementById('dashboard');
+
+    function add(kcal, name) {
+        totalKcal += kcal;
+        updateUI();
+        triggerWave();
+    }
+
+    function reset() {
+        if (confirm('确定要清空吗？现实中的肉可不会消失。')) {
+            totalKcal = 0;
+            updateUI();
+            triggerWave();
+        }
+    }
+
+    function triggerWave() {
+        elDash.classList.remove('trigger-glow');
+        void elDash.offsetWidth;
+        elDash.classList.add('trigger-glow');
+
+        elDash.classList.remove('shake');
+        void elDash.offsetWidth;
+        elDash.classList.add('shake');
+    }
+
+    function updateUI() {
+        elTotal.innerText = totalKcal;
+
+        const runKm = (totalKcal / KCAL_PER_KM_RUN).toFixed(1);
+        const walkMin = Math.ceil(totalKcal / KCAL_PER_MIN_WALK);
+
+        elRun.innerText = runKm;
+        elWalk.innerText = walkMin;
+
+        let percent = (totalKcal / 2500) * 100;
+        if (percent > 100) percent = 100;
+        elBar.style.width = percent + "%";
+
+        let color = "#30d158"; // Green
+        let text = "";
+
+        if (totalKcal === 0) {
+            text = "盘子是空的，正如你的内心一样纯洁。保持住。";
+            elComment.style.color = "#999";
+        } else if (totalKcal < 400) {
+            text = "这点热量也就够塞牙缝。去楼下溜达两圈就没事了。";
+            color = "#30d158";
+        } else if (totalKcal < 1000) {
+            text = "警告：你正在摄入一顿正餐的热量。今晚的跑步计划必须执行。";
+            color = "#ffd60a";
+        } else if (totalKcal < 1800) {
+            text = "危险！你的腹肌正在离家出走。现在放下手机去深蹲！";
+            color = "#ff9f0a";
+        } else if (totalKcal < 3000) {
+            text = "严重超标！你需要跑一个半马才能消耗掉这些罪恶。";
+            color = "#ff453a";
+        } else if (totalKcal < 5000) {
+            text = "毁灭吧。你今天吃的够普通人活两天。准备好明天跑断腿吧。";
+            color = "#bf5af2";
+        } else {
+            text = "你完了你要变得跟菇飞一样重了！";
+            color = "#3eebf1";
+        }
+
+        if (totalKcal > 0) {
+            elTotal.style.color = color;
+            elComment.innerText = text;
+            elComment.style.color = "#ddd";
+            elDash.style.setProperty('--glow-color', color);
+        } else {
+            elTotal.style.color = "#fff";
+            elDash.style.setProperty('--glow-color', '#fff');
+        }
+    }
+</script>
+
+</body>
+</html>
