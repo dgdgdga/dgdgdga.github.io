@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 算法思维全景图</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #F7F9FC;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-secondary: #6B7280;
+
+            /* 语义色 */
+            --color-blue: #3B82F6;
+            --color-blue-bg: #EFF6FF;
+            --color-blue-text: #1E40AF;
+
+            --color-red: #EF4444;
+            --color-red-bg: #FEF2F2;
+            --color-red-text: #991B1B;
+
+            --color-green: #10B981;
+            --color-green-bg: #ECFDF5;
+            --color-green-text: #065F46;
+
+            --color-purple: #8B5CF6;
+            --color-purple-bg: #F5F3FF;
+            --color-purple-text: #5B21B6;
+
+            --color-orange: #F59E0B;
+            --color-orange-bg: #FFFBEB;
+            --color-orange-text: #92400E;
+
+            --border-color: #E5E7EB;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 24px 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 0 10px 0;
+            letter-spacing: -0.03em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+
+        .phase-badge {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            color: white;
+            background-color: var(--text-main);
+        }
+
+        /* 思维对比区域 */
+        .mindset-box {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mindset-item {
+            padding: 16px 20px;
+            border-radius: 12px; /* 圆角矩形 */
+            font-size: 0.95rem;
+            /* 移除了 border-left */
+        }
+
+        /* 颜色变种 */
+        .style-red { background-color: var(--color-red-bg); color: var(--color-red-text); }
+        .style-blue { background-color: var(--color-blue-bg); color: var(--color-blue-text); }
+        .style-green { background-color: var(--color-green-bg); color: var(--color-green-text); }
+        .style-purple { background-color: var(--color-purple-bg); color: var(--color-purple-text); }
+        .style-orange { background-color: var(--color-orange-bg); color: var(--color-orange-text); }
+
+        .mindset-title {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.85;
+        }
+
+        /* 表格优化 */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 500px;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 12px 0;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .code-font {
+            font-family: 'Menlo', monospace;
+            background: #F3F4F6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #374151;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>LeetCode 算法思维进化</h1>
+        <div class="subtitle">从暴力模拟到计算机思维的 5 个台阶</div>
+    </header>
+
+    <div class="card">
+        <h2>
+            <span class="phase-badge" style="background-color: var(--color-blue);">Phase 1</span>
+            双指针 (Two Pointers)
+        </h2>
+        <div class="mindset-box">
+            <div class="mindset-item style-red">
+                <span class="mindset-title">❌ 原始直觉 (搬运工)</span>
+                看到数组空位，想把后面的人“挪”过来。<br>
+                <strong>后果：</strong> 频繁移动元素，O(N²) 复杂度。
+            </div>
+            <div class="mindset-item style-blue">
+                <span class="mindset-title">✅ 进阶思维 (传送门)</span>
+                不关心空位，只关心“有效数据”。用 <strong>Swap</strong> 或覆盖，瞬间完成整理。<br>
+                <strong>后果：</strong> O(N) 复杂度，一次遍历。
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>
+            <span class="phase-badge" style="background-color: var(--color-green);">Phase 2</span>
+            哈希表 (HashMap)
+        </h2>
+        <div class="mindset-box">
+            <div class="mindset-item style-red">
+                <span class="mindset-title">❌ 原始直觉 (地毯式搜索)</span>
+                “我不记得之前见过谁，所以我得回头重新找一遍。”<br>
+                <strong>后果：</strong> 嵌套循环查找，O(N²) 复杂度。
+            </div>
+            <div class="mindset-item style-green">
+                <span class="mindset-title">✅ 进阶思维 (记事本)</span>
+                “我随身带个本子，见过的数字都记下来。”<br>
+                <strong>后果：</strong> 查找时间降为 O(1)，空间换时间。
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>
+            <span class="phase-badge" style="background-color: var(--color-purple);">Phase 3</span>
+            递归 (Recursion)
+        </h2>
+        <div class="mindset-box">
+            <div class="mindset-item style-red">
+                <span class="mindset-title">❌ 原始直觉 (线性纠结)</span>
+                试图人脑模拟每一步压栈，纠结“这一步怎么传，下一步怎么回”，容易把自己绕晕。
+            </div>
+            <div class="mindset-item style-purple">
+                <span class="mindset-title">✅ 进阶思维 (甩锅艺术)</span>
+                相信函数。这一层我只解决这一个节点的逻辑（比如交换），剩下的直接扔给子函数。<br>
+                <strong>核心：</strong> 宏观把控，微观不纠结。
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>
+            <span class="phase-badge" style="background-color: var(--color-orange);">Phase 4</span>
+            搜索 (BFS/Backtrack)
+        </h2>
+        <div class="mindset-box">
+            <div class="mindset-item style-red">
+                <span class="mindset-title">❌ 原始直觉 (无头苍蝇)</span>
+                走到哪算哪，容易漏掉情况，或者走进了死胡同出不来。
+            </div>
+            <div class="mindset-item style-orange">
+                <span class="mindset-title">✅ 进阶思维 (暴力美学)</span>
+                <strong>回溯：</strong> “不撞南墙不回头”，试错后撤销选择，遍历所有可能性。<br>
+                <strong>BFS：</strong> “水波纹扩散”，层层推进，寻找最短路径。
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>
+            <span class="phase-badge" style="background-color: #374151;">Phase 5</span>
+            动态规划 (DP)
+        </h2>
+        <div class="mindset-box">
+            <div class="mindset-item style-red">
+                <span class="mindset-title">❌ 原始直觉 (重复劳动)</span>
+                遇到重叠子问题（比如斐波那契），每次都重新计算，浪费大量算力。
+            </div>
+            <div class="mindset-item" style="background-color: #F3F4F6; color: #111827;">
+                <span class="mindset-title">✅ 进阶思维 (状态转移)</span>
+                凡是算过的，绝不复算。找出当前状态和上一状态的关系（方程），推导答案。<br>
+                <strong>核心：</strong> 历史记录（Memo）+ 递推公式。
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📝 Hot 100 必刷经典</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th width="30%">阶段与核心</th>
+                    <th>经典题目 (必做)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <strong>P1. 双指针</strong><br>
+                        <span style="font-size:0.85em; color:#666">交换 / 夹逼</span>
+                    </td>
+                    <td>
+                        <span class="code-font">283. 移动零</span><br>
+                        <span class="code-font">11. 盛最多水的容器</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>P2. 哈希表</strong><br>
+                        <span style="font-size:0.85em; color:#666">查重 / 计数</span>
+                    </td>
+                    <td>
+                        <span class="code-font">1. 两数之和</span><br>
+                        <span class="code-font">49. 字母异位词分组</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>P3. 递归/树</strong><br>
+                        <span style="font-size:0.85em; color:#666">分治 / 深度</span>
+                    </td>
+                    <td>
+                        <span class="code-font">104. 二叉树最大深度</span><br>
+                        <span class="code-font">226. 翻转二叉树</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>P4. 搜索</strong><br>
+                        <span style="font-size:0.85em; color:#666">全排列 / 层序</span>
+                    </td>
+                    <td>
+                        <span class="code-font">46. 全排列 (回溯)</span><br>
+                        <span class="code-font">102. 层序遍历 (BFS)</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>P5. 动态规划</strong><br>
+                        <span style="font-size:0.85em; color:#666">最优子结构</span>
+                    </td>
+                    <td>
+                        <span class="code-font">70. 爬楼梯</span><br>
+                        <span class="code-font">53. 最大子数组和</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
