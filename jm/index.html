@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jiangmen Escape</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* 核心字体设置 - 全局优先使用 Inter */
+        :root {
+            --font-stack: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #F5F5F7;
+            color: #1d1d1f;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 强制英文部分使用 Inter 及其特性 */
+        .font-sf {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        /* 隐藏滚动条 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        html { scroll-behavior: smooth; }
+
+        /* 标签样式 */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: "Inter", sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            margin-right: 6px;
+        }
+
+        /* 可选项卡片样式 */
+        .option-card {
+            border-left: 4px solid #fed7aa; /* 匹配主题色 */
+            padding-left: 16px;
+            margin-top: 14px;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+        .option-card:hover {
+            border-left-color: #f97316;
+            background-color: #fff7ed;
+            border-radius: 0 8px 8px 0;
+            padding-right: 12px;
+        }
+        
+        /* Day 2 可选项卡片悬停色 (Indigo) */
+        .option-card.indigo-hover {
+            border-left-color: #c7d2fe;
+        }
+        .option-card.indigo-hover:hover {
+            border-left-color: #6366f1;
+            background-color: #eef2ff;
+        }
+
+        /* 专门针对景点描述段落的样式优化 - 加粗处理 */
+        .text-body-bold {
+            font-weight: 600;
+            letter-spacing: -0.015em;
+        }
+
+        /* 滚动动画类 */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 航班/车票卡片样式 */
+        .flight-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: transform 0.3s ease;
+        }
+        .flight-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body class="selection:bg-orange-100 min-h-screen pb-20">
+
+<div class="max-w-4xl mx-auto p-6 md:p-12 pt-12 md:pt-24">
+
+    <header class="mb-16 reveal-on-scroll is-visible">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-gray-300 pb-8">
+            <div>
+                <h1 class="text-5xl md:text-7xl font-black tracking-tight text-slate-900 mb-6 font-sf uppercase">
+                    JIANGMEN <span class="text-slate-400 font-bold">ESCAPE</span>
+                </h1>
+                <div class="flex flex-wrap gap-3 font-sf">
+                    <span class="inline-flex items-center px-3 py-1.5 bg-slate-200/60 rounded-lg text-slate-600 font-bold text-sm tracking-wide">
+                        2026.04.01 — 04.02
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1.5 bg-slate-200/60 rounded-lg text-slate-600 font-bold text-sm tracking-wide">
+                        2 DAYS 1 NIGHT
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-2xl md:text-3xl text-slate-800 font-bold leading-relaxed max-w-2xl font-sf tracking-tight">
+            寻味江边里，漫步旧墟街。
+        </p>
+    </header>
+
+    <div class="space-y-16">
+
+        <!-- Day 1: 主色调 Orange -->
+        <section class="reveal-on-scroll">
+            <div class="flex items-center gap-6 mb-6">
+                <span class="text-5xl md:text-7xl font-black text-orange-200/80 select-none tracking-tighter font-sf">Day 1</span>
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900">江门 Jiangmen</h2>
+                    <div class="flex items-center gap-3 mt-1 text-slate-600 font-bold font-sf">
+                        <span class="text-orange-600">周三 Wednesday</span>
+                        <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
+                        <span>4月1日</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] p-8 md:p-10 relative overflow-hidden">
+
+                <!-- 跨境与大巴卡片 -->
+                <div class="flight-card bg-gradient-to-br from-slate-50 to-white p-6 rounded-2xl mb-10 group relative border border-orange-100/50">
+                    <div class="flex justify-between items-center relative z-10">
+                        <div class="w-full">
+                            <div class="text-xs font-black text-orange-400 uppercase tracking-widest mb-1 font-sf">CROSS-BORDER & BUS</div>
+                            <div class="flex items-baseline gap-3 mb-3">
+                                <span class="text-3xl font-black text-slate-900 font-sf">¥19.9</span>
+                                <span class="text-sm font-bold text-slate-500 font-sf">特价大巴</span>
+                            </div>
+                            
+                            <!-- 路线指示 -->
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm font-bold text-slate-700 font-sf">
+                                <div class="flex items-center gap-2">
+                                    <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-xs">HK</span>
+                                    <span>香港出发</span>
+                                </div>
+                                <svg class="w-4 h-4 text-slate-300 hidden sm:block shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                <svg class="w-4 h-4 text-slate-300 sm:hidden shrink-0 rotate-90 my-1 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                
+                                <div class="flex items-center gap-2">
+                                    <span class="text-orange-500 font-black">10:50</span>
+                                    <span>深圳岗厦北</span>
+                                </div>
+                                <svg class="w-4 h-4 text-slate-300 hidden sm:block shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                <svg class="w-4 h-4 text-slate-300 sm:hidden shrink-0 rotate-90 my-1 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                
+                                <div class="flex items-center gap-2">
+                                    <span class="text-slate-500">约 13:00</span>
+                                    <span>抵达江门</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 mb-10 p-5 bg-orange-50/50 rounded-2xl border border-orange-100 reveal-on-scroll">
+                    <div class="p-2.5 bg-white rounded-xl shadow-sm text-orange-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1v1H9V7zm5 0h1v1h-1V7zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1z"></path></svg>
+                    </div>
+                    <div>
+                        <div class="text-xs font-black text-orange-400 uppercase tracking-widest mb-1 font-sf">CHECK IN</div>
+                        <div class="text-slate-800 font-bold text-lg">入住五邑大学周边</div>
+                        <div class="text-slate-600 font-semibold text-sm mt-1">放下行李，轻装上阵，开启散心模式。</div>
+                    </div>
+                </div>
+
+                <div class="space-y-12">
+                    <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                        <div class="md:w-24 shrink-0">
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-orange-600 transition-colors font-sf">15:00</span>
+                        </div>
+                        <div class="flex-1 pb-10 border-b border-gray-100 last:border-0 last:pb-0">
+                            <div class="mb-2">
+                                <span class="tag bg-orange-100 text-orange-700 font-sf">
+                                    <svg class="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                                        <line x1="6" y1="1" x2="6" y2="4"></line>
+                                        <line x1="10" y1="1" x2="10" y2="4"></line>
+                                        <line x1="14" y1="1" x2="14" y2="4"></line>
+                                    </svg>
+                                    Heytea
+                                </span>
+                                <span class="tag bg-yellow-100 text-yellow-700 font-sf">👑 Origin</span>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-900 mb-1">喜茶江边里创始店</h3>
+                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf uppercase tracking-tighter">📍 Pengjiang · Jiangbianli</div>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
+                                来江门怎能不朝圣一杯“皇茶”？在这个诞生了新茶饮奇迹的小巷子里，点一杯经典的芝士金凤茶王。坐在街角，看小城人来人往，享受纯粹的发呆时光。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                        <div class="md:w-24 shrink-0">
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-orange-600 transition-colors font-sf">16:30</span>
+                        </div>
+                        <div class="flex-1 pb-10 border-b border-gray-100 last:border-0 last:pb-0">
+                            <div class="mb-2">
+                                <span class="tag bg-stone-100 text-stone-700 font-sf">🎬 Film</span>
+                                <span class="tag bg-slate-100 text-slate-600 font-sf">🏛️ Retro</span>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-900 mb-1">三十三墟街（狂飙取景地）</h3>
+                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf uppercase tracking-tighter">📍 Xuding Old Street</div>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
+                                这里的斑驳骑楼和青石板阶梯保留着上世纪的质感。不需要刻意打卡，沿着长堤风貌街随便走走，感受夕阳洒在老骑楼上的旧时光之美。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                        <div class="md:w-24 shrink-0">
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-orange-600 transition-colors font-sf">19:00</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="mb-2">
+                                <span class="tag bg-purple-100 text-purple-700 font-sf">🌃 Night</span>
+                                <span class="tag bg-slate-800 text-white font-sf">🎯 Option</span>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-900 mb-1">随心夜游</h3>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify mb-2">
+                                晚上吃顿热乎的猪杂粥或特色美食，然后根据体力选择去哪里吹吹晚风：
+                            </p>
+                            
+                            <div class="option-card">
+                                <h4 class="text-sm font-black text-slate-800 font-sf uppercase tracking-tight">👉 Option A: Riverside Heritage Walk</h4>
+                                <p class="text-sm text-slate-600 mt-1.5 font-semibold leading-relaxed">夜晚的骑楼亮起暖黄色的灯光，江水倒影着老街，非常适合散步消食，氛围感拉满。</p>
+                            </div>
+
+                            <div class="option-card">
+                                <h4 class="text-sm font-black text-slate-800 font-sf uppercase tracking-tight">👉 Option B: Wuyi Overseas Square</h4>
+                                <p class="text-sm text-slate-600 mt-1.5 font-semibold leading-relaxed">如果想感受现代江门的市民气息，可以去华侨广场散步，空间开阔，非常Chill。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 2: 主色调 Indigo -->
+        <section class="reveal-on-scroll">
+            <div class="flex items-center gap-6 mb-6">
+                <span class="text-5xl md:text-7xl font-black text-indigo-200/80 select-none tracking-tighter font-sf">Day 2</span>
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900">漫游 Return</h2>
+                    <div class="flex items-center gap-3 mt-1 text-slate-600 font-bold font-sf">
+                        <span class="text-indigo-600">周四 Thursday</span>
+                        <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
+                        <span>4月2日</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] p-8 md:p-10 relative overflow-hidden">
+                <div class="flex items-start gap-4 mb-10 p-5 bg-indigo-50/50 rounded-2xl border border-indigo-100">
+                    <div class="p-2.5 bg-white rounded-xl shadow-sm text-indigo-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <div class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-1 font-sf">SLOW MORNING</div>
+                        <div class="text-slate-800 font-bold text-lg">睡到自然醒的晨间</div>
+                        <div class="text-slate-600 font-semibold text-sm mt-1">不用赶早，这本来就是一场没心没肺的散心之旅。</div>
+                    </div>
+                </div>
+
+                <div class="space-y-12">
+                    <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                        <div class="md:w-24 shrink-0">
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors font-sf">10:30</span>
+                        </div>
+                        <div class="flex-1 pb-10 border-b border-gray-100">
+                            <div class="mb-2">
+                                <span class="tag bg-green-100 text-green-700 font-sf">🌳 Walk</span>
+                                <span class="tag bg-slate-800 text-white font-sf">🎯 Option</span>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-900 mb-1">看风景还是看文化？</h3>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify mb-2">
+                                起床退房后，把行李寄存在酒店，挑一个地方逛逛：
+                            </p>
+
+                            <div class="option-card indigo-hover">
+                                <h4 class="text-sm font-black text-slate-800 font-sf uppercase tracking-tight">👉 Option A: East Lake Park</h4>
+                                <p class="text-sm text-slate-600 mt-1.5 font-semibold leading-relaxed">离五邑大学很近，非常出片的老牌公园，绿树成荫，湖水幽静，是放空大脑的绝佳选择。</p>
+                            </div>
+
+                            <div class="option-card indigo-hover">
+                                <h4 class="text-sm font-black text-slate-800 font-sf uppercase tracking-tight">👉 Option B: Overseas Chinese Museum</h4>
+                                <p class="text-sm text-slate-600 mt-1.5 font-semibold leading-relaxed">去吹吹空调看展，了解江门这座“中国第一侨乡”背后的中西交融故事。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                        <div class="md:w-24 shrink-0">
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors font-sf">13:00</span>
+                        </div>
+                        <div class="flex-1 pb-10 border-b border-gray-100">
+                            <div class="mb-2">
+                                <span class="tag bg-rose-100 text-rose-700 font-sf">🍜 Food</span>
+                                <span class="tag bg-slate-100 text-slate-600 font-sf">🚶‍♂️ Relax</span>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-900 mb-1">大学周边的随性午餐</h3>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
+                                五邑大学附近藏着不少好吃的。找一家街边小店，嗦一盘地道的江门肠粉，或者找家咖啡馆坐坐，看着学生们走过，享受离开前的慢时光。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                        <div class="md:w-24 shrink-0">
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors font-sf">16:00</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="mb-4">
+                                <span class="tag bg-slate-800 text-white font-sf">🚌 Return</span>
+                            </div>
+                            <div class="flight-card bg-gradient-to-br from-slate-50 to-white p-6 rounded-2xl group relative border border-slate-200">
+                                <div class="flex justify-between items-center relative z-10">
+                                    <div class="w-full">
+                                        <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 font-sf">OUTBOUND JOURNEY</div>
+                                        <div class="flex items-baseline gap-3">
+                                            <span class="text-3xl font-black text-slate-900 font-sf tracking-tight">HEADING HOME</span>
+                                        </div>
+                                        <div class="mt-2 flex items-center gap-4 text-sm font-bold text-slate-700 font-sf">
+                                            <span>江门 JM</span>
+                                            <svg class="w-4 h-4 text-slate-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                            <span>深圳 SZ</span>
+                                            <svg class="w-4 h-4 text-slate-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                            <span>香港 HK</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-slate-500 text-sm font-bold mt-4 font-sf">
+                                拿上行李，带着被奶茶和江风治愈的心情，踏上返程。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="mt-24 pb-10 text-center reveal-on-scroll">
+        <div class="inline-block border-t border-slate-200 pt-8 px-12">
+            <p class="text-slate-900 text-sm font-black tracking-[0.3em] font-sf uppercase mb-2">
+                HERITAGE CITY RAMBLE
+            </p>
+            <p class="text-slate-400 text-xs font-bold tracking-[0.1em] uppercase">
+                侨都漫步 · Jiangmen Escape 2026
+            </p>
+        </div>
+    </footer>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        const elementsToAnimate = document.querySelectorAll('.reveal-on-scroll');
+        elementsToAnimate.forEach(el => observer.observe(el));
+    });
+</script>
+</body>
+</html>
