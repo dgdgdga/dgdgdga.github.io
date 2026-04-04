@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lean Athletic 居家训练计划</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        neon: '#ccff00',
+                        neondim: '#ccff0033',
+                        darkbg: '#050505',
+                        cardbg: '#111111',
+                    },
+                    backgroundImage: {
+                        'grid-pattern': "url('data:image/svg+xml,%3Csvg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cpath d=\"M0 0h40v40H0V0zm39 39V1H1v38h38z\" fill=\"%231a1a1a\" fill-opacity=\"0.4\" fill-rule=\"evenodd\"/%3E%3C/svg%3E')",
+                    },
+                    animation: {
+                        'spin-slow': 'spin 4s linear infinite',
+                        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 1, filter: 'brightness(1)' },
+                            '50%': { opacity: .7, filter: 'brightness(1.5) drop-shadow(0 0 10px #ccff00)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,500;0,700;0,800;0,900;1,800;1,900&family=Noto+Sans+SC:wght@500;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background-color: #050505;
+            color: #f4f4f5;
+            font-weight: 500;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* 页面加载动画屏 (Preloader) */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: #050505;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.6s ease-out, visibility 0.6s;
+        }
+        .loader-ring {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(204, 255, 0, 0.1);
+            border-top-color: #ccff00;
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        /* 视差与背景动效 */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            opacity: 0.15;
+            animation: float 12s infinite ease-in-out alternate;
+        }
+        .orb-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #ccff00; animation-delay: 0s; }
+        .orb-2 { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: #3b82f6; animation-delay: -5s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(5%, 10%) scale(1.1); }
+        }
+
+        .athletic-title {
+            font-style: italic;
+            text-transform: uppercase;
+            letter-spacing: -0.06em;
+            line-height: 0.9;
+        }
+        .text-stroke {
+            -webkit-text-stroke: 1px rgba(204, 255, 0, 0.5);
+            color: transparent;
+        }
+
+        /* 毛玻璃面板 */
+        .glass-panel {
+            background: rgba(17, 17, 17, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Tabs 样式 */
+        .tab-btn {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 0; height: 3px; background: #ccff00;
+            transition: width 0.3s ease;
+        }
+        .tab-btn:hover:not(.active) {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .tab-btn.active {
+            background-color: #ccff00;
+            color: #050505;
+            font-weight: 900;
+            box-shadow: 0 4px 20px rgba(204, 255, 0, 0.25);
+            transform: translateY(-2px);
+        }
+        .tab-btn.active::after { width: 100%; }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* 表格微交互与打卡系统 */
+        .exercise-row {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .exercise-row:hover:not(.completed) {
+            background-color: rgba(255, 255, 255, 0.04);
+            transform: translateX(6px);
+        }
+        .exercise-row.completed {
+            opacity: 0.4;
+            filter: grayscale(100%);
+            transform: scale(0.98);
+        }
+        .exercise-row.completed td {
+            text-decoration: line-through;
+            text-decoration-color: #ccff00;
+        }
+
+        /* 自定义 Checkbox */
+        .check-btn {
+            width: 28px; height: 28px;
+            border: 2px solid #555;
+            border-radius: 8px;
+            display: flex; justify-content: center; align-items: center;
+            transition: all 0.3s;
+        }
+        .exercise-row:hover .check-btn { border-color: #ccff00; }
+        .completed .check-btn {
+            background-color: #ccff00;
+            border-color: #ccff00;
+        }
+        .completed .check-btn i { color: #050505; opacity: 1; }
+        .check-btn i { opacity: 0; transition: opacity 0.3s; font-size: 14px; }
+
+        /* 卡片视差倾斜过渡 */
+        .tilt-card { transition: transform 0.1s ease; transform-style: preserve-3d; }
+        .tilt-content { transform: translateZ(20px); }
+
+        /* 滚动渐显动画 (Scroll Reveal) */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ccff00; }
+    </style>
+</head>
+<body class="antialiased min-h-screen relative pb-20">
+
+<!-- 页面加载屏 -->
+<div id="preloader">
+    <div class="loader-ring mb-4"></div>
+    <div class="text-neon font-black italic tracking-widest text-sm animate-pulse">INITIATING PROTOCOL...</div>
+</div>
+
+<!-- 动态发光背景球 -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="fixed inset-0 bg-grid-pattern z-0 pointer-events-none mix-blend-overlay opacity-60"></div>
+
+<!-- 顶部视差英雄区 -->
+<header class="relative pt-28 pb-16 z-10 overflow-hidden" id="hero-section">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center md:text-left" id="hero-content">
+
+        <div class="inline-flex items-center px-4 py-1.5 mb-6 rounded-full bg-zinc-900/80 border border-zinc-700/50 text-neon text-sm font-bold tracking-widest uppercase backdrop-blur-md shadow-[0_0_20px_rgba(204,255,0,0.2)] animate-pulse-glow">
+            <i class="fas fa-satellite-dish mr-2"></i> 在这个阶段
+        </div>
+
+        <h1 class="text-7xl sm:text-9xl font-black athletic-title mb-4 drop-shadow-2xl">
+            <span class="text-white block tracking-tighter" style="transform: translateZ(30px);">LEAN</span>
+            <span class="text-neon block mt-[-10px]">ATHLETIC</span>
+            <span class="text-stroke text-5xl sm:text-7xl absolute top-10 right-0 opacity-10 pointer-events-none hidden lg:block" style="writing-mode: vertical-rl; transform: rotate(180deg);">13-15% BF</span>
+        </h1>
+
+        <!-- 数据徽章区 -->
+        <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-8">
+            <div class="glass-panel px-5 py-3 rounded-xl flex items-center">
+                <i class="fas fa-stopwatch text-zinc-400 text-lg mr-3"></i>
+                <div>
+                    <div class="text-xs text-zinc-500 uppercase font-bold tracking-wider">Estimated Time</div>
+                    <div class="text-white font-black">45-60 MIN</div>
+                </div>
+            </div>
+            <div class="glass-panel px-5 py-3 rounded-xl flex items-center">
+                <i class="fas fa-fire-alt text-zinc-400 text-lg mr-3"></i>
+                <div>
+                    <div class="text-xs text-zinc-500 uppercase font-bold tracking-wider">Burn Target</div>
+                    <div class="text-white font-black">~350 KCAL</div>
+                </div>
+            </div>
+            <div class="glass-panel px-5 py-3 rounded-xl flex items-center">
+                <i class="fas fa-dumbbell text-zinc-400 text-lg mr-3"></i>
+                <div>
+                    <div class="text-xs text-zinc-500 uppercase font-bold tracking-wider">Equipment</div>
+                    <div class="text-white font-black">20KG DB + MAT</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+    <!-- 悬浮数据卡片区 (加入 Reveal 动画) -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 reveal" id="strategy-cards">
+        <!-- 训练策略 -->
+        <div class="tilt-card glass-panel rounded-2xl p-8 relative overflow-hidden group border border-zinc-800">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-neon/10 rounded-full blur-3xl group-hover:bg-neon/20 transition-all"></div>
+            <div class="tilt-content relative z-10">
+                <div class="flex items-center mb-5">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center border border-zinc-700/50 mr-4 shadow-lg group-hover:border-neon/50 transition-colors">
+                        <i class="fas fa-bolt text-neon text-xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-white tracking-tight">超负荷渐进</h3>
+                </div>
+                <p class="text-zinc-400 text-sm mb-5 font-medium leading-relaxed border-b border-zinc-800/50 pb-4">单侧 10kg 重量固定时，如何实现肌肉肥大？</p>
+                <ul class="space-y-4 text-base font-medium">
+                    <li class="flex items-start"><i class="fas fa-angle-double-right text-neon mt-1 mr-3 text-sm"></i><span class="text-zinc-300"><strong class="text-white">增加机械张力：</strong>下放离心过程必须数够 3-4 秒。</span></li>
+                    <li class="flex items-start"><i class="fas fa-angle-double-right text-neon mt-1 mr-3 text-sm"></i><span class="text-zinc-300"><strong class="text-white">代谢压力累积：</strong>缩短组间休息，强迫肌肉进入充血状态。</span></li>
+                    <li class="flex items-start"><i class="fas fa-angle-double-right text-neon mt-1 mr-3 text-sm"></i><span class="text-zinc-300"><strong class="text-white">力竭管理：</strong>最后一组必须做到肌肉完全无法推起。</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 饮食策略 -->
+        <div class="tilt-card glass-panel rounded-2xl p-8 relative overflow-hidden group border border-zinc-800">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all"></div>
+            <div class="tilt-content relative z-10">
+                <div class="flex items-center mb-5">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center border border-zinc-700/50 mr-4 shadow-lg group-hover:border-blue-500/50 transition-colors">
+                        <i class="fas fa-utensils text-blue-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-white tracking-tight">13-15% 饮食法则</h3>
+                </div>
+                <p class="text-zinc-400 text-sm mb-5 font-medium leading-relaxed border-b border-zinc-800/50 pb-4">腹肌轮廓的雕刻 80% 发生在厨房里。</p>
+                <ul class="space-y-4 text-base font-medium">
+                    <li class="flex items-start"><i class="fas fa-angle-double-right text-blue-400 mt-1 mr-3 text-sm"></i><span class="text-zinc-300"><strong class="text-white">热量缺口：</strong>每日制造 300-500 大卡的温和缺口。</span></li>
+                    <li class="flex items-start"><i class="fas fa-angle-double-right text-blue-400 mt-1 mr-3 text-sm"></i><span class="text-zinc-300"><strong class="text-white">高蛋白护肌：</strong>每天摄入 1.8g - 2g / 公斤体重蛋白质。</span></li>
+                    <li class="flex items-start"><i class="fas fa-angle-double-right text-blue-400 mt-1 mr-3 text-sm"></i><span class="text-zinc-300"><strong class="text-white">代谢基座：</strong>每日不少于 2.5 升纯水，加速脂肪代谢。</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 训练计划核心区 -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 reveal delay-1" id="protocol-header">
+        <h2 class="text-4xl font-black athletic-title text-white tracking-tight flex items-center">
+            <span class="bg-neon w-2 h-8 mr-3 block rounded-full shadow-[0_0_10px_#ccff00]"></span> PROTOCOL
+        </h2>
+        <p class="text-zinc-500 text-sm font-medium mt-2 md:mt-0 flex items-center">
+            <i class="fas fa-info-circle mr-1"></i> 点击表格右侧完成训练打卡
+        </p>
+    </div>
+
+    <!-- 吸顶毛玻璃 Tabs -->
+    <div class="sticky top-4 z-50 glass-panel p-2 rounded-2xl flex flex-wrap lg:flex-nowrap gap-2 mb-8 shadow-2xl reveal delay-2" id="tabs">
+        <button class="tab-btn active flex-1 min-w-[100px] px-3 py-3 rounded-xl text-sm font-bold text-zinc-400" data-target="warmup">
+            <i class="fas fa-fire-alt mr-1 hidden sm:inline"></i> 热身
+        </button>
+        <button class="tab-btn flex-1 min-w-[100px] px-3 py-3 rounded-xl text-sm font-bold text-zinc-400" data-target="push">
+            D1: PUSH <span class="hidden sm:inline font-medium opacity-80 ml-1">推</span>
+        </button>
+        <button class="tab-btn flex-1 min-w-[100px] px-3 py-3 rounded-xl text-sm font-bold text-zinc-400" data-target="pull">
+            D2: PULL <span class="hidden sm:inline font-medium opacity-80 ml-1">拉</span>
+        </button>
+        <button class="tab-btn flex-1 min-w-[100px] px-3 py-3 rounded-xl text-sm font-bold text-zinc-400" data-target="legs">
+            D3: LEGS <span class="hidden sm:inline font-medium opacity-80 ml-1">腿/核心</span>
+        </button>
+        <button class="tab-btn flex-1 min-w-[100px] px-3 py-3 rounded-xl text-sm font-bold text-zinc-400" data-target="rest">
+            D4: REST <span class="hidden sm:inline font-medium opacity-80 ml-1">恢复</span>
+        </button>
+    </div>
+
+    <!-- Tab 内容区 -->
+    <div class="glass-panel rounded-3xl overflow-hidden shadow-2xl border border-zinc-700/50 reveal delay-2">
+
+        <!-- Warm-up Day (新增) -->
+        <div id="warmup" class="tab-content active p-0">
+            <div class="bg-orange-500/10 border-b border-orange-500/20 p-6 flex items-start">
+                <i class="fas fa-exclamation-triangle text-orange-400 text-2xl mr-4 mt-1"></i>
+                <div>
+                    <h4 class="text-orange-400 font-bold text-lg mb-1">动态热身 (Dynamic Warm-up)</h4>
+                    <p class="text-zinc-400 text-sm">居家训练极易忽视热身。花 5 分钟激活神经系统和润滑关节，能增加 20% 的力量输出并预防受伤。</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                    <tr class="bg-black/40 text-zinc-400 text-xs uppercase tracking-widest font-black">
+                        <th class="p-6">动作</th>
+                        <th class="p-6">目标</th>
+                        <th class="p-6 text-orange-400">时间/次数</th>
+                        <th class="p-6 text-center w-24">状态</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-800/40" id="warmup-table">
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">原地开合跳</td>
+                        <td class="p-6 text-zinc-400 font-bold">提升心率 / 全身</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-orange-400 border border-orange-400/30 px-3 py-1.5 rounded-md text-sm font-black italic">60 秒</span></td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">肩部画圈 (前/后)</td>
+                        <td class="p-6 text-zinc-400 font-bold">肩关节润滑</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-orange-400 border border-orange-400/30 px-3 py-1.5 rounded-md text-sm font-black italic">各 15 次</span></td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">毛毛虫爬行 (Inchworm)</td>
+                        <td class="p-6 text-zinc-400 font-bold">核心激活 / 大腿后侧</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-orange-400 border border-orange-400/30 px-3 py-1.5 rounded-md text-sm font-black italic">8 次</span></td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">世界最伟大拉伸</td>
+                        <td class="p-6 text-zinc-400 font-bold">髋关节 / 胸椎灵活性</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-orange-400 border border-orange-400/30 px-3 py-1.5 rounded-md text-sm font-black italic">每侧 5 次</span></td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Push Day -->
+        <div id="push" class="tab-content p-0">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                    <tr class="bg-black/40 text-zinc-400 text-xs uppercase tracking-widest font-black">
+                        <th class="p-6">动作 (Exercise)</th>
+                        <th class="p-6">休息时间</th>
+                        <th class="p-6 text-neon">组数 × 次数</th>
+                        <th class="p-6 hidden md:table-cell">核心要点 (Cues)</th>
+                        <th class="p-6 text-center w-24">打卡</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-800/40">
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">标准 / 垫高脚俯卧撑<br><span class="text-xs text-zinc-500 font-medium">胸大肌</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 90s</td>
+                        <td class="p-6"><span class="bg-neon text-darkbg px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider shadow-[0_0_10px_rgba(204,255,0,0.3)]">4 × 力竭</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">以自重为主。下放3秒，撑起1秒。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">哑铃地板飞鸟<br><span class="text-xs text-zinc-500 font-medium">胸肌外沿</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 60s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">3 × 12-15</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">手肘微屈，下放至大臂轻触地面。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">哑铃坐姿推举<br><span class="text-xs text-zinc-500 font-medium">肩前/中束</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 90s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">4 × 10-15</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">背靠墙坐直，推至头顶但不锁定手肘。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">哑铃侧平举<br><span class="text-xs text-zinc-500 font-medium">肩中束</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 45s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">4 × 15-20</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">使用 1.5-2kg 片。手肘微屈，沉肩发力。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">哑铃俯身臂屈伸<br><span class="text-xs text-zinc-500 font-medium">肱三头肌</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 60s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">3 × 12-15</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">大臂夹紧不动，仅小臂后伸，停顿1秒。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pull Day -->
+        <div id="pull" class="tab-content p-0">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                    <tr class="bg-black/40 text-zinc-400 text-xs uppercase tracking-widest font-black">
+                        <th class="p-6">动作 (Exercise)</th>
+                        <th class="p-6">休息时间</th>
+                        <th class="p-6 text-neon">组数 × 次数</th>
+                        <th class="p-6 hidden md:table-cell">核心要点 (Cues)</th>
+                        <th class="p-6 text-center w-24">打卡</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-800/40">
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">单臂哑铃俯身划船<br><span class="text-xs text-zinc-500 font-medium">背阔肌</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 90s</td>
+                        <td class="p-6"><span class="bg-neon text-darkbg px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider shadow-[0_0_10px_rgba(204,255,0,0.3)]">4 × 10-15 /侧</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">背挺直，手肘向后上方提拉，挤压背部。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">哑铃仰卧直臂上拉<br><span class="text-xs text-zinc-500 font-medium">背/胸部</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 60s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">3 × 12-15</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">手臂微屈向脑后下放拉伸背阔肌。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">俯身哑铃反向飞鸟<br><span class="text-xs text-zinc-500 font-medium">肩后束</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 45s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">3 × 15-20</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">轻重量。向两侧上方打开收缩肩胛骨中间。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">哑铃交替弯举<br><span class="text-xs text-zinc-500 font-medium">肱二头肌</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 60s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">3 × 10-15 /侧</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">控制离心，大臂紧贴身体，禁止借力晃动。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">哑铃锤式弯举<br><span class="text-xs text-zinc-500 font-medium">肱肌/小臂</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 60s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">3 × 10-12 /侧</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">增强手臂侧面视觉厚度。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Legs Day -->
+        <div id="legs" class="tab-content p-0">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                    <tr class="bg-black/40 text-zinc-400 text-xs uppercase tracking-widest font-black">
+                        <th class="p-6">动作 (Exercise)</th>
+                        <th class="p-6">休息时间</th>
+                        <th class="p-6 text-neon">组数 × 次数</th>
+                        <th class="p-6 hidden md:table-cell">核心要点 (Cues)</th>
+                        <th class="p-6 text-center w-24">打卡</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-800/40">
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">保加利亚分腿蹲<br><span class="text-xs text-zinc-500 font-medium">股四/臀部</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 90s</td>
+                        <td class="p-6"><span class="bg-neon text-darkbg px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider shadow-[0_0_10px_rgba(204,255,0,0.3)]">4 × 10-15 /侧</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">躯干略前倾侧重臀，直立侧重腿。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">哑铃罗马尼亚硬拉<br><span class="text-xs text-zinc-500 font-medium">大腿后侧</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 90s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">4 × 15-20</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">臀部向后推，感受大腿后侧强烈拉伸。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">哑铃高脚杯深蹲<br><span class="text-xs text-zinc-500 font-medium">大腿前侧</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 60s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">3 × 15-20</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">双手捧最重哑铃。蹲到底部停顿2秒。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">垫上卷腹<br><span class="text-xs text-zinc-500 font-medium">腹直肌</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 45s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">3 × 15-20</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">下背部贴紧垫子，靠腹部力量发力。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    <tr class="exercise-row">
+                        <td class="p-6 font-black text-white text-lg">哑铃俄罗斯转体<br><span class="text-xs text-zinc-500 font-medium">腹外斜肌</span></td>
+                        <td class="p-6 text-zinc-400 font-bold"><i class="far fa-clock mr-1 text-zinc-500"></i> 45s</td>
+                        <td class="p-6"><span class="bg-zinc-800 text-neon border border-neon/30 px-3 py-1.5 rounded-md text-sm font-black italic tracking-wider">3 × 15 /侧</span></td>
+                        <td class="p-6 text-zinc-400 hidden md:table-cell font-medium">手持小哑铃，双脚悬空，左右转动躯干。</td>
+                        <td class="p-6 flex justify-center"><div class="check-btn"><i class="fas fa-check"></i></div></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Rest Day -->
+        <div id="rest" class="tab-content p-10 text-center relative">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 pointer-events-none"></div>
+            <div class="relative z-10">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-black border border-neon/50 rounded-full mb-6 shadow-[0_0_30px_rgba(204,255,0,0.2)] animate-[pulse_3s_ease-in-out_infinite]">
+                    <i class="fas fa-battery-half text-4xl text-neon"></i>
+                </div>
+                <h3 class="text-3xl font-black athletic-title text-white mb-4">ACTIVE RECOVERY</h3>
+                <p class="text-zinc-400 mb-10 max-w-lg mx-auto text-base font-medium leading-relaxed">肌肉在撕裂后需要休息才能超量恢复。今天拒绝负重，切换为燃脂与修复模式：</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto text-left">
+                    <div class="border border-zinc-700/50 rounded-2xl p-6 bg-black/40 hover:bg-zinc-800/80 hover:border-neon/50 transition-all group cursor-pointer">
+                        <h4 class="font-black text-white mb-3 text-lg flex items-center">
+                            <i class="fas fa-running text-neon mr-3 group-hover:scale-110 transition-transform group-hover:animate-bounce"></i> 恒定有氧 (LISS)
+                        </h4>
+                        <p class="text-sm text-zinc-400 leading-relaxed font-medium">30-40分钟快走或慢跑。心率维持在 120-130，高效燃脂且不影响神经系统恢复。</p>
+                    </div>
+                    <div class="border border-zinc-700/50 rounded-2xl p-6 bg-black/40 hover:bg-zinc-800/80 hover:border-blue-500/50 transition-all group cursor-pointer">
+                        <h4 class="font-black text-white mb-3 text-lg flex items-center">
+                            <i class="fas fa-child text-blue-400 mr-3 group-hover:scale-110 transition-transform"></i> 静态拉伸
+                        </h4>
+                        <p class="text-sm text-zinc-400 leading-relaxed font-medium">在瑜伽垫上进行 15 分钟全身拉伸，重点放松胸肌、背阔肌和股四头肌，释放筋膜张力。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<footer class="text-center py-10 mt-16 border-t border-zinc-800/50 relative z-10 reveal delay-2">
+    <p class="text-zinc-600 text-sm font-bold tracking-widest uppercase">Discipline Equals Freedom</p>
+</footer>
+
+<script>
+    // --- 预加载动画逻辑 ---
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const preloader = document.getElementById('preloader');
+            preloader.style.opacity = '0';
+            setTimeout(() => { preloader.style.visibility = 'hidden'; }, 600);
+        }, 800); // 假装加载 0.8 秒以展示动画
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- Tab 切换逻辑 ---
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => {
+                    c.classList.remove('active');
+                    c.style.animation = 'none';
+                    c.offsetHeight;
+                    c.style.animation = null;
+                });
+
+                btn.classList.add('active');
+                const targetId = btn.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // --- 训练打卡微交互 ---
+        const exerciseRows = document.querySelectorAll('.exercise-row');
+        exerciseRows.forEach(row => {
+            row.addEventListener('click', function() {
+                // 切换 completed 类
+                this.classList.toggle('completed');
+
+                // 简单的震动反馈 (支持的移动设备上)
+                if (this.classList.contains('completed') && navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            });
+        });
+
+        // --- 视差滚动核心逻辑 ---
+        const gridBg = document.querySelector('.bg-grid-pattern');
+        const heroContent = document.getElementById('hero-content');
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            if(scrolled < 600) {
+                if(gridBg) gridBg.style.transform = `translateY(${scrolled * 0.3}px)`;
+                heroContent.style.opacity = 1 - (scrolled * 0.0025);
+            }
+        });
+
+        // --- Scroll Reveal 渐显动画 (Intersection Observer) ---
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    // observer.unobserve(entry.target); // 开启此行则动画只执行一次
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            observer.observe(el);
+        });
+
+        // --- 3D 卡片倾斜悬浮效果 ---
+        const cards = document.querySelectorAll('.tilt-card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+        });
+    });
+</script>
+</body>
+</html>
