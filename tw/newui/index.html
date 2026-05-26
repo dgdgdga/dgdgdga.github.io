@@ -1,1 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taiwan Journey - 4-Day Journey</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 从 Google Fonts 实时加载优雅的 Lora(衬线) 和 Inter(无掀线) 字体，仅保留 400(常规)、500(中黑)、600(半粗)，避免极细和极粗 -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
+    <style>
+        :root {
+            --font-serif: "Lora", Georgia, serif;
+            --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #FAF9F6; /* 纸质温润暖白 */
+            color: #1C1C1E; /* 印刷墨水灰 */
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        .font-serif-editorial {
+            font-family: var(--font-serif);
+            letter-spacing: -0.01em;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        html { scroll-behavior: smooth; }
+
+        /* 杂志专属扁平分割线 */
+        .editorial-line {
+            height: 1px;
+            background-color: rgba(28, 28, 30, 0.08);
+            width: 100%;
+        }
+
+        /* 滚动渐入 */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 极简无阴影平整票根 */
+        .ticket-box {
+            background-color: #FAF9F6;
+            border: 1px solid rgba(28, 28, 30, 0.12);
+        }
+    </style>
+</head>
+<body class="selection:bg-amber-100/80 min-h-screen pb-24">
+
+<!-- 主体容器 (直接从封面感头部开始) -->
+<div class="max-w-5xl mx-auto p-6 md:p-12 pt-16 md:pt-24">
+
+    <!-- 杂志封面感头部 (Editorial Cover Header) -->
+    <header class="mb-24 reveal-on-scroll is-visible">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 pb-8 border-b border-stone-200">
+            <div class="max-w-2xl">
+                <span class="text-xs font-semibold text-stone-400 block mb-3">Personal Travelogue</span>
+                <h1 class="text-6xl md:text-8xl font-medium tracking-tight text-stone-900 mb-6 font-serif-editorial leading-none">
+                    TAIWAN <span class="font-normal text-stone-500 block md:inline md:ml-2 font-serif-editorial">Journey.</span>
+                </h1>
+                <div class="flex flex-wrap gap-3 mt-4 text-xs font-medium tracking-wider text-stone-500 uppercase">
+                    <span>4 Days 3 Nights</span>
+                    <span>•</span>
+                    <span>June 2 — June 5</span>
+                </div>
+            </div>
+
+            <!-- 返回上一级 (Classic Style / Old UI) -->
+            <div class="mt-8 md:mt-0 shrink-0">
+                <a href="../" class="inline-flex items-center gap-2.5 px-4 py-2 border border-stone-900/10 bg-[#FAF9F6] hover:bg-stone-900 hover:text-[#FAF9F6] hover:border-stone-900 text-stone-700 text-xs font-semibold tracking-widest uppercase transition-all duration-300 group">
+                    <svg class="w-3 h-3 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    <span>Classic Style</span>
+                </a>
+            </div>
+        </div>
+
+        <p class="text-xl md:text-2xl text-stone-600 font-normal leading-relaxed max-w-2xl font-serif-editorial">
+            短暂奔赴，将那片温暖的<span class="font-normal text-stone-900">山海</span>妥善收藏。
+        </p>
+    </header>
+
+    <!-- 杂志双栏排版布局 (Editorial Double Column) -->
+    <div class="lg:flex lg:gap-16 items-start">
+
+        <!-- 经典杂志目录引导栏 (Sticky TOC - Desktop Only) -->
+        <aside class="hidden lg:block w-44 shrink-0 sticky top-12 z-20">
+            <div class="space-y-6">
+                <div class="text-[10px] font-semibold tracking-[0.25em] text-stone-400 uppercase border-b border-stone-900/10 pb-2">CONTENTS</div>
+                <nav class="space-y-4 font-serif-editorial">
+                    <a href="#day1" class="nav-link block text-sm text-stone-400 hover:text-stone-900 transition-colors duration-300">
+                        01. 台北 · 初见
+                    </a>
+                    <a href="#day2" class="nav-link block text-sm text-stone-400 hover:text-stone-900 transition-colors duration-300">
+                        02. 日月潭 · 山湖
+                    </a>
+                    <a href="#day3" class="nav-link block text-sm text-stone-400 hover:text-stone-900 transition-colors duration-300">
+                        03. 台北 · 晚照
+                    </a>
+                    <a href="#day4" class="nav-link block text-sm text-stone-400 hover:text-stone-900 transition-colors duration-300">
+                        04. 归途 · 留白
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- 移动端悬浮目录条 -->
+        <div class="lg:hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 w-11/12 max-w-xs bg-[#FAF9F6]/95 border border-stone-200 rounded-full py-2 px-4 shadow-sm backdrop-blur-md">
+            <nav class="flex justify-between text-xs font-semibold tracking-widest text-stone-400">
+                <a href="#day1" class="mobile-tab px-2.5 py-1 rounded-full transition-colors duration-300">01</a>
+                <a href="#day2" class="mobile-tab px-2.5 py-1 rounded-full transition-colors duration-300">02</a>
+                <a href="#day3" class="mobile-tab px-2.5 py-1 rounded-full transition-colors duration-300">03</a>
+                <a href="#day4" class="mobile-tab px-2.5 py-1 rounded-full transition-colors duration-300">04</a>
+            </nav>
+        </div>
+
+        <!-- 叙事内容主体 -->
+        <div class="flex-1 space-y-24">
+
+            <!-- Day 1: 台北 -->
+            <section id="day1" class="reveal-on-scroll scroll-mt-16">
+                <div class="flex items-baseline gap-4 mb-8">
+                    <span class="text-5xl md:text-7xl font-normal text-stone-300 font-serif-editorial select-none">01</span>
+                    <div>
+                        <h2 class="text-2xl font-semibold text-stone-900 tracking-tight font-serif-editorial">台北 · 初见</h2>
+                        <div class="flex items-center gap-2 mt-1 text-[10px] font-semibold tracking-widest text-stone-400 uppercase font-sans">
+                            <span class="text-stone-600">周二 Tue</span>
+                            <span class="w-1 h-1 bg-stone-300 rounded-full"></span>
+                            <span>6月2日</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 极致扁平平铺：无多余容器遮挡 -->
+                <div class="space-y-10">
+
+                    <!-- 纯净纸质票根设计 (完美兼容 cal_logo.png 水印) -->
+                    <div class="ticket-box p-6 md:p-8 rounded-none relative overflow-hidden group">
+                        <!-- 经典撕切装饰线 -->
+                        <div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 border-t border-dashed border-stone-200"></div>
+
+                        <!-- 华航梅花水印 -->
+                        <img src="./cal_logo.png" alt="CAL Logo" class="absolute right-4 bottom-4 w-28 h-28 object-contain opacity-[0.05] pointer-events-none select-none transition-transform duration-700">
+
+                        <div class="grid grid-cols-12 gap-4 relative z-10">
+                            <div class="col-span-12 md:col-span-4 pb-4 md:pb-0">
+                                <span class="text-[9px] font-semibold text-stone-400 uppercase tracking-widest block mb-1">INBOUND FLIGHT</span>
+                                <span class="text-2xl font-medium text-stone-800 font-serif-editorial tracking-tight">CI904</span>
+                                <span class="text-[10px] text-stone-400 uppercase tracking-wider block font-normal mt-0.5">China Airlines</span>
+                            </div>
+                            <div class="col-span-12 md:col-span-8 flex justify-between items-center pt-4 md:pt-0">
+                                <div>
+                                    <span class="text-lg font-medium text-stone-800 font-serif-editorial">11:10</span>
+                                    <span class="text-[10px] font-semibold text-stone-400 tracking-wider uppercase block">Hong Kong (HKG)</span>
+                                </div>
+                                <div class="text-stone-300 font-normal text-xl px-4">&rarr;</div>
+                                <div class="text-right">
+                                    <span class="text-lg font-medium text-stone-800 font-serif-editorial">12:55</span>
+                                    <span class="text-[10px] font-semibold text-stone-400 tracking-wider uppercase block">Taipei (TPE)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="editorial-line"></div>
+
+                    <!-- 每一项行程仅用干净文字呈现 -->
+                    <div class="space-y-12">
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">14:30</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">MRT</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">降落，潜入盆地的市井中</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 桃园 ➔ 台北车站</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                越过海峡的旅途正式开启。在机场捷运售票机买一张悠游卡，搭乘直达车约40分钟抵市中心。前往位于台北车站商圈的酒店台北铂泊客旅店(Taipei Poshpacker)办理 Check-in，放下行李、换上舒适便服，准备开启一趟没有负担的旅行。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">16:30</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">SUNSET</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">落日金光里的台北之巅</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 信义区象山 / 台北101</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                搭乘捷运红线至象山站。从2号出口出站步行前往登山口，爬上六巨石远眺，看台北101在落日魔幻时刻中逐渐亮起霓虹。随后下山漫步至信义商圈，在101大楼下近距离感受这座地标直插云霄的震撼，顺便逛逛信义区的精致街角。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">19:30</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">CULTURE</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">西门町潮流与老上海风情</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 西门町与红楼</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                搭乘捷运直奔西门站6号出口。步入台北最生猛的青春腹地，品尝一碗温热松软的阿宗面线，探访红砖质感的百年红楼。西门町的夜晚总是包容万象。在红楼后面的露天酒吧街，吹着微凉的晚风，喝杯台啤，彻底放松。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="editorial-line"></div>
+                    <div class="text-[11px] font-semibold tracking-widest text-stone-400 uppercase font-serif-editorial">
+                        🏨 宿：台北铂泊客旅店 (Taipei Poshpacker)
+                    </div>
+                </div>
+            </section>
+
+            <!-- Day 2: 日月潭 -->
+            <section id="day2" class="reveal-on-scroll scroll-mt-16">
+                <div class="flex items-baseline gap-4 mb-8">
+                    <span class="text-5xl md:text-7xl font-normal text-stone-300 font-serif-editorial">02</span>
+                    <div>
+                        <h2 class="text-2xl font-semibold text-stone-900 tracking-tight font-serif-editorial">日月潭 · 山湖</h2>
+                        <div class="flex items-center gap-2 mt-1 text-[10px] font-semibold tracking-widest text-stone-400 uppercase font-sans">
+                            <span class="text-stone-600">周三 Wed</span>
+                            <span class="w-1.5 h-1.5 bg-stone-300 rounded-full"></span>
+                            <span>6月3日</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-10">
+                    <div class="editorial-line"></div>
+
+                    <div class="space-y-12">
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">07:00</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">TRANSIT</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">极速奔向中部的青翠</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 台北车站 ➔ 台中 ➔ 南投</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                清晨在台北车站搭乘早班高铁奔向台中。在台中高铁站1楼，搭乘快速大巴“台湾好行”盘山而上，于上午10点前抵达水社码头。拂面的山风里，带着山林特有的淡淡草木芬芳。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">10:30</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">CYCLING</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">风与水波：骑行全球最美自行车道</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 水社坝 / 向山游客中心</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                在水社码头附近捷安特租一辆电助力单车。在CNN评选的全球最美自行车道上顺着风骑行，穿越碧绿的水社坝，抵达极富建筑线条感的向山游客中心。一路上水天相连，温柔的绿色将眼底填满。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">14:00</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">BOAT</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">环湖波光与阿婆茶叶蛋</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 玄光寺 / 伊达邵</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                回到水社码头，搭乘游船，静静看波光被船舷切开。在玄光寺码头买一颗“阿婆香菇茶叶蛋”，带着微咸的淡淡红茶香气。随后在伊达邵码头的市集散步，尝一尝香烤麻糬，看对岸的青山在午后漫起云雾。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">21:00</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">NIGHT</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">重返台北：宁夏夜市的深夜慰藉</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 宁夏路夜市</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                傍晚乘大巴下山，换乘高铁重回台北。卸下行囊，直奔充满古早烟火气的宁夏夜市。排队买一份香脆可口的刘芋仔蛋黄芋饼，或来一碗暖烘烘的猪肝汤，一口暖胃，给这一天写下最温柔的句点。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="editorial-line"></div>
+                    <div class="text-[11px] font-semibold tracking-widest text-stone-400 uppercase font-serif-editorial">
+                        🏨 宿：台北铂泊客旅店 (续住)
+                    </div>
+                </div>
+            </section>
+
+            <!-- Day 3: 台北过渡与晚照 -->
+            <section id="day3" class="reveal-on-scroll scroll-mt-16">
+                <div class="flex items-baseline gap-4 mb-8">
+                    <span class="text-5xl md:text-7xl font-normal text-stone-300 font-serif-editorial">03</span>
+                    <div>
+                        <h2 class="text-2xl font-semibold text-stone-900 tracking-tight font-serif-editorial">台北 · 晚照</h2>
+                        <div class="flex items-center gap-2 mt-1 text-[10px] font-semibold tracking-widest text-stone-400 uppercase font-sans">
+                            <span class="text-pink-600">周四 Thu</span>
+                            <span class="w-1.5 h-1.5 bg-stone-300 rounded-full"></span>
+                            <span>6月4日</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-10">
+                    <div class="editorial-line"></div>
+
+                    <div class="space-y-12">
+                        <!-- 纸质卷标排版的无感过渡区 (Luggage Transition Block) -->
+                        <div class="group reveal-on-scroll pl-6 border-l-2 border-stone-800/80">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">09:30</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase">TRANSITION</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-2">3分钟的“轻盈迁徙”</h3>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm font-serif-editorial">
+                                在 台北铂泊客旅店 办理退房。提起行李散步仅 3 分钟，即可抵达今晚的落脚点 SleepBox Hotel (睡觉盒子) 并寄存箱子。无需负重，整个过程行云流水，一整天都是可以随意晃荡的自由。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">10:30</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">ART</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">六十万件时光的静立</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 国立故宫博物院</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                乘红线至士林站转乘红30路公车直抵正馆。在翠玉白菜与毛公鼎面前，感受千年时光在极精致器皿里凝固的弧度，租一个导览，看那些静止的古老岁月如何抚平现代人的焦虑。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">13:00</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">WALK</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">赤峰街：在咖啡与旧铁铺间散步</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 捷运中山站 / 赤峰街</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                午后迈入捷运中山站，拐进充满文艺烟火气的赤峰街。老旧铁铺与现代独立设计店、低调精致的手冲咖啡、旧书店安静错落。慢下来喝杯冰咖啡，看轻轨和行人在日常光影中悄然穿梭。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">15:30</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">SUNSET</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">淡水暮色，吹一吹青春的风</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 淡水金色水岸 / 渔人码头</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                继续向北在淡水终点站下车。刷悠游卡借一辆 YouBike，在金色海岸边悠闲骑行。晚风里像是有《不能说的秘密》中若隐若现的乐音。在渔人码头安静等候，看橘红夕阳慢慢浸没于深蓝的海洋。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">20:00</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">NIGHT</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">饶河夜市的胡椒饼与河边晚风</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 饶河街夜市 & 彩虹桥</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                入夜在松山站出站，步入饶河街夜市。尝尝热乎乎的胡椒饼与药炖排骨。随后步行到附近的彩虹桥。坐在河坝边吹吹晚风，听街头艺人自弹自唱，静看倒映在河面上的桥梁霓虹在细碎波澜中闪烁。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">21:30</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">CHECK-IN</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">回到盒子，酣然入梦</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 SleepBox Hotel</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                夜阑人静，漫步回台北车站旁的睡觉盒子青旅 (SleepBox Hotel)。洗个舒服的温水澡，在台北的晚安声中安稳入眠。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="editorial-line"></div>
+                    <div class="text-[11px] font-semibold tracking-widest text-stone-400 uppercase font-serif-editorial">
+                        🏨 宿：睡觉盒子青旅 (SleepBox Hotel)
+                    </div>
+                </div>
+            </section>
+
+            <!-- Day 4: 归途 -->
+            <section id="day4" class="reveal-on-scroll scroll-mt-16">
+                <div class="flex items-baseline gap-4 mb-8">
+                    <span class="text-5xl md:text-7xl font-normal text-stone-300 font-serif-editorial">04</span>
+                    <div>
+                        <h2 class="text-2xl font-semibold text-stone-900 tracking-tight font-serif-editorial">归途 · 留白</h2>
+                        <div class="flex items-center gap-2 mt-1 text-[10px] font-semibold tracking-widest text-stone-400 uppercase font-sans">
+                            <span class="text-stone-500">周五 Fri</span>
+                            <span class="w-1.5 h-1.5 bg-stone-300 rounded-full"></span>
+                            <span>6月5日</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-10">
+
+                    <!-- 纯净纸质离港票根设计 -->
+                    <div class="ticket-box p-6 md:p-8 rounded-none relative overflow-hidden group">
+                        <!-- 经典撕切装饰线 -->
+                        <div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 border-t border-dashed border-stone-200"></div>
+
+                        <!-- 华航梅花水印 -->
+                        <img src="./cal_logo.png" alt="CAL Logo" class="absolute right-4 bottom-4 w-28 h-28 object-contain opacity-[0.05] pointer-events-none select-none transition-transform duration-700">
+
+                        <div class="grid grid-cols-12 gap-4 relative z-10">
+                            <div class="col-span-12 md:col-span-4 pb-4 md:pb-0">
+                                <span class="text-[9px] font-semibold text-stone-400 uppercase tracking-widest block mb-1">OUTBOUND FLIGHT</span>
+                                <span class="text-2xl font-medium text-stone-800 font-serif-editorial tracking-tight">CI919</span>
+                                <span class="text-[10px] text-stone-400 uppercase tracking-wider block font-normal mt-0.5">China Airlines (A330)</span>
+                            </div>
+                            <div class="col-span-12 md:col-span-8 flex justify-between items-center pt-4 md:pt-0">
+                                <div>
+                                    <span class="text-lg font-medium text-stone-800 font-serif-editorial">16:55</span>
+                                    <span class="text-[10px] font-semibold text-stone-400 tracking-wider uppercase block">Taipei (TPE)</span>
+                                </div>
+                                <div class="text-stone-300 font-normal text-xl px-4">&rarr;</div>
+                                <div class="text-right">
+                                    <span class="text-lg font-medium text-stone-800 font-serif-editorial">19:00</span>
+                                    <span class="text-[10px] font-semibold text-stone-400 tracking-wider uppercase block">Hong Kong (HKG)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="editorial-line"></div>
+
+                    <div class="space-y-12">
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">10:00</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">EXPO</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">最后的宝岛文艺时光</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 华山1914文创园区</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                不紧不慢的清晨，去满是常春藤和红砖老厂房的华山1914文创园走一走。在文艺的气息里，淘一些台湾本土手工艺人的有趣文创，给这趟安静的留白旅程画几道温暖的彩墨。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">11:30</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">SWEET</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">永康街：舌尖上的完美休止符</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 永康街 / 鼎泰丰</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                午间悠然晃到永康街。吃一笼鼎泰丰汤汁饱满、薄如蝉翼的经典小笼包，再来一碗铺满新鲜大块芒果的思慕昔雪花冰。顺便挑一些微热山丘凤梨酥和牛轧糖，连同台湾的温婉甜美一同装进行囊。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">13:30</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">FAST-PASS</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">市区预办，极简退场</h3>
+                            <div class="text-[10px] font-semibold text-stone-400 mb-3 tracking-wider font-mono">📍 台北车站 A1 捷运站</div>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                在台北车站 A1 捷运站，享受优雅的市区预办登机。行李直接托运，瞬间回归双手无物的畅快。搭乘紫色直达车，任车窗外温柔如旧的水田和青山在眼前掠过，约 35 分钟直达桃园机场。
+                            </p>
+                        </div>
+
+                        <div class="group reveal-on-scroll">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm font-medium text-stone-400 font-serif-editorial">16:55</span>
+                                <span class="text-[9px] font-semibold tracking-widest text-stone-400 uppercase border border-stone-200 px-2 py-0.5">FLIGHT HOME</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-stone-950 mb-3">留下什么，变成什么样的大人</h3>
+                            <p class="text-stone-600 leading-relaxed text-justify text-sm">
+                                就像《蓝色大门》里经典的那句自问：“留下什么，我们就变成什么样的大人。”当 CI919 的飞机引擎在桃园机场轰鸣，掠过白云，视线里温热湿润的绿意终究退去。山海的记忆已经融于心底，我们，下个晴天见。
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+
+    </div>
+
+    <!-- 极致平实优雅的杂志页脚 -->
+    <footer class="mt-32 pt-12 border-t border-stone-200 text-center text-stone-500 font-serif-editorial text-base leading-relaxed">
+        <p>山海有期，留白有时 · 那些未抵达的南方与东海岸，我们留给下一次晴天</p>
+    </footer>
+
+</div>
+
+<!-- Active Indicator Scroll Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Scroll reveal animation observer
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, observerOptions);
+
+        const elementsToAnimate = document.querySelectorAll('.reveal-on-scroll');
+        elementsToAnimate.forEach(el => revealObserver.observe(el));
+
+        // Smart Navigation Scrollspy
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const mobileTabs = document.querySelectorAll('.mobile-tab');
+
+        function updateActiveState() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= (sectionTop - 300)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            // Update Desktop nav contents
+            navLinks.forEach(link => {
+                link.classList.remove('text-stone-950', 'font-semibold', 'pl-6');
+                link.classList.add('text-stone-400');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.remove('text-stone-400');
+                    link.classList.add('text-stone-950', 'font-semibold', 'pl-6');
+                }
+            });
+
+            // Update Mobile float tabs
+            mobileTabs.forEach(tab => {
+                tab.classList.remove('bg-stone-900', 'text-[#FAF9F6]', 'font-semibold');
+                tab.classList.add('text-stone-400');
+                if (tab.getAttribute('href') === `#${current}`) {
+                    tab.classList.remove('text-stone-400');
+                    tab.classList.add('bg-stone-900', 'text-[#FAF9F6]', 'font-semibold');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveState);
+        updateActiveState(); // Initial check
+    });
+</script>
+</body>
+</html>
