@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full w-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>🇹🇼 台湾4天3晚行程规划与路线可行性核实地图</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+        /* 隐藏滚动条但保留滚动功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 地图气泡弹窗自定义美化 */
+        .leaflet-popup-content-wrapper {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(8px);
+            color: #1e293b;
+            border-radius: 16px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+            padding: 4px;
+        }
+        .leaflet-popup-tip {
+            background: #ffffff;
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        .leaflet-popup-close-button {
+            color: #64748b !important;
+            padding: 8px 12px 0 0 !important;
+            font-size: 16px !important;
+        }
+        .leaflet-interactive {
+            transition: stroke-width 0.2s, stroke-opacity 0.2s;
+        }
+        #map {
+            width: 100% !important;
+            height: 100% !important;
+            display: block !important;
+            background: #f1f5f9;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full w-full flex flex-col overflow-hidden">
+
+<header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between z-[1000] shrink-0 shadow-sm">
+    <div class="flex items-center space-x-3">
+        <div class="bg-gradient-to-tr from-amber-500 to-rose-500 text-white p-2 rounded-xl shadow-sm shadow-rose-500/10 shrink-0">
+            <i class="fa-solid fa-map-location-dot text-base"></i>
+        </div>
+        <div>
+            <h1 class="font-extrabold text-sm md:text-base tracking-tight text-slate-900 flex flex-wrap items-center gap-1.5">
+                <span>台湾 4天3晚 路线可行性分析图</span>
+                <span class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full border border-emerald-200 font-medium whitespace-nowrap">宿·全程不搬家版</span>
+            </h1>
+            <p class="text-[10px] md:text-xs text-slate-500 font-medium">极致吃货 ➔ 杰哥阿伟巡礼 ➔ 地标无缝衔接流</p>
+        </div>
+    </div>
+    <div class="hidden lg:flex items-center space-x-4 text-xs text-slate-600 font-medium">
+        <span class="flex items-center bg-slate-100 px-3 py-1.5 rounded-full"><i class="fa-solid fa-hotel text-amber-500 mr-1.5"></i> 全程住：台北铂泊客旅店</span>
+        <span class="flex items-center bg-slate-100 px-3 py-1.5 rounded-full"><i class="fa-solid fa-route text-blue-500 mr-1.5"></i> 交通闭环：零回头更省心</span>
+    </div>
+</header>
+
+<div class="flex-1 h-0 flex flex-col md:flex-row relative overflow-hidden">
+
+    <!-- 左侧日程面板 -->
+    <aside class="w-full md:w-[380px] bg-white border-r border-slate-200 flex flex-col z-[999] absolute md:relative bottom-0 md:bottom-auto h-[45vh] md:h-full transition-all duration-300 shadow-2xl md:shadow-none shrink-0" id="sidebar">
+
+        <!-- 手机端抽屉拉手 -->
+        <div class="md:hidden w-full flex justify-center py-2 cursor-pointer border-b border-slate-100 shrink-0" onclick="toggleSidebarMobile()">
+            <div class="w-12 h-1.5 bg-slate-300 rounded-full"></div>
+        </div>
+
+        <!-- 天数切换 Tabs -->
+        <div class="p-3 bg-slate-50/50 border-b border-slate-200/60 shrink-0">
+            <div class="grid grid-cols-5 gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/20 text-xs">
+                <button onclick="setActiveDay('all')" id="btn-day-all" class="py-2 px-1 rounded-lg font-bold text-center transition-all bg-white text-slate-800 shadow-sm border border-slate-200/50 font-['Inter']">
+                    全部
+                </button>
+                <button onclick="setActiveDay(1)" id="btn-day-1" class="py-2 px-1 rounded-lg font-bold text-center text-slate-500 hover:text-slate-800 transition-all font-['Inter']">
+                    D1 <span class="block text-[8px] font-medium opacity-80 text-blue-600 font-['Inter']">地标流</span>
+                </button>
+                <button onclick="setActiveDay(2)" id="btn-day-2" class="py-2 px-1 rounded-lg font-bold text-center text-slate-500 hover:text-slate-800 transition-all font-['Inter']">
+                    D2 <span class="block text-[8px] font-medium opacity-80 text-emerald-600 font-['Inter']">日月潭</span>
+                </button>
+                <button onclick="setActiveDay(3)" id="btn-day-3" class="py-2 px-1 rounded-lg font-bold text-center text-slate-500 hover:text-slate-800 transition-all font-['Inter']">
+                    D3 <span class="block text-[8px] font-medium opacity-80 text-purple-600 font-['Inter']">杰九饶</span>
+                </button>
+                <button onclick="setActiveDay(4)" id="btn-day-4" class="py-2 px-1 rounded-lg font-bold text-center text-slate-500 hover:text-slate-800 transition-all font-['Inter']">
+                    D4 <span class="block text-[8px] font-medium opacity-80 text-amber-600 font-['Inter']">大稻埕</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 日程点列表（可滚动） -->
+        <div class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-3 bg-white" id="itinerary-list-container">
+            <!-- 由 JavaScript 动态生成内容 -->
+        </div>
+    </aside>
+
+    <!-- 地图展示区 -->
+    <main class="flex-1 h-[55vh] md:h-full relative bg-slate-100 overflow-hidden" id="map-container">
+        <!-- 地图画布 -->
+        <div id="map" class="absolute inset-0 z-0"></div>
+    </main>
+</div>
+
+<script>
+    const itineraryData = [
+        // DAY 1 (Blue)
+        {
+            day: 1,
+            id: "d1-hotel",
+            time: "14:30",
+            title: "台北铂泊客旅店（Poshpacker）",
+            coords: [25.04412, 121.51336],
+            type: "hotel",
+            desc: "落地办理入住，放下沉重的行李！位置极好，步行 8 分钟到台北车站，10 分钟到西门町。接下来三天我们一直住在这里，省去每天打包退房的麻烦！",
+            tip: "入住完后，轻装出发，直接步行前往台北车站搭乘捷运红线。",
+            transit: "坐捷运红线前往【中正纪念堂站】（仅 2 站，5 分钟）",
+            details: "🚇 交通工具：捷运红线（淡水信义线）\n💡 乘车指引：从台北车站进站，搭乘往象山方向的红线捷运，坐 2 站即达。\n⚠️ 注意事项：台北捷运可直接刷悠游卡，进站后严禁饮食和嚼口香糖（违者重罚）。"
+        },
+        {
+            day: 1,
+            id: "d1-cksmh",
+            time: "15:00 - 16:15",
+            title: "中正纪念堂 & 自由广场",
+            coords: [25.0343, 121.5217],
+            type: "sight",
+            desc: "台北的核心人文地标。拥有极其壮观的自由广场牌楼。您可以正好赶上下午 16:00 整点的三军仪队换岗交接仪式（在主大殿内，过程约 15 分钟）。",
+            tip: "看完换岗仪式后，直接在地下站搭乘红线直达象山站！",
+            transit: "捷运红线直达【象山站】（终点站，约 12 分钟）",
+            details: "🚇 交通工具：捷运红线（淡水信义线）\n💡 乘车指引：看完换岗后走 5 号出口回地下车站，搭乘往象山方向列车直达终点站。\n⚠️ 注意事项：下午换岗仪式非常火爆，建议提前 10 分钟在殿内围栏前排队占位以获得最佳视野。"
+        },
+        {
+            day: 1,
+            id: "d1-xiangshan",
+            time: "16:30 - 18:30",
+            title: "象山落日观景台 & 台北101",
+            coords: [25.0273, 121.5707],
+            type: "sight",
+            desc: "登上象山观景台，看台北 101 大楼在夕阳红霞中逐渐亮起霓虹。这是拍摄台北盆地、101 地标最好的黄金角度！",
+            tip: "登山有少许台阶，下山后可步行到 101 大楼下方近距离打卡拍照。",
+            transit: "捷运红线坐回【西门站】（约 20 分钟）",
+            details: "🚇 交通工具：捷运红线 ➔ 捷运绿线\n💡 乘车指引：从象山站坐红线，在【中正纪念堂站】下车，走到对面站台直接换乘绿线（往松山方向），坐 1 站到达【西门站】。\n⚠️ 注意事项：象山登山口有少许台阶，山间蚊虫较多，建议提前喷好防蚊水。纪念堂站同台换乘极其丝滑，认准绿色标识即可。"
+        },
+        {
+            day: 1,
+            id: "d1-ximending",
+            time: "19:30 - 21:30",
+            title: "西门町商圈 & 豪大大鸡排",
+            coords: [25.0423, 121.5074],
+            type: "food",
+            desc: "台北最潮、最热闹的夜生活地带。品尝比脸还大、外皮酥脆的【豪大大鸡排】，或者经典的【阿宗面线】！",
+            tip: "红楼后面的露天小酒吧极其有氛围，可以点杯台啤吹吹晚风。",
+            transit: "步行或坐一站地铁，轻松回台北车站铂泊客旅店",
+            details: "🚶 交通工具：步行 或 捷运\n💡 路线指引：顺着重庆南路方向步行约 10 分钟即可回到旅店；如太累可搭板南线（蓝线）坐 1 站回台北车站。\n⚠️ 注意事项：阿宗面线没有座位，所有食客都是捧着碗在街边站着吃，点小碗即可留肚吃其他美食。"
+        },
+
+        // DAY 2 (Green)
+        {
+            day: 2,
+            id: "d2-taichung",
+            time: "07:00 - 08:30",
+            title: "台北车站 ➔ 台中高铁站",
+            coords: [24.1121, 120.6158],
+            type: "transit",
+            desc: "特种兵清晨出发！搭乘时速 300 公里的高铁快速奔向台中（车程 50 分钟）。在台中高铁站 5 号出口购买「南投客运-台湾好行」日月潭直达大巴车票。",
+            tip: "建议前一晚买好早餐或在高铁上享用，省下时间。",
+            transit: "台湾好行大巴，1 小时 20 分直达日月潭水社码头",
+            details: "🚄 交通工具：台湾高铁 ➔ 台湾好行 6670 路快速大巴\n💡 乘车指引：台北车站搭乘 07:11 前的高铁，08:00 左右到台中。出站下 1 楼至 5 号出口，南投客运柜台买票上车。\n⚠️ 注意事项：山路有些许颠簸，容易晕车者务必提前半小时服用防晕车药。建议买日月潭联票（含大巴+船票），比单买划算。"
+        },
+        {
+            day: 2,
+            id: "d2-shuishe",
+            time: "10:00 - 10:30",
+            title: "日月潭水社码头",
+            coords: [23.8647, 120.9169],
+            type: "sight",
+            desc: "日月潭的大门。自行车骑行和游船的起点。我们在这里租好电助力单车，出发！",
+            tip: "务必租用“电助力”的捷安特单车，爬坡超省力，骑行很爽！",
+            transit: "沿湖边自行车道骑行往向山（单程约 3 公里）",
+            details: "🚲 交通工具：电助力自行车（捷安特/美利达租赁点）\n💡 路线指引：顺着水社码头旁边的“金色水岸”专用车道向南骑行。\n⚠️ 注意事项：湖边有部分陡坡和窄道，需下车推行，骑行时请注意避让步行游客，严禁并排快速飙车。"
+        },
+        {
+            day: 2,
+            id: "d2-xiangshan-center",
+            time: "10:30 - 12:30",
+            title: "向山自行车道（最美骑行线）",
+            coords: [23.8519, 120.9023],
+            type: "sight",
+            desc: "被 CNN 评为「全球十大最美自行车道」之一。经过水社坝木栈道，沿湖骑行，最终抵达日本极简建筑「向山游客中心」。",
+            tip: "清水混凝土的开阔背景，拍照非常有高级质感！",
+            transit: "骑回水社码头还车，购买船票登船前往玄光寺",
+            details: "🚢 交通工具：日月潭交通班船（游游艇）\n💡 乘车指引：向山还车后回到水社码头，凭联票在浮动码头排队登船，认准对应船队的标志和盖章。\n⚠️ 注意事项：游艇船班约 20 分钟一班，通常采用单向循环航线（水社 ➔ 玄光寺 ➔ 伊达邵 ➔ 水社），不要坐错方向。"
+        },
+        {
+            day: 2,
+            id: "d2-xuanguang",
+            time: "13:30 - 14:15",
+            title: "玄光寺码头 & 金盆阿婆茶叶蛋",
+            coords: [23.8528, 120.9189],
+            type: "food",
+            desc: "坐船登岛。这里最出名的必吃美味就是用红茶 and 香菇慢火煨制的【金盆阿婆香菇茶叶蛋】。蛋白极其入味，蛋黄香浓！",
+            tip: "吃完茶叶蛋可以走上玄光寺台阶，远眺拉鲁岛。",
+            transit: "坐船前往伊达邵码头",
+            details: "🚢 交通工具：日月潭交通班船\n💡 乘车指引：玄光寺码头直接搭船前往伊达邵码头，航程约 10 分钟。\n⚠️ 注意事项：阿婆茶叶蛋可使用悠游卡或现金支付，买好蛋可以带到船上吃，但垃圾必须带走。"
+        },
+        {
+            day: 2,
+            id: "d2-yidashao",
+            time: "14:30 - 16:30",
+            title: "伊达邵码头（邵族美食街）",
+            coords: [23.8488, 120.9327],
+            type: "food",
+            desc: "原住民聚落，开满特色小吃：小米烤麻糬、阿萨姆红茶、山猪肉割包等。吃饱后乘船返回水社码头，搭大巴返回台中高铁站，坐高铁回台北。",
+            tip: "返回台北高铁时间在 18:30-19:00 之间最完美，回台约 20:15。",
+            transit: "返回台北后，直接前去宁夏夜市",
+            details: "🚢 🚌 🚄 🚇 交通接驳：轮渡 ➔ 6670大巴 ➔ 台湾高铁 ➔ 捷运红线\n💡 路线指引：伊达邵乘船回水社码头，搭 17:00 前的 6670 路返回台中高铁站，搭高铁回台北车站。换乘捷运红线坐 1 站到【双连站】下车走 8 分钟达夜市。\n⚠️ 注意事项：高铁返程票建议提前在官方 App 订好，避免周末晚上大客流无座。"
+        },
+        {
+            day: 2,
+            id: "d2-ningxia",
+            time: "21:00 - 22:30",
+            title: "台北宁夏夜市（本地深夜食堂）",
+            coords: [25.0558, 121.5153],
+            type: "food",
+            desc: "台北人心目中的古早味第一选择！打卡殿堂级小吃：【刘芋仔蛋黄芋饼】（排长队，炸得金黄酥脆）、【环记麻油鸡】或暖胃的【猪肝荣仔】。",
+            tip: "摊位集中度高，适合和旅伴买一份分着吃，可以多吃几种小吃。",
+            transit: "步行 12 分钟或坐车，轻松返回铂泊客旅店休息",
+            details: "🚶 交通工具：步行\n💡 路线指引：顺着民生西路直走，左转至重庆南路即可回到铂泊客旅店（步行约 1.1 公里，12 分钟）。\n⚠️ 注意事项：宁夏夜市中间通道较狭窄，人流极大，保管好随身财物。刘芋仔蛋黄芋饼通常需要排队 20 分钟以上。"
+        },
+
+        // DAY 3 (Purple)
+        {
+            day: 3,
+            id: "d3-npm",
+            time: "09:30 - 12:00",
+            title: "台北故宫博物院",
+            coords: [25.1023, 121.5485],
+            type: "sight",
+            desc: "顶级中华文化艺术圣殿。藏有「翠玉白菜」、「肉形石」、「毛公鼎」等国宝级奇珍，冷气非常足，极具视觉和美学享受。",
+            tip: "建议租用语音导览机。里面冷气足，最好带件薄外套。",
+            transit: "搭乘红 30 路公车直接坐回台北车站/旅店周边（约 35 分钟）",
+            details: "🚇 🚌 交通工具：捷运红线 ➔ 红 30路公交车\n💡 乘车指引：台北车站搭红线至【士林站】1 号出口，直行中正路屈臣氏门口，转乘【红30路】（直达故宫正馆地下入口）或【304路、255路】。\n⚠️ 注意事项：展厅内冷气非常强悍，一定要带件薄外套。双肩背包（不论大小）必须寄存（前台寄存柜免费投币退币）。"
+        },
+        {
+            day: 3,
+            id: "d3-lunch",
+            time: "12:30 - 13:30",
+            title: "刘山东牛肉面 & 经典台湾鲁肉饭",
+            coords: [25.0450, 121.5126],
+            type: "food",
+            desc: "台北 70 年传奇老字号（米其林必比登推荐）！招牌牛肉面粗面极弹，牛肉巨厚，汤底香浓。一定要顺便吃一碗油亮黏糯、肥而不腻的<b>经典宝岛卤肉饭</b>！",
+            tip: "牛肉面绝配是它家的酸菜。卤肉饭经常打成“驴肉饭”，别说错啦！",
+            transit: "步行 3 分钟到台北车站，坐台铁区间车前往【四脚亭站】（车程 35 分钟）",
+            details: "🚶 🚆 交通工具：步行 ➔ 台铁区间车（普通小火车）\n💡 乘车指引：吃饱后走回台北车站台铁闸口，直接刷悠游卡进站，前往 4 铺台搭乘往基隆、苏澳或宜兰方向的【区间车】直达【四脚亭站】。\n⚠️ 注意事项：区间车像地铁一样无需对号入座，随到随坐。刘山东牛肉面午餐时间大排长龙，尽量在 12:15 前抵达排队。"
+        },
+        {
+            day: 3,
+            id: "d3-siting",
+            time: "14:30",
+            title: "四脚亭火车站（杰哥迷因世界入口）",
+            coords: [25.1039, 121.7618],
+            type: "transit",
+            desc: "《如果早知道，男生也会被性侵》圣地巡礼第一站！台铁区间车在此到站。古朴的老旧站台。出站后，脑海里会自动响起名场面 BGM！",
+            tip: "出站后直接在路边打车或使用 Uber，5 分钟即可直达碇内风雨球场/公园。",
+            transit: "打车 5 分钟前往碇内十五号公园",
+            details: "🚕 交通工具：Uber / 计程车\n💡 路线指引：出站后在站外广场直接开启 Uber 呼叫，或者在路边等排队计程车。告知前往“碇内十五号公园”，车程约 5 分钟。\n⚠️ 注意事项：四脚亭是小站，现场计程车较少，强烈建议使用手机 App（如 Uber 或 55688）叫车。"
+        },
+        {
+            day: 3,
+            id: "d3-park",
+            time: "14:45 - 15:15",
+            title: "碇内十五号公园（阿伟悲伤秋千）",
+            coords: [25.0991, 121.7511],
+            type: "sight",
+            desc: "【经典名场面：阿伟离家出走的悲伤长椅和红色秋千】！就是在这个红色秋千上，阿伟抱着面包喝着饮料长叹。打卡标志姿势：抱头作痛苦深呼吸状：「啊～～！我离家出走，我好累哦！」",
+            tip: "红色秋千和旁边的长椅就在公园一侧，原片场景完全吻合！",
+            transit: "步行 2 分钟，前往碇祥风雨篮球场",
+            details: "🚶 交通工具：步行\n💡 路线指引：出公园后沿着源远路向南，步行 2 分钟即可到风雨篮球场（路边有高大的蓝色铁棚）。\n⚠️ 注意事项：公园是公共社区活动场所，打卡拍照时声音请尽量克制，不要打扰附近居民生活哦。"
+        },
+        {
+            day: 3,
+            id: "d3-court",
+            time: "15:15 - 15:45",
+            title: "碇祥风雨篮球场（超会生篮球场）",
+            coords: [25.0963, 121.7514],
+            type: "sight",
+            desc: "【经典名场面：「哎哟，超会生的嘛！」】。阿伟和彬彬打球、遇见杰哥的命定球场！就是在这个带绿色防护网的蓝色铁棚风雨篮球场，杰哥对他们说：「面包、饮料，还有一些好康的……在我的家里！」",
+            tip: "可以在这里做出杰哥打招呼的手势，大声喊一句：「彬彬就是逊啦！」",
+            transit: "步行 2 分钟，前往旁边的便利店",
+            details: "🚶 交通工具：步行\n💡 路线指引：从球场出来沿着源远路走回街角，即可看到街头红绿标志的便利超商。\n⚠️ 注意事项：如果球场有当地中学生在打球，可以非常有礼貌地找他们合个影或者等他们中场休息再进行梗图拍照。"
+        },
+        {
+            day: 3,
+            id: "d3-store",
+            time: "15:45 - 16:15",
+            title: "暖暖区便利商店（买点好康补给站）",
+            coords: [25.0978, 121.7523],
+            type: "food",
+            desc: "【经典名场面：买面包和麦香红茶】。在这家店里买上一袋白吐司面包 and 两盒经典“麦香红茶”，100% 还原阿伟在超市采购好康物资的镜头！",
+            tip: "拍照时，要用双手恭敬、满足地抱着面包和两盒饮料。",
+            transit: "在超商门口用 Uber 直接打车直达【九份老街】（山路车程仅 15 分钟，极高效）",
+            details: "🚕 🚌 交通工具（二选一）：\n1. 【最速方案 - 强烈推荐】超商门口直接呼叫 Uber/计程车，直达九份老街（山路车程 15 分钟，花费约 NT$300-350），省时省力。\n2. 【公交方案】在门口的「碇內(博愛仁家)」公交站牌，搭乘【基隆客运 1062 路 或 788 路】直接一车爬山送到九份老街。\n⚠️ 注意事项：九份山路弯道急，若选坐公车且容易晕车的话，一定要在这家超商买好防晕药提前吃下。"
+        },
+        {
+            day: 3,
+            id: "d3-jiufen",
+            time: "16:45 - 19:15",
+            title: "九份老街（浪漫红灯笼亮起）",
+            coords: [25.1099, 121.8452],
+            type: "sight",
+            desc: "依山傍海的山城老街。17:30 左右竖崎路的红灯笼会逐一亮起，梦幻感十足。吃一餐著名的【赖阿婆芋圆】（或阿柑姨芋圆），俯瞰基隆港的无敌夜景。",
+            tip: "日落交替亮灯的 30 分钟是拍照的最佳黄金时间。",
+            transit: "在九份老街牌楼公车站，搭乘【基隆客运 1062 路】（一车直达台北市，不倒腾）",
+            details: "🚌 交通工具：基隆客运 1062 路（直达车）\n💡 乘车指引：在九份老街公交站牌处排队，搭乘 1062 路（往捷运忠孝复兴站方向），在【松山车站】下车。\n⚠️ 注意事项：周末傍晚排队下山的人巨多，为了保证能在 20:30 吃上夜市，建议提前在 18:50 前往车站排队，车程约 50 分钟，上车直接刷悠游卡。"
+        },
+        {
+            day: 3,
+            id: "d3-raohe",
+            time: "20:30 - 22:00",
+            title: "松山饶河街夜市（吃货黄金尾声）",
+            coords: [25.0501, 121.5775],
+            type: "food",
+            desc: "1062 路客运直接在【松山车站】下车即达！必吃大名鼎鼎的【福州世祖胡椒饼】（一口爆汁，香气满溢）、以及热气腾腾大补的【陈董药炖排骨】！",
+            tip: "吃太撑的话，可散步 3 分钟到旁边的基隆河畔【彩虹桥】吹吹夜风消食。",
+            transit: "在松山车站搭乘台铁区间车（仅 1 站，4 分钟）直达台北车站，回旅店洗澡",
+            details: "🚆 交通工具：台铁区间车（火车）\n💡 乘车指引：从夜市出来，走进旁边的台铁【松山车站】，刷悠游卡进站，搭往台北/树林方向的区间车，坐 1 站（4 分钟）即达台北车站，出站走重庆南路回旅店。\n⚠️ 注意事项：松山车站到台北车站火车非常频繁，类似于地铁，随来随坐，极其丝滑。"
+        },
+
+        // DAY 4 (Orange)
+        {
+            day: 4,
+            id: "d4-checkin",
+            time: "09:00 - 09:30",
+            title: "台北车站 A1 站（市区预办登机托运）",
+            coords: [25.0491, 121.5127],
+            type: "transit",
+            desc: "【市区提前托运行李，彻底两手空空！】。退房后，推行李来到机场捷运 A1 站，在自助机器托运行李，直挂香港！你的重物瞬间清零，开启无重力快闪！",
+            tip: "必须在航班起飞前 3 小时托运完毕。我们 9 点去是最完美、最安全的。",
+            transit: "打车 5 分钟或散步前往大稻埕",
+            details: "🚶 🚕 交通工具：步行 或 计程车\n💡 路线指引：在机捷 A1 站办完托运后，直接步行约 12 分钟或花 NT$100 打车 5 分钟直达大稻埕迪化街。\n⚠️ 注意事项：市区托运仅限中华航空、长荣航空等主流航班，且必须在航班起飞前 3 小时托运完（16:55 起飞，13:55 截止，上午 9 点办理完美无压力）。"
+        },
+        {
+            day: 4,
+            id: "d4-dihua",
+            time: "09:30 - 12:30",
+            title: "大稻埕 ➔ 迪化街老街慢行",
+            coords: [25.0573, 121.5100],
+            type: "sight",
+            desc: "老台北的巴洛克旧时光，台湾保存最完好的历史老街。逛逛极精致的旧楼阁、手作文创和高山茶行。买精致宝岛手信的最佳去处。",
+            tip: "去复古杂货铺淘一个红绿蓝相间的经典「茄芷袋」，是绝佳的文创纪念品！",
+            transit: "就在迪化街中心的永乐市场内享用绝味早午餐",
+            details: "🚶 交通工具：步行\n💡 路线指引：迪化街南北向延伸，全程步行游览最为惬意。\n⚠️ 注意事项：老街上午有很多商铺和茶行刚开门，适合安静淘手信。复古的「茄芷袋」非常便宜且耐磨，是手信第一推荐！"
+        },
+        {
+            day: 4,
+            id: "d4-breakfast",
+            time: "11:00 - 12:30",
+            title: "永乐市场：林合发油饭 & 旗鱼米粉",
+            coords: [25.0544, 121.5102],
+            type: "food",
+            desc: "品尝【林合发油饭】（百年油饭名号，香喷喷，去晚了绝对卖光）和【民乐旗鱼米粉】（汤底极致鲜甜，一定要配上一盘刚起锅的现炸红烧肉 and 炸花枝）。",
+            tip: "买好最后一波伴手礼后，步行或坐一站路返回台北车站 A1 站搭车。",
+            transit: "搭乘机场捷运直达车（紫色）直奔桃园机场（车程 35 分钟）",
+            details: "🚇 交通工具：机场捷运直达车（紫色车厢）\n💡 乘车指引：步行回到台北车站 A1 站，刷悠游卡或买单程票（NT$160），搭乘紫色【直达车】列车直奔桃园机场。\n⚠️ 注意事项：千万别坐蓝色【普通车】（站站停，比较慢）。紫色直达车约 35 分钟即可直达航站楼。林合发油饭极其火爆，通常上午 11:30 就会彻底售罄。"
+        },
+        {
+            day: 4,
+            id: "d4-airport",
+            time: "13:30 - 14:30",
+            title: "桃园国际机场（轻松出境返港）",
+            coords: [25.0797, 121.2342],
+            type: "transit",
+            desc: "抵达桃园机场。因为行李早就从市区直挂托运走，直接过安检、出境，安逸地逛逛机场免税店！",
+            tip: "回程航班：华航 CI919 (16:55 台北 ➔ 19:00 香港)。",
+            transit: "平安返港，结束有笑点、有梗、有无尽美食的台湾特种兵之旅！",
+            details: "✈️ 交通工具：中华航空 CI919 航班\n💡 返程指引：直达机场后，直接进入安检通道、过海关。因为没有行李拖累，可以秒速通关。\n⚠️ 注意事项：建议提前在华航官网/App 办理线上值机，进一步省下在柜台排队领实体登机牌的时间。"
+        }
+    ];
+
+    // 动态计算每一项在当天的先后顺序编号 (Sequence Number)
+    const dayCounters = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    itineraryData.forEach(item => {
+        dayCounters[item.day]++;
+        item.seq = dayCounters[item.day];
+    });
+
+    let map;
+    let activeDay = 'all';
+    let markerLayers = [];
+    let polylineLayers = [];
+    let mapCenter = [25.04412, 121.51336]; // 默认以台北车站铂泊客为中心
+    let activeId = null;
+
+    // 每日路线对应的特色色彩系统
+    const colors = {
+        1: '#2563EB', // 蓝色 Day 1
+        2: '#10B981', // 绿色 Day 2
+        3: '#8B5CF6', // 紫色 Day 3
+        4: '#F59E0B'  // 橙色 Day 4
+    };
+
+    // 默认瓦片源 (CartoDB Voyager 亮色极速地图瓦片)
+    const defaultTileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    const defaultTileOptions = { maxZoom: 19, subdomains: 'abcd' };
+
+    function startApp() {
+        if (window.mapInitialized) return;
+        window.mapInitialized = true;
+        initMap();
+    }
+
+    // 判断 DOM 加载状态，确保 100% 顺畅启动
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        startApp();
+    } else {
+        document.addEventListener('DOMContentLoaded', startApp);
+    }
+    window.addEventListener('load', startApp);
+
+    function initMap() {
+        try {
+            map = L.map('map', {
+                center: mapCenter,
+                zoom: 13,
+                zoomControl: false,
+                attributionControl: false
+            });
+
+            // 载入默认的精美亮色地图源
+            L.tileLayer(defaultTileUrl, defaultTileOptions).addTo(map);
+
+            // 放置缩放控件在右下角
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+            // 渲染界面和标注
+            renderItineraryList();
+            renderMapData();
+
+            // 执行防坍塌自适应尺寸刷新
+            [50, 200, 500, 1000].forEach(delay => {
+                setTimeout(() => {
+                    forceRedraw();
+                }, delay);
+            });
+
+        } catch (err) {
+            console.error("Map initialization failed: ", err);
+        }
+    }
+
+    // 强制重设地图尺寸
+    function forceRedraw() {
+        if (map) {
+            map.invalidateSize();
+        }
+    }
+
+    function renderItineraryList() {
+        const container = document.getElementById('itinerary-list-container');
+        container.innerHTML = '';
+
+        const filteredData = activeDay === 'all'
+            ? itineraryData
+            : itineraryData.filter(item => item.day === parseInt(activeDay));
+
+        if (filteredData.length === 0) {
+            container.innerHTML = `<div class="text-center py-8 text-slate-400 font-['Inter']">今日暂无行程点</div>`;
+            return;
+        }
+
+        let lastDay = null;
+
+        filteredData.forEach(item => {
+            if (activeDay === 'all' && lastDay !== item.day) {
+                lastDay = item.day;
+                const dayHeader = document.createElement('div');
+                dayHeader.className = `text-xs font-extrabold uppercase tracking-wider py-1.5 px-3 rounded-lg mt-5 mb-2.5 inline-block text-white font-['Inter']`;
+                dayHeader.style.backgroundColor = colors[item.day];
+                dayHeader.innerHTML = `📅 DAY ${item.day}`;
+                container.appendChild(dayHeader);
+            }
+
+            // 创建日程项卡片
+            const card = document.createElement('div');
+            card.id = `card-${item.id}`;
+            card.className = `p-3.5 rounded-xl bg-white border ${activeId === item.id ? 'border-amber-500 bg-amber-50/20 shadow-md scale-[1.01]' : 'border-slate-100'} hover:border-slate-300 hover:shadow-sm transition-all duration-200 cursor-pointer text-left relative`;
+            card.onclick = () => focusOnLocation(item);
+
+            const dayColor = colors[item.day];
+
+            let iconClass = "fa-map-pin";
+            if (item.type === 'hotel') iconClass = "fa-hotel text-amber-500";
+            else if (item.type === 'sight') iconClass = "fa-camera text-sky-500";
+            else if (item.type === 'food') iconClass = "fa-utensils text-rose-500";
+            else if (item.type === 'transit') iconClass = "fa-plane-departure text-emerald-500";
+
+            let playMemeBadge = "";
+            if (item.id.includes('park') || item.id.includes('court') || item.id.includes('store') || item.id.includes('siting')) {
+                playMemeBadge = `<span class="bg-purple-100 text-purple-700 text-[9px] px-1.5 py-0.5 rounded border border-purple-200 ml-1.5 font-bold animate-pulse whitespace-nowrap"><i class="fa-solid fa-face-laugh-beam mr-0.5"></i> 杰哥宇宙迷因</span>`;
+            }
+
+            // 将 details 转为带换行的 HTML
+            const detailsHtml = item.details ? item.details.replace(/\n/g, '<br>') : '';
+
+            card.innerHTML = `
+                    <div class="absolute left-0 top-3.5 bottom-3.5 w-1 rounded-r-md" style="background-color: ${dayColor};"></div>
+                    <div class="pl-2">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-mono font-bold text-slate-400 flex items-center font-['Inter']">
+                                <i class="fa-regular fa-clock mr-1 text-slate-400"></i>${item.time}
+                            </span>
+                            <div class="flex items-center space-x-1.5">
+                                <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full font-['Inter']" style="background-color: ${dayColor}15; color: ${dayColor};">
+                                    第 ${item.seq} 站
+                                </span>
+                                <i class="fa-solid ${iconClass} text-xs"></i>
+                                ${playMemeBadge}
+                            </div>
+                        </div>
+                        <h3 class="font-extrabold text-slate-800 text-xs md:text-sm mb-1 hover:text-amber-600 transition-colors">${item.title}</h3>
+                        <p class="text-[11px] text-slate-500 leading-relaxed line-clamp-3 mb-2">${item.desc}</p>
+
+                        ${item.tip ? `
+                        <div class="mt-2 text-[10px] bg-slate-50 p-2 rounded-lg border border-slate-200/50 text-slate-600 flex items-start mb-2">
+                            <i class="fa-solid fa-lightbulb text-amber-500 mt-0.5 mr-1 shrink-0"></i>
+                            <span class="font-medium">${item.tip}</span>
+                        </div>` : ''}
+
+                        ${item.details ? `
+                        <div class="mt-2 text-[10px] bg-blue-50/40 p-2.5 rounded-lg border border-blue-200/40 text-slate-700 font-normal leading-relaxed text-left mb-2">
+                            <div class="font-bold text-blue-800 text-[10px] mb-1 flex items-center">
+                                <i class="fa-solid fa-bus-simple mr-1"></i> 实战交通指引 & 注意事项
+                            </div>
+                            ${detailsHtml}
+                        </div>` : ''}
+
+                        ${item.transit ? `
+                        <div class="mt-2 text-[9px] text-slate-500 flex items-center justify-end font-semibold">
+                            <span class="bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200/30">
+                                <i class="fa-solid fa-arrow-right-long text-[8px] mr-1 text-emerald-500"></i> ${item.transit}
+                            </span>
+                        </div>` : ''}
+                    </div>
+                `;
+
+            container.appendChild(card);
+        });
+    }
+
+    function renderMapData() {
+        markerLayers.forEach(layer => map.removeLayer(layer));
+        polylineLayers.forEach(layer => map.removeLayer(layer));
+        markerLayers = [];
+        polylineLayers = [];
+
+        const groupedByDay = { 1: [], 2: [], 3: [], 4: [] };
+
+        // 1. 遍历并渲染含有 Day 顺序编号（D1-1, D1-2...）的个性大头针
+        itineraryData.forEach(item => {
+            if (activeDay !== 'all' && item.day !== parseInt(activeDay)) return;
+
+            groupedByDay[item.day].push(item.coords);
+
+            const dayColor = colors[item.day];
+            const markerIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `
+                        <div class="flex items-center justify-center rounded-full w-10 h-10 shadow-lg border-2 border-white text-white font-['Inter'] font-extrabold transition-all duration-300 transform hover:scale-125"
+                             style="background-color: ${dayColor}; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                            <span class="text-[11px] tracking-tighter">D${item.day}-${item.seq}</span>
+                        </div>
+                    `,
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+            });
+
+            const marker = L.marker(item.coords, { icon: markerIcon }).addTo(map);
+
+            // 定制迷因或爆笑台词气泡
+            let memeQuote = "";
+            if (item.id === 'd3-park') {
+                memeQuote = `<div class="bg-purple-50 p-2 rounded-xl border border-purple-200 text-[10px] text-purple-700 mt-2 font-serif italic font-bold">💬 阿伟：“啊～～！我离家出走，我好累哦！”</div>`;
+            } else if (item.id === 'd3-court') {
+                memeQuote = `<div class="bg-purple-50 p-2 rounded-xl border border-purple-200 text-[10px] text-purple-700 mt-2 font-serif italic font-bold">💬 杰哥：“哎哟，超会生的嘛！彬彬就是逊啦！”</div>`;
+            } else if (item.id === 'd3-store') {
+                memeQuote = `<div class="bg-purple-50 p-2 rounded-xl border border-purple-200 text-[10px] text-purple-700 mt-2 font-serif italic font-bold">💬 杰哥：“面包、饮料，还有一些好康的……在我的家！”</div>`;
+            } else if (item.id === 'd3-lunch') {
+                memeQuote = `<div class="bg-rose-50 p-2 rounded-xl border border-rose-200 text-[10px] text-rose-700 mt-2 font-serif italic font-bold">🍜 刘山东牛肉面 + 经典台湾鲁肉饭！</div>`;
+            } else if (item.id === 'd4-breakfast') {
+                memeQuote = `<div class="bg-amber-50 p-2 rounded-xl border border-amber-200 text-[10px] text-amber-700 mt-2 font-serif italic font-bold">🍚 永乐市场神级早午餐：林合发油饭！</div>`;
+            }
+
+            const popupContent = `
+                    <div class="p-1 max-w-[240px] font-['Inter']">
+                        <div class="flex justify-between items-center text-[9px] text-slate-400 font-bold mb-1">
+                            <span>D${item.day} · 第 ${item.seq} 站 · ${item.time}</span>
+                            <span class="bg-slate-100 px-1.5 py-0.5 rounded uppercase text-[8px] font-extrabold" style="color: ${dayColor}">${item.type}</span>
+                        </div>
+                        <h3 class="font-extrabold text-slate-800 text-xs mb-1">${item.title}</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed mb-2">${item.desc}</p>
+                        ${memeQuote}
+                        ${item.details ? `
+                        <div class="mt-2 p-2 bg-blue-50/50 border border-blue-100 rounded text-[9px] text-slate-700 leading-relaxed">
+                            <span class="font-bold text-blue-800"><i class="fa-solid fa-route mr-0.5"></i> 交通实操：</span><br>
+                            ${item.details.replace(/\n/g, '<br>')}
+                        </div>` : ''}
+                        <div class="mt-2 text-[9px] text-emerald-600 border-t border-slate-100 pt-1.5 font-bold">
+                            <i class="fa-solid fa-bus mr-1"></i>接驳: ${item.transit || '步行返回'}
+                        </div>
+                    </div>
+                `;
+
+            marker.bindPopup(popupContent);
+
+            // 点击高亮左侧卡片
+            marker.on('click', () => {
+                highlightCard(item.id);
+                map.panTo(item.coords);
+            });
+
+            markerLayers.push(marker);
+        });
+
+        // 2. 绘制按顺序链接的交通路线指示线
+        Object.keys(groupedByDay).forEach(day => {
+            const dayInt = parseInt(day);
+            if (activeDay !== 'all' && activeDay !== dayInt) return;
+
+            const coords = groupedByDay[day];
+            if (coords.length > 1) {
+                const polyline = L.polyline(coords, {
+                    color: colors[dayInt],
+                    weight: 4,
+                    opacity: 0.8,
+                    dashArray: dayInt === 2 ? '6, 12' : null, // 第二天跨市高铁用虚线
+                    lineJoin: 'round'
+                }).addTo(map);
+
+                polylineLayers.push(polyline);
+            }
+        });
+
+        fitMapBounds();
+    }
+
+    function focusOnLocation(item) {
+        activeId = item.id;
+        highlightCard(item.id);
+
+        // 移动端适配
+        if (window.innerWidth < 768) {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.height = '120px';
+        }
+
+        // 平滑飞行对焦
+        map.flyTo(item.coords, item.day === 2 && item.id !== 'd2-ningxia' ? 14 : 15, {
+            animate: true,
+            duration: 1.2
+        });
+
+        // 自动展出弹窗气泡
+        itineraryData.forEach((data, index) => {
+            if (data.id === item.id) {
+                setTimeout(() => {
+                    if(markerLayers[index]) {
+                        markerLayers[index].openPopup();
+                    }
+                }, 1200);
+            }
+        });
+    }
+
+    function highlightCard(id) {
+        activeId = id;
+        itineraryData.forEach(item => {
+            const card = document.getElementById(`card-${item.id}`);
+            if (card) {
+                card.className = `p-3.5 rounded-xl bg-white border border-slate-100 hover:border-slate-300 hover:shadow-sm transition-all duration-200 cursor-pointer text-left relative`;
+            }
+        });
+
+        const targetCard = document.getElementById(`card-${id}`);
+        if (targetCard) {
+            targetCard.className = `p-3.5 rounded-xl bg-amber-50/20 border border-amber-500 shadow-md scale-[1.01] transition-all duration-200 cursor-pointer text-left relative`;
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function setActiveDay(day) {
+        activeDay = day;
+        activeId = null;
+
+        const buttons = ['all', 1, 2, 3, 4];
+        buttons.forEach(b => {
+            const btn = document.getElementById(`btn-day-${b}`);
+            if (btn) {
+                if (b === day) {
+                    btn.className = `py-2 px-1 rounded-lg font-bold text-center transition-all bg-white text-amber-600 shadow-sm border border-slate-200/50 font-['Inter']`;
+                } else {
+                    btn.className = `py-2 px-1 rounded-lg font-bold text-center text-slate-500 hover:text-slate-800 transition-all font-['Inter']`;
+                }
+            }
+        });
+
+        renderItineraryList();
+        renderMapData();
+        forceRedraw();
+    }
+
+    // 智能视口缩放
+    function fitMapBounds() {
+        if (!map) return;
+        if (activeDay === 2 || activeDay === 'all') {
+            // 如果是第2天或全部，视野拉大以包含日月潭
+            map.fitBounds([
+                [23.80, 120.55],
+                [25.15, 121.90]
+            ], { padding: [40, 40] });
+        } else {
+            // 否则，聚焦台北、暖暖、九份生活圈
+            map.fitBounds([
+                [25.01, 121.48],
+                [25.13, 121.88]
+            ], { padding: [50, 50] });
+        }
+    }
+
+    // 手机端拉手动作
+    let isSidebarExpanded = false;
+    function toggleSidebarMobile() {
+        const sidebar = document.getElementById('sidebar');
+        if (isSidebarExpanded) {
+            sidebar.style.height = '120px';
+            isSidebarExpanded = false;
+        } else {
+            sidebar.style.height = '45vh';
+            isSidebarExpanded = true;
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        forceRedraw();
+    });
+</script>
+</body>
+</html>
