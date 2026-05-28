@@ -7,11 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- 引入完整的字重，确保中英文在高分辨率和各种字重下渲染完美、粗细一致 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --font-stack: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            /* 统一全局字体集，第一顺位中文字体指定为 Noto Sans TC */
+            --font-stack: "Inter", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
         }
 
         body {
@@ -25,7 +27,8 @@
         }
 
         .font-sf {
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            /* 确保即使是英文字体类，中文也同样完美 fallback 到 Noto Sans TC */
+            font-family: "Inter", "Noto Sans TC", -apple-system, sans-serif;
             letter-spacing: -0.02em;
         }
 
@@ -39,7 +42,7 @@
             padding: 4px 10px;
             border-radius: 6px;
             font-size: 11px;
-            font-family: "Inter", sans-serif;
+            font-family: "Inter", "Noto Sans TC", sans-serif;
             font-weight: 700;
             letter-spacing: 0.025em;
             text-transform: uppercase;
@@ -48,8 +51,8 @@
         }
 
         .text-body-bold {
-            font-weight: 600;
-            letter-spacing: -0.015em;
+            font-weight: 500;
+            letter-spacing: -0.01em;
         }
 
         .reveal-on-scroll {
@@ -88,19 +91,19 @@
                     <span>TAIWAN <span class="text-slate-400 font-bold">JOURNEY</span></span>
                 </h1>
                 <div class="flex flex-wrap gap-3 font-sf">
-                        <span class="inline-flex items-center px-3 py-1.5 bg-slate-200/60 rounded-lg text-slate-600 font-bold text-sm tracking-wide">
-                            2026.06.02 — 06.05
-                        </span>
                     <span class="inline-flex items-center px-3 py-1.5 bg-slate-200/60 rounded-lg text-slate-600 font-bold text-sm tracking-wide">
-                            4 DAYS 3 NIGHTS
-                        </span>
+                        2026.06.02 — 06.05
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1.5 bg-slate-200/60 rounded-lg text-slate-600 font-bold text-sm tracking-wide">
+                        4 Days 3 Nights
+                    </span>
                 </div>
             </div>
 
-            <!-- 右上角新版UI体验按钮 -->
+            <!-- 右上角新版地图体验按钮 -->
             <div class="mt-6 md:mt-0 shrink-0">
-                <a href="newui/" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-slate-300 bg-white/80 hover:bg-slate-950 hover:text-white hover:border-slate-950 text-slate-700 text-xs font-extrabold font-sf transition-all duration-300 shadow-sm backdrop-blur-sm group">
-                    <span>NEW STYLE</span>
+                <a href="map/" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-slate-300 bg-white/80 hover:bg-slate-950 hover:text-white hover:border-slate-950 text-slate-700 text-xs font-extrabold font-sf transition-all duration-300 shadow-sm backdrop-blur-sm group">
+                    <span>Map</span>
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -139,12 +142,13 @@
                     </div>
                     <div>
                         <div class="text-xs font-black text-blue-400 uppercase tracking-widest mb-1 font-sf">ARRIVAL & LANDMARKS</div>
-                        <div class="text-slate-800 font-bold text-lg">初见台北：从盆地天际线到不夜西门</div>
-                        <div class="text-slate-700 text-sm font-bold mt-1">💡 落地首日直奔台北地标，将经典的繁华尽收眼底</div>
+                        <div class="text-slate-800 font-bold text-lg">初见台北：地标无缝串联与西门町美味</div>
+                        <div class="text-slate-700 text-sm font-bold mt-1">💡 落地首日直奔台北车站入住，两日不挪窝，省时舒心！</div>
                     </div>
                 </div>
 
                 <div class="p-6 md:p-10 flex-1">
+                    <!-- 去程航班卡片：完美保留华航 Logo 水印 -->
                     <div class="flight-card bg-white border border-slate-100 p-6 rounded-2xl mb-10 group relative overflow-hidden">
                         <!-- 华航梅花水印背景 -->
                         <img src="./cal_logo.png" alt="CAL Logo" class="absolute -right-4 -bottom-4 w-40 h-40 object-contain opacity-[0.15] pointer-events-none select-none transition-transform duration-500 group-hover:scale-110">
@@ -153,17 +157,18 @@
                             <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 font-sf">INBOUND FLIGHT</div>
                             <div class="flex items-baseline gap-3 mb-2.5">
                                 <span class="text-4xl font-black text-slate-900 font-sf tracking-tight">CI904</span>
-                                <span class="text-sm font-bold text-slate-500 font-sf">China Airlines</span>
+                                <span class="text-sm font-bold text-slate-500 font-sf">China Airlines (中华航空)</span>
                             </div>
                             <div class="flex items-center gap-4 text-sm font-bold text-slate-700 font-sf">
-                                <span>11:10 HKG</span>
+                                <span>11:10 HKG (香港)</span>
                                 <span class="text-slate-300 font-normal text-lg">&rarr;</span>
-                                <span>12:55 TPE</span>
+                                <span>12:55 TPE (台北桃园)</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-12">
+                        <!-- Day 1 - 1 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
                                 <span class="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors font-sf">14:30</span>
@@ -174,13 +179,32 @@
                                     <span class="tag bg-yellow-100 text-yellow-700 font-sf">🏨 Check-in</span>
                                 </div>
                                 <h3 class="text-xl font-black text-slate-900 mb-1">降落，潜入盆地的市井中</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 桃园 ➔ 台北车站 ➔ 酒店</div>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 台北车站 ➔ 旅店办理入住</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    越过海峡的旅途正式开启。在机场捷运售票机买一张悠游卡，搭乘直达车（紫色）约40分钟抵市中心。前往位于台北车站商圈的酒店 **台北铂泊客旅店 (Taipei Poshpacker)** 办理 Check-in，放下行李、换上舒适便服，准备开启精彩的台北地标之旅。
+                                    越过海峡的旅途正式开启。在机场捷运购买一张悠游卡，搭乘直达车（紫色）约 35 分钟直抵市中心。前往位于台北车站商圈的 **台北铂泊客旅店 (Taipei Poshpacker)** 办理 Check-in，放下行李、换上舒适便服。接下来的 3 个晚上我们均住在这里，免去每天打包换房的繁琐折腾，旅行品质直线提升！
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Day 1 - 2 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors font-sf">15:00</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-indigo-100 text-indigo-700 font-sf">🏛️ Architecture</span>
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">💂 Changing Guard</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">中正纪念堂与自由广场朝圣</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 捷运红线直达中正纪念堂站</div>
+                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
+                                    在旅店安顿好后，轻装出发！步行仅需 8 分钟进入台北车站，搭乘捷运红线仅 2 站（5分钟）直达中正纪念堂。在开阔雄伟的自由广场牌楼前拍照留影。随后登入主殿，正好能观摩下午 **16:00 整点起跑的三军仪队换岗交接仪式**，动作极其整齐划一，威严庄重，绝对是不容错过的人文景观！
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Day 1 - 3 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
                                 <span class="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors font-sf">16:30</span>
@@ -191,13 +215,14 @@
                                     <span class="tag bg-blue-100 text-blue-700 font-sf">🌇 Sunset</span>
                                 </div>
                                 <h3 class="text-xl font-black text-slate-900 mb-1">落日金光里的台北之巅</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 信义区象山 / 台北101</div>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 捷运红线终点站象山站 / 信义商圈</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    搭乘捷运红线至象山站。从2号出口出站步行前往登山口，爬上六巨石远眺，看台北101在落日魔幻时刻中逐渐亮起霓虹。随后下山漫步至信义商圈，在101大楼下近距离感受这座地标直插云霄的震撼，顺便可以逛逛信义区的精致百货。
+                                    观礼结束后，直接进入地下站台继续搭乘红线直达终点站象山站。从2号出口出站步行前往登山口，顺着台阶爬上六巨石远眺。看着台北101在落日红霞的魔幻时刻中逐渐亮起霓虹。随后下山漫步至信义商圈，在101大楼下近距离感受这座地标直插云霄的震撼。
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Day 1 - 4 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
                                 <span class="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors font-sf">19:30</span>
@@ -205,12 +230,12 @@
                             <div class="flex-1">
                                 <div class="mb-2">
                                     <span class="tag bg-purple-100 text-purple-700 font-sf">🎸 Culture</span>
-                                    <span class="tag bg-red-100 text-red-700 font-sf">🍜 Street Food</span>
+                                    <span class="tag bg-red-100 text-red-700 font-sf">🍗 Big Chicken Cutlet</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">西门町潮流与艋舺夜生活</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 西门町与红楼</div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">西门町潮流狂欢与巨无霸鸡排</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 捷运绿线直达西门站</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    搭乘捷运直奔西门站6号出口。步入台北最生猛的青春腹地，品尝一碗热腾腾的阿宗面线，探访极极具历史底蕴的百年红楼。西门町的夜晚包容万象、喧嚣而新潮。在红楼后面的露天酒吧街点上一杯台湾啤酒，享受落地首晚的热烈氛围。
+                                    搭乘捷运红线至中正纪念堂站，丝滑地同台换乘绿线（松山方向）仅需 1 站即达西门站（6号出口）。步入台北最生猛、最新潮的青年腹地！买一包大名鼎鼎、比脸还大且外脆里嫩的**豪大大鸡排**，顺便排队尝一碗热气腾腾的阿宗面线。饱餐后可去探访红楼，在露天酒吧街点上一杯台湾啤酒，享受落地首晚的热烈氛围！
                                 </p>
                             </div>
                         </div>
@@ -259,6 +284,7 @@
 
                 <div class="p-6 md:p-10 flex-1">
                     <div class="space-y-12">
+                        <!-- Day 2 - 1 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
                                 <span class="text-2xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors font-sf">07:00</span>
@@ -271,11 +297,12 @@
                                 <h3 class="text-xl font-black text-slate-900 mb-1">极速奔向中部的青翠</h3>
                                 <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 台北车站 ➔ 台中高铁站 ➔ 日月潭</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    为了完美实现一日往返，清晨在台北车站搭乘早班高铁奔向台中（约50分钟）。在台中高铁站1楼5号出口的南投客运柜台，迅速购买“台湾好行”日月潭车票。搭乘快速大巴盘山而上，于上午10点前即可抵达水社码头，呼吸山风中特有的清甜。
+                                    特种兵晨光出发！清晨在台北车站搭乘早班高铁奔向台中（车程 50 分钟）。抵达台中高铁站后，从 1 楼 5 号出口出站，前往南投客运柜台迅速购买“台湾好行”日月潭联票。搭乘快速大巴盘山而上，于上午 10:00 前即可抵达水社码头，呼吸山风中特有的清甜。
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Day 2 - 2 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
                                 <span class="text-2xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors font-sf">10:30</span>
@@ -285,14 +312,15 @@
                                     <span class="tag bg-green-100 text-green-700 font-sf">🚲 Cycling</span>
                                     <span class="tag bg-blue-100 text-blue-700 font-sf">💧 Lake</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">风与水波：骑行最美脚踏车道</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 向山自行车道</div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">风与水波：骑行全球最美自行车道</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 向山自行车道骑行</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    在水社码头附近捷安特租一辆电助力单车。在CNN评选的全球最美自行车道上迎风骑行，穿越水社坝，最终抵达宛如艺术品的向山游客中心。湖面波光粼粼，绿影交织，正是定格青春的最佳画布。
+                                    在水社码头附近捷安特租一辆电助力单车（切记要租电助力的，爬坡省力无压力！）。在 CNN 评选的“全球十大最美自行车道”上迎风骑行，掠过碧绿的水社坝木栈道，最终抵达日本建筑大师设计的清水混凝土艺术杰作——向山游客中心。绿影交织，正是定格山海的绝佳画布。
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Day 2 - 3 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
                                 <span class="text-2xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors font-sf">14:00</span>
@@ -302,14 +330,15 @@
                                     <span class="tag bg-yellow-100 text-yellow-700 font-sf">🚤 Boat</span>
                                     <span class="tag bg-orange-100 text-orange-700 font-sf">🥚 Classic Food</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">环湖波光与阿婆茶叶蛋</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 玄光寺码头 & 伊达邵</div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">环湖波光、阿婆茶叶蛋与邵族美食</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 玄光寺码头 & 伊达邵码头</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    回到水社码头，搭乘游船泛舟湖上。在玄光寺码头买一颗著名的“阿婆香菇茶叶蛋”，微咸而带红茶清香。随后乘船前往伊达邵码头，在繁茂的原住民市集上品尝烤麻糬与红茶，远眺对岸青翠连绵的山峰。
+                                    还车后回到水社码头搭乘交通游船。首先前往玄光寺码头，买两颗大名鼎鼎、红茶和香菇煨制的“金盆阿婆茶叶蛋”垫垫肚子。随后坐船前往伊达邵码头，深入繁茂的原住民邵族美食街，享用小米烤麻糬、阿萨姆红茶、山猪肉割包等。
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Day 2 - 4 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
                                 <span class="text-2xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors font-sf">21:00</span>
@@ -320,9 +349,9 @@
                                     <span class="tag bg-red-100 text-red-700 font-sf">🥘 Night Market</span>
                                 </div>
                                 <h3 class="text-xl font-black text-slate-900 mb-1">重返台北：宁夏夜市的深夜慰藉</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 宁夏夜市</div>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 宁夏夜市 (捷运双连站)</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    傍晚时分搭乘大巴和高铁，于晚上 20:30 左右顺畅返回台北。直接钻进台北当地人最爱的“宁夏夜市”。排队买一份喷香的刘芋仔蛋黄芋饼，或者来一碗麻油鸡、猪肝汤，用极致的古早味美食为这一天的“特种兵”行程完美收尾。
+                                    傍晚从水社搭乘好行大巴返回台中高铁，坐高铁约 20:15 返回台北车站。坐 1 站捷运或直接散步直奔台北本地吃货最爱的“宁夏夜市”！排队品尝香气四溢的**刘芋仔蛋黄芋饼**、暖胃滋补的**环记麻油鸡**或**猪肝荣仔**，用极致的古早味为这一天的特种兵行程完美收尾。吃饱后，散步 12 分钟即可走回熟悉的铂泊客旅店！
                                 </p>
                             </div>
                         </div>
@@ -342,14 +371,14 @@
             </div>
         </section>
 
-        <!-- Day 3: 台北深度人文与山海之约 -->
+        <!-- Day 3: 故宫与杰哥宇宙 ➔ 九份 ➔ 饶河夜市 -->
         <section class="reveal-on-scroll">
             <div class="flex items-center gap-6 mb-6">
-                <span class="text-5xl md:text-7xl font-black text-pink-200/80 select-none tracking-tighter font-sf">Day 3</span>
+                <span class="text-5xl md:text-7xl font-black text-purple-200/80 select-none tracking-tighter font-sf">Day 3</span>
                 <div>
-                    <h2 class="text-3xl font-black text-slate-900">台北 Taipei</h2>
+                    <h2 class="text-3xl font-black text-slate-900">杰哥巡礼与山海夜市之约</h2>
                     <div class="flex items-center gap-3 mt-1 text-slate-600 font-bold font-sf">
-                        <span class="text-pink-600">周四 Thu</span>
+                        <span class="text-purple-600">周四 Thu</span>
                         <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
                         <span>6月4日</span>
                     </div>
@@ -358,119 +387,109 @@
 
             <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col">
                 <!-- Attached Top Header -->
-                <div class="flex items-start gap-4 p-6 md:px-10 md:py-8 bg-pink-50/80 border-b border-pink-100/60">
-                    <div class="p-2.5 bg-white rounded-xl shadow-sm text-pink-600 shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                <div class="flex items-start gap-4 p-6 md:px-10 md:py-8 bg-purple-50/80 border-b border-purple-100/60">
+                    <div class="p-2.5 bg-white rounded-xl shadow-sm text-purple-600 shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                     <div>
-                        <div class="text-xs font-black text-pink-400 uppercase tracking-widest mb-1 font-sf">CULTURE, LIFE & TRANSITION</div>
-                        <div class="text-slate-800 font-bold text-lg">无缝衔接：行李极速过渡，悠享台北山海</div>
-                        <div class="text-slate-700 text-sm font-bold mt-1">💡 11:00前办理退房并转移寄存，下午深入老街与淡水海风</div>
+                        <div class="text-xs font-black text-purple-400 uppercase tracking-widest mb-1 font-sf">MEME CULT & SIGHTS</div>
+                        <div class="text-slate-800 font-bold text-lg">杰哥不要圣地打卡 ➔ 唯美九份山城 ➔ 饶河街烟火</div>
+                        <div class="text-slate-700 text-sm font-bold mt-1">💡 全程无需换房打包行李！一身轻松玩转台北、暖暖与九份！</div>
                     </div>
                 </div>
 
                 <div class="p-6 md:p-10 flex-1">
                     <div class="space-y-12">
-                        <!-- 酒店行李无缝衔接节点 -->
+                        <!-- Day 3 - 1 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
-                                <span class="text-2xl font-black text-slate-900 group-hover:text-pink-600 transition-colors font-sf">09:30</span>
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-purple-600 transition-colors font-sf">09:30</span>
                             </div>
                             <div class="flex-1 pb-10 border-b border-gray-100">
                                 <div class="mb-2">
-                                    <span class="tag bg-yellow-100 text-yellow-700 font-sf">🏨 Check-out</span>
-                                    <span class="tag bg-indigo-100 text-indigo-700 font-sf">🧳 Luggage Drop</span>
+                                    <span class="tag bg-blue-100 text-blue-700 font-sf">🏛️ Sights</span>
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">👑 National Treasures</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">3分钟极速搬迁，彻底解放双手</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 铂泊客 ➔ SleepBox Hotel</div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">台北故宫博物院：中华国宝之光</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 捷运红线士林站 ➔ 红30路公车直达</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    轻松享用早餐后办理 **台北铂泊客旅店 (Poshpacker)** 退房。拉着行李步行仅需 3 分钟（约 200 米），即可抵达今晚入住的 **SleepBox Hotel (睡觉盒子)** 并在前台提前寄存行李。全程丝滑过渡，不需要多浪费半点体力，一整天轻装出发！
+                                    早上搭乘红线直奔士林站，换乘红30路大巴直达正馆地下入口。在“翠玉白菜”、“肉形石”、“毛公鼎”三大国宝前，亲眼见证历史静默的凝视。极其精致的传统器物，尽显传统审美的极致浪漫。（内部冷气超足，建议携带外套，双肩包需寄存）。
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Day 3 - 2 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
-                                <span class="text-2xl font-black text-slate-900 group-hover:text-pink-600 transition-colors font-sf">10:30</span>
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-purple-600 transition-colors font-sf">12:30</span>
                             </div>
                             <div class="flex-1 pb-10 border-b border-gray-100">
                                 <div class="mb-2">
-                                    <span class="tag bg-indigo-100 text-indigo-700 font-sf">🏛️ History</span>
-                                    <span class="tag bg-slate-100 text-slate-600 font-sf">🎧 Audio Tour</span>
+                                    <span class="tag bg-red-100 text-red-700 font-sf">🍜 Beef Noodles</span>
+                                    <span class="tag bg-yellow-100 text-yellow-700 font-sf">🍚 Lurou Fan</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">六十万件时光的凝视</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 国立故宫博物院</div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">刘山东牛肉面与肥糯台湾卤肉饭</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 台北车站商圈 / 旅店周边</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    搭乘捷运红线至士林站，转乘红30路公车直达正馆。在翠玉白菜与毛公鼎面前，感受千年历史的静默凝视，租一个语音导览，在极其精美的器物中感受传统审美的极致浪漫。
+                                    从故宫坐公车和捷运回到台北车站（旅店旁）。前往台北 70 年传奇牛肉面、米其林必比登推荐——**“刘山东牛肉面”**。招牌粗面嚼劲十足，牛肉极其厚实，汤底药膳鲜美，别忘了再配一碗卤得油亮黏糯、肥而不腻的**经典台湾卤肉饭**（别不小心叫成“驴肉饭”啦！）。
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Day 3 - 3 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
-                                <span class="text-2xl font-black text-slate-900 group-hover:text-pink-600 transition-colors font-sf">13:00</span>
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-purple-600 transition-colors font-sf">14:30</span>
                             </div>
                             <div class="flex-1 pb-10 border-b border-gray-100">
                                 <div class="mb-2">
-                                    <span class="tag bg-emerald-100 text-emerald-700 font-sf">☕ 文青散策</span>
-                                    <span class="tag bg-orange-100 text-orange-700 font-sf">🛍️ Creative Shops</span>
+                                    <span class="tag bg-purple-100 text-purple-700 font-sf">🔥 Internet Meme</span>
+                                    <span class="tag bg-slate-800 text-white font-sf">🎬 《杰哥不要》圣地巡礼</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">中山赤峰街：台北最文艺的街角</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 捷运中山站 / 赤峰街</div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">“彬彬就是逊啦！”暖暖圣地大打卡</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 基隆暖暖区 (台铁四脚亭站) ➔ 碇内</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    午后返回市区至捷运中山站。赤峰街曾是著名的打铁街，如今旧铁铺与独立设计师买手店、质感咖啡馆、日式复古书店完美融合。漫步在这片安静的街区，品尝一杯手冲咖啡，体验台北当代年轻人最惬意的都市生活缩影。
+                                    午餐后在台北车站，刷悠游卡搭乘**台铁区间车**（约35分钟）直达【四脚亭站】。出站后打车 5 分钟，瞬间进入《如果早知道，男生也会被性侵》的杰哥迷因世界！
+                                    1. **碇内十五号公园**：在那个经典的红色秋千与悲伤长椅上抱头作痛苦状：“啊～我离家出走，我好累哦！”
+                                    2. **碇祥风雨篮球场**：在巨大的蓝色雨棚篮球架下大喊：“哎哟，超会生的嘛！”。
+                                    3. **暖暖区便利超商**：双手满足地捧着白吐司面包和两盒经典的“麦香红茶”拍照留念，还原阿伟名场面！
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Day 3 - 4 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
-                                <span class="text-2xl font-black text-slate-900 group-hover:text-pink-600 transition-colors font-sf">15:30</span>
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-purple-600 transition-colors font-sf">16:45</span>
                             </div>
                             <div class="flex-1 pb-10 border-b border-gray-100">
                                 <div class="mb-2">
-                                    <span class="tag bg-blue-100 text-blue-700 font-sf">🌅 Sunset</span>
-                                    <span class="tag bg-slate-100 text-slate-600 font-sf">🚲 Coast</span>
+                                    <span class="tag bg-amber-100 text-amber-700 font-sf">🏮 Mountain Town</span>
+                                    <span class="tag bg-sky-100 text-sky-700 font-sf">🌌 Sunset</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">淡水暮色与海岸风琴</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 / 淡水金色水岸</div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">千与千寻的旧梦：九份山城红灯笼</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 暖暖打车 15 分钟直飞九份 / 竖崎路</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    下午继续搭捷运向北至终点站淡水。刷悠游卡租一辆 YouBike，沿着金色水岸骑行。吹着《不能说的秘密》里温润的海风，在渔人码头等候著名的“淡水暮色”。夕阳将琴键一般的波光染成橘红色，海边的余晖会把少年的影子拉得特别长。
+                                    从暖暖超商出来，直接在路边呼叫 **Uber / 计程车**，走山路只需约 **15分钟** 便可一路直飞九份老街牌楼（避开复杂的公车转乘，省时极速！）。下午 17:30，九份著名的竖崎路两旁红灯笼会缓缓亮起，梦幻神秘。吃一碗冰凉弹牙的赖阿婆芋圆，俯瞰基隆港绝美海湾夜景。
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Day 3 - 5 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
-                                <span class="text-2xl font-black text-slate-900 group-hover:text-pink-600 transition-colors font-sf">20:00</span>
-                            </div>
-                            <div class="flex-1 pb-10 border-b border-gray-100">
-                                <div class="mb-2">
-                                    <span class="tag bg-red-100 text-red-700 font-sf">🍢 Raohe Night Market</span>
-                                    <span class="tag bg-sky-100 text-sky-700 font-sf">🌉 Rainbow Bridge</span>
-                                </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">饶河夜市生猛烟火与彩虹桥夜风</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 饶河街夜市 & 松山彩虹桥</div>
-                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    入夜后转乘捷运至松山站。出站便是生猛饱满的饶河街夜市。咬一口刚出炉的福州世祖胡椒饼，或者品尝热气腾腾的药炖排骨。饱餐后散步到旁边的基隆河畔，坐在彩虹桥下吹风听歌，看金色波光荡漾，尽享台北夜晚的温柔。
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- 深夜入住节点 -->
-                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
-                            <div class="md:w-24 shrink-0">
-                                <span class="text-2xl font-black text-slate-900 group-hover:text-pink-600 transition-colors font-sf">21:30</span>
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-purple-600 transition-colors font-sf">20:30</span>
                             </div>
                             <div class="flex-1">
                                 <div class="mb-2">
-                                    <span class="tag bg-yellow-100 text-yellow-700 font-sf">🔑 Check-in</span>
-                                    <span class="tag bg-blue-100 text-blue-700 font-sf">🌙 Rest</span>
+                                    <span class="tag bg-red-100 text-red-700 font-sf">🍢 Night Market</span>
+                                    <span class="tag bg-blue-100 text-blue-700 font-sf">🌉 Rainbow Bridge</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">回到盒子：领取行李，安然入梦</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 睡觉盒子 (SleepBox Hotel)</div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">饶河街夜市生猛烟火与胡椒饼</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 九份坐 1062 客运直达松山车站</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    夜深后，乘捷运回到台北车站商圈。来到 **睡觉盒子青旅 (SleepBox Hotel)** 办理正式 Check-in，前台已为您妥善保管好行李，回房洗个舒服的热水澡，在惬意温馨的太空舱式氛围中安享好眠。
+                                    在九份车站排队搭乘**基隆客运 1062 路直达车**。客运直接走高速，约 50 分钟即可在【松山车站】下车。过个马路正对面就是全台著名的**饶河街夜市**金色拱门！品尝刚出炉、一口爆汁的福州世祖胡椒饼，以及温补的药炖排骨。消食后可走去旁边的彩虹桥吹吹基隆河晚风。
+                                    （吃太饱后在松山车站坐 1 站火车区间车，4 分钟即达台北车站，步行回旅店洗热水澡，不换房的快乐就是如此纯粹！）
                                 </p>
                             </div>
                         </div>
@@ -479,12 +498,12 @@
 
                 <!-- Attached Accommodation Footer -->
                 <div class="bg-slate-50/80 p-6 md:px-10 md:py-6 flex items-center gap-4 md:gap-5 border-t border-slate-100 mt-auto">
-                    <div class="w-12 h-12 rounded-full bg-pink-100/60 flex items-center justify-center shrink-0 text-xl">
+                    <div class="w-12 h-12 rounded-full bg-purple-100/60 flex items-center justify-center shrink-0 text-xl">
                         🛏️
                     </div>
                     <div>
                         <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 font-sf">STAY AT</div>
-                        <div class="text-base font-bold text-slate-900">睡觉盒子青旅 (SleepBox Hotel)</div>
+                        <div class="text-base font-bold text-slate-900">台北铂泊客旅店 (Taipei Poshpacker - 续住)</div>
                     </div>
                 </div>
             </div>
@@ -493,11 +512,11 @@
         <!-- Day 4: 返回旅程起点 -->
         <section class="reveal-on-scroll">
             <div class="flex items-center gap-6 mb-6">
-                <span class="text-5xl md:text-7xl font-black text-zinc-300 select-none tracking-tighter font-sf">Day 4</span>
+                <span class="text-5xl md:text-7xl font-black text-amber-200 select-none tracking-tighter font-sf">Day 4</span>
                 <div>
                     <h2 class="text-3xl font-black text-slate-900">返程 Return</h2>
                     <div class="flex items-center gap-3 mt-1 text-slate-600 font-bold font-sf">
-                        <span class="text-zinc-500">周五 Fri</span>
+                        <span class="text-amber-600">周五 Fri</span>
                         <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
                         <span>6月5日</span>
                     </div>
@@ -505,7 +524,20 @@
             </div>
 
             <div class="bg-white rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col">
+                <!-- Attached Top Header -->
+                <div class="flex items-start gap-4 p-6 md:px-10 md:py-8 bg-amber-50/80 border-b border-amber-100/60">
+                    <div class="p-2.5 bg-white rounded-xl shadow-sm text-amber-600 shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    </div>
+                    <div>
+                        <div class="text-xs font-black text-amber-400 uppercase tracking-widest mb-1 font-sf">OUTBOUND & MEMORY</div>
+                        <div class="text-slate-800 font-bold text-lg">市区值机行李直挂 ➔ 大稻埕老街老味道</div>
+                        <div class="text-slate-700 text-sm font-bold mt-1">💡 最后一上午完美预办登机托运，两手空空，潇洒慢游！</div>
+                    </div>
+                </div>
+
                 <div class="p-6 md:p-10 flex-1">
+                    <!-- 回程航班卡片：完美保留华航 Logo 水印 -->
                     <div class="flight-card bg-white border border-slate-100 p-6 rounded-2xl mb-10 group relative overflow-hidden">
                         <!-- 华航梅花水印背景 -->
                         <img src="./cal_logo.png" alt="CAL Logo" class="absolute -right-4 -bottom-4 w-40 h-40 object-contain opacity-[0.15] pointer-events-none select-none transition-transform duration-500 group-hover:scale-110">
@@ -514,80 +546,84 @@
                             <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 font-sf">OUTBOUND FLIGHT</div>
                             <div class="flex items-baseline gap-3 mb-2.5">
                                 <span class="text-4xl font-black text-slate-900 font-sf tracking-tight">CI919</span>
-                                <span class="text-sm font-bold text-slate-500 font-sf">China Airlines (A330)</span>
+                                <span class="text-sm font-bold text-slate-500 font-sf">China Airlines (A330 大宽体客机)</span>
                             </div>
                             <div class="flex items-center gap-4 text-sm font-bold text-slate-700 font-sf">
-                                <span>16:55 TPE</span>
+                                <span>16:55 TPE (台北桃园)</span>
                                 <span class="text-slate-300 font-normal text-lg">&rarr;</span>
-                                <span>19:00 HKG</span>
+                                <span>19:00 HKG (香港)</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-12">
+                        <!-- Day 4 - 1 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
-                                <span class="text-2xl font-black text-slate-900 group-hover:text-zinc-500 transition-colors font-sf">10:00</span>
-                            </div>
-                            <div class="flex-1 pb-10 border-b border-gray-100">
-                                <div class="mb-2">
-                                    <span class="tag bg-slate-100 text-slate-600 font-sf">🎨 Art</span>
-                                    <span class="tag bg-yellow-100 text-yellow-700 font-sf">🏬 Expo</span>
-                                </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">最后的宝岛文艺时光</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 华山1914文创园区</div>
-                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    最后半天，早晨漫步到旧厂房改建的华山1914文创园区。在爬满常春藤的古朴红砖墙下拍张留念照片，逛逛园区里极其精美、充满匠人巧思的文创周边与小市集。
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
-                            <div class="md:w-24 shrink-0">
-                                <span class="text-2xl font-black text-slate-900 group-hover:text-zinc-500 transition-colors font-sf">11:30</span>
-                            </div>
-                            <div class="flex-1 pb-10 border-b border-gray-100">
-                                <div class="mb-2">
-                                    <span class="tag bg-orange-100 text-orange-700 font-sf">🥟 Din Tai Fung</span>
-                                    <span class="tag bg-yellow-100 text-yellow-700 font-sf">🍧 Mango Ice</span>
-                                </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">永康街美食巡礼与手信采购</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 永康街</div>
-                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    临行前的饕餮大餐！前往永康街，在鼎泰丰享用一笼热气腾腾、皮薄多汁的招牌小笼包，再去思慕昔（Smoothie House）来一碗堆满鲜切芒果的大碗雪花冰。顺便在街区里的凤梨酥、牛轧糖店买好精致的宝岛手信，将台湾的甜美回忆打包。
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
-                            <div class="md:w-24 shrink-0">
-                                <span class="text-2xl font-black text-slate-900 group-hover:text-zinc-500 transition-colors font-sf">13:30</span>
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">09:00</span>
                             </div>
                             <div class="flex-1 pb-10 border-b border-gray-100">
                                 <div class="mb-2">
                                     <span class="tag bg-blue-100 text-blue-700 font-sf">🚆 Airport Express</span>
                                     <span class="tag bg-emerald-100 text-emerald-700 font-sf">💼 Hands-Free</span>
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 mb-1">市区值机，解放双手的轻盈</h3>
-                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 台北车站 A1 站 / 桃园机场</div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">市区托运行李：无重力轻盈快闪</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 台北车站 A1 站 / 自助行李托运</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    带着行李和伴手礼来到捷运台北车站 A1 站（机场捷运起点站）。使用大厅极便利的“市区预办登机”自助服务，提前托运行李并打印登机牌，瞬间回归双手轻松的畅快状态。搭乘紫色的机场直达列车，约35分钟后直抵航站楼。
+                                    早上退房后，直接推着大箱行李来到台北车站旁边的**机场捷运 A1 站**。在大厅使用极度便利的“市区预办登机”自助托运服务，直接把行李箱寄舱直挂香港，并打印好登机牌（中华航空可完美支持，最晚必须在起飞前 3 小时托运完毕）。瞬间两手空空，开启无重力神级快闪模式！
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Day 4 - 2 -->
                         <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                             <div class="md:w-24 shrink-0">
-                                <span class="text-2xl font-black text-slate-900 group-hover:text-zinc-500 transition-colors font-sf">16:55</span>
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">09:30</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-amber-100 text-amber-700 font-sf">🎨 Heritage</span>
+                                    <span class="tag bg-slate-100 text-slate-600 font-sf">🛍️ High-end Souvenirs</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">大稻埕迪化街：老台北的巴洛克旧时光</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 大稻埕 / 迪化街历史老城</div>
+                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
+                                    从 A1 站打车 5 分钟或步行前往大稻埕迪化街区。这里是台北保存最完好、最具历史底蕴的历史街区，拥有精致斑驳的巴洛克红砖洋楼，如今开满了高质感的高山茶行、独立设计文创店和复古咖啡厅。在古老的竹器行里，可以淘一个红绿蓝经典条纹的**“茄芷袋”**（台湾国民三色手提袋，超级经典的文艺手信！）。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Day 4 - 3 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">11:00</span>
+                            </div>
+                            <div class="flex-1 pb-10 border-b border-gray-100">
+                                <div class="mb-2">
+                                    <span class="tag bg-orange-100 text-orange-700 font-sf">🍲 Centennial Food</span>
+                                    <span class="tag bg-emerald-100 text-emerald-700 font-sf">🐟 Fish Noodles</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-1">永乐市场：林合发油饭与民乐旗鱼米粉</h3>
+                                <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 永乐市场早午餐大饱腹</div>
+                                <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
+                                    吃货的终极朝圣！前往迪化街中心的永乐市场，排队品尝百年传奇、郭台铭都赞赏不绝的**“林合发油饭”**（香气扑鼻，软糯咸香，通常到中午前就绝对卖光，11:00 购买最完美！）。随后再去旁边的“民乐旗鱼米粉”吃一碗汤头鲜甜到极致、撒有旗鱼丝的米粉，一定要配上一盘刚起锅、焦黄酥脆的**现炸红烧肉 or 炸花枝**，味道妙不可言！
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Day 4 - 4 -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
+                            <div class="md:w-24 shrink-0">
+                                <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">16:55</span>
                             </div>
                             <div class="flex-1">
                                 <div class="mb-2">
-                                    <span class="tag bg-slate-800 text-white font-sf">✈️ Fly Home</span>
+                                    <span class="tag bg-slate-900 text-white font-sf">✈️ Fly Home</span>
                                 </div>
                                 <h3 class="text-xl font-black text-slate-900 mb-1">留下什么，变成什么样的大人</h3>
                                 <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 桃园国际机场 (TPE) ➔ 香港 (HKG)</div>
                                 <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                    在航站楼完成最后的出境。就像《蓝色大门》里经典的那句对白：“留下什么，我们就变成什么样的大人。”当 CI919 引擎轰鸣，机翼划破高空的白云，视线里的宝岛逐渐变小。虽然短短四天，但群山与湖海的记忆已永久藏于心底。
+                                    在 12:30 步行回 A1 站，搭乘紫色机捷直达车，仅需 35 分钟直飞桃园机场。由于行李已提前挂妥，您无须排队托运，直接秒速过安检和海关。出境后可舒服地逛逛机场免税店。当 CI919 引擎轰鸣拔地而起，宝岛变小，虽然仅仅四天，但群山、湖海与这一趟神级巡礼的爆笑回忆，早已定格在心间。
                                 </p>
                             </div>
                         </div>
@@ -599,7 +635,7 @@
     </div>
 
     <footer class="mt-20 text-center text-slate-400 text-sm font-bold tracking-wide font-sf">
-        <p>山海有期，留白有时 · 那些未抵达的南方与东海岸，我们留给下一次晴天</p>
+        <p>山海有期，留白有时</p>
     </footer>
 
 </div>
