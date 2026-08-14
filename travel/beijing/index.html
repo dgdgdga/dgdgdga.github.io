@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beijing Again · 故地重游</title>
+    <title>北京 · 三顾 | Beijing, Once More</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* 核心字体设置 - 全局优先使用 Inter */
         :root {
             --font-stack: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            --serif-stack: "Noto Serif SC", "Songti SC", "STSong", serif;
         }
 
         body {
@@ -29,6 +30,11 @@
         .font-sf {
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
             letter-spacing: -0.02em;
+        }
+
+        /* 文艺衬线，用于引言与诗句 */
+        .font-serif-sc {
+            font-family: var(--serif-stack);
         }
 
         /* 隐藏滚动条 */
@@ -54,8 +60,9 @@
 
         /* 景点描述段落 */
         .text-body-bold {
-            font-weight: 600;
-            letter-spacing: -0.015em;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            line-height: 1.9;
         }
 
         /* 滚动动画 */
@@ -91,24 +98,25 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-gray-300 pb-8">
             <div>
                 <h1 class="text-5xl md:text-7xl font-black tracking-tight text-slate-900 mb-6 font-sf">
-                    BEIJING <span class="text-red-800/70 font-bold">AGAIN</span>
+                    北京 <span class="text-red-800/60 font-bold">三顾</span>
                 </h1>
                 <div class="flex flex-wrap gap-3 font-sf">
                     <span class="inline-flex items-center px-3 py-1.5 bg-slate-200/60 rounded-lg text-slate-600 font-bold text-sm tracking-wide">
                         2026.08.14 — 08.16
                     </span>
                     <span class="inline-flex items-center px-3 py-1.5 bg-slate-200/60 rounded-lg text-slate-600 font-bold text-sm tracking-wide">
-                        3 DAYS 2 NIGHTS
+                        三日 两夜
                     </span>
                     <span class="inline-flex items-center px-3 py-1.5 bg-red-100 rounded-lg text-red-700 font-bold text-sm tracking-wide">
-                        第 3 次 · 故地重游
+                        故地 · 重游
                     </span>
                 </div>
             </div>
         </div>
 
-        <p class="text-2xl md:text-3xl text-slate-800 font-bold leading-relaxed max-w-2xl font-sf tracking-tight">
-            三顾京城，不必赶路。这一次，只为大兴那间休息室而来。
+        <p class="text-2xl md:text-3xl text-slate-800 font-medium leading-relaxed max-w-2xl font-serif-sc tracking-tight">
+            有些地方去过两次，便想去第三次。<br>
+            不为抵达，只为重逢。
         </p>
     </header>
 
@@ -117,13 +125,13 @@
         <!-- ============ Day 1 ============ -->
         <section class="reveal-on-scroll">
             <div class="flex items-center gap-6 mb-6">
-                <span class="text-5xl md:text-7xl font-black text-red-200/80 select-none tracking-tighter font-sf">Day 1</span>
+                <span class="text-5xl md:text-7xl font-black text-red-200/80 select-none tracking-tighter font-sf">壹</span>
                 <div>
-                    <h2 class="text-3xl font-black text-slate-900">夜车北上 Night Train</h2>
+                    <h2 class="text-3xl font-black text-slate-900">夜行 <span class="text-slate-400 font-bold text-2xl">Night Train</span></h2>
                     <div class="flex items-center gap-3 mt-1 text-slate-600 font-bold font-sf">
                         <span class="text-red-700">周五 Friday</span>
                         <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
-                        <span>8月14日 深夜</span>
+                        <span>8月14日 · 深夜</span>
                     </div>
                 </div>
             </div>
@@ -137,42 +145,31 @@
                             <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 font-sf">OVERNIGHT SLEEPER</div>
                             <div class="flex items-baseline gap-3">
                                 <span class="text-3xl font-black text-slate-900 font-sf">D12</span>
-                                <span class="text-sm font-bold text-slate-500 font-sf">China Railway · 动卧</span>
+                                <span class="text-sm font-bold text-slate-500 font-sf">动卧 · 夜行</span>
                             </div>
                             <div class="mt-2 flex items-center gap-4 text-sm font-bold text-slate-700 font-sf">
-                                <span>00:08 南京 Nanjing</span>
+                                <span>00:08 南京</span>
                                 <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                                <span>09:40 北京 Beijing</span>
+                                <span>09:40 北京</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="flex items-start gap-4 mb-10 p-5 bg-red-50/50 rounded-2xl border border-red-100 reveal-on-scroll">
-                    <div class="p-2.5 bg-white rounded-xl shadow-sm text-red-700">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                    </div>
-                    <div>
-                        <div class="text-xs font-black text-red-400 uppercase tracking-widest mb-1 font-sf">DEPARTURE</div>
-                        <div class="text-slate-800 font-bold text-lg">深夜抵达南京站候车</div>
-                        <div class="text-slate-600 font-semibold text-sm mt-1">虽然零点后才发车，但今晚就动身了 —— 旅程从踏出家门这一刻开始</div>
                     </div>
                 </div>
 
                 <div class="space-y-12">
                     <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                         <div class="md:w-24 shrink-0">
-                            <span class="text-2xl font-black text-slate-900 group-hover:text-red-700 transition-colors font-sf">23:30</span>
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-red-700 transition-colors font-sf">深夜</span>
                         </div>
                         <div class="flex-1 pb-10 border-b border-gray-100">
                             <div class="mb-2">
-                                <span class="tag bg-slate-800 text-white font-sf">🚉 Station</span>
-                                <span class="tag bg-slate-100 text-slate-600 font-sf">🌙 Late Night</span>
+                                <span class="tag bg-slate-800 text-white font-sf">🚉 车站</span>
+                                <span class="tag bg-slate-100 text-slate-600 font-sf">🌙 午夜</span>
                             </div>
-                            <h3 class="text-xl font-black text-slate-900 mb-1">南京站 · 午夜候车</h3>
+                            <h3 class="text-xl font-black text-slate-900 mb-1">南京站的夜</h3>
                             <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 南京站</div>
-                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                周五深夜，城市渐渐安静下来。提前抵达南京站，在候车大厅里找个角落坐下，看夜色中来往的旅人。这种"今晚就出发"的仪式感，是坐夜车独有的浪漫。
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify font-serif-sc">
+                                城市睡下之后，车站还醒着。灯光把影子拉得很长，南来北往的人各自抱着各自的目的地。我提前到了，不为赶车，只想在这份深夜特有的安静里，多坐一会儿。
                             </p>
                         </div>
                     </div>
@@ -183,13 +180,13 @@
                         </div>
                         <div class="flex-1">
                             <div class="mb-2">
-                                <span class="tag bg-indigo-100 text-indigo-700 font-sf">🛏️ Sleeper</span>
-                                <span class="tag bg-slate-100 text-slate-600 font-sf">🚄 D-Train</span>
+                                <span class="tag bg-indigo-100 text-indigo-700 font-sf">🛏️ 动卧</span>
+                                <span class="tag bg-slate-100 text-slate-600 font-sf">🚄 夜车</span>
                             </div>
-                            <h3 class="text-xl font-black text-slate-900 mb-1">登上 D12 动卧</h3>
-                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 南京 → 北京 · 夜行 9.5 小时</div>
-                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                跨过零点，列车准点驶出南京站。钻进动卧包厢，在车轮与铁轨规律的节奏声里睡去。一夜好眠之后，睁眼便是北方 —— 把赶路的时间，变成一夜安稳的睡眠。
+                            <h3 class="text-xl font-black text-slate-900 mb-1">枕着铁轨入眠</h3>
+                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 南京 → 北京 · 一夜</div>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify font-serif-sc">
+                                零点过后，列车悄悄滑出站台。车轮碾过铁轨接缝，一下，又一下，像某种古老的催眠。把一千多公里的路交给黑夜，醒来时，窗外已是北方。
                             </p>
                         </div>
                     </div>
@@ -200,9 +197,9 @@
         <!-- ============ Day 2 ============ -->
         <section class="reveal-on-scroll">
             <div class="flex items-center gap-6 mb-6">
-                <span class="text-5xl md:text-7xl font-black text-amber-200/80 select-none tracking-tighter font-sf">Day 2</span>
+                <span class="text-5xl md:text-7xl font-black text-amber-200/80 select-none tracking-tighter font-sf">贰</span>
                 <div>
-                    <h2 class="text-3xl font-black text-slate-900">国博 · 故宫 Heritage</h2>
+                    <h2 class="text-3xl font-black text-slate-900">城里 <span class="text-slate-400 font-bold text-2xl">Within the Walls</span></h2>
                     <div class="flex items-center gap-3 mt-1 text-slate-600 font-bold font-sf">
                         <span class="text-amber-600">周六 Saturday</span>
                         <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
@@ -215,63 +212,63 @@
 
                 <div class="flex items-start gap-4 mb-10 p-5 bg-amber-50/50 rounded-2xl border border-amber-100 reveal-on-scroll">
                     <div class="p-2.5 bg-white rounded-xl shadow-sm text-amber-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0l-1.414-1.414M7.05 7.05L5.636 5.636"></path></svg>
                     </div>
                     <div>
                         <div class="text-xs font-black text-amber-400 uppercase tracking-widest mb-1 font-sf">ARRIVAL</div>
-                        <div class="text-slate-800 font-bold text-lg">09:40 抵达北京站</div>
-                        <div class="text-slate-600 font-semibold text-sm mt-1">一夜安睡后精神饱满，直奔中轴线，开启文化暴走的一天</div>
+                        <div class="text-slate-800 font-bold text-lg">09:40 · 北京站</div>
+                        <div class="text-slate-600 font-semibold text-sm mt-1">一夜好眠，恰好赶上一座城苏醒的模样</div>
                     </div>
                 </div>
 
                 <div class="space-y-12">
                     <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                         <div class="md:w-24 shrink-0">
-                            <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">11:00</span>
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">上午</span>
                         </div>
                         <div class="flex-1 pb-10 border-b border-gray-100">
                             <div class="mb-2">
-                                <span class="tag bg-teal-100 text-teal-700 font-sf">🏺 Special Exhibit</span>
-                                <span class="tag bg-slate-100 text-slate-600 font-sf">🏛️ Museum</span>
+                                <span class="tag bg-slate-100 text-slate-600 font-sf">☕ 慢</span>
+                                <span class="tag bg-orange-100 text-orange-700 font-sf">🍂 胡同</span>
                             </div>
-                            <h3 class="text-xl font-black text-slate-900 mb-1">国家博物馆 · 庞贝展</h3>
-                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 东城区 · 天安门广场东侧</div>
-                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                此行的重头戏之一。走进国博，直面那座被火山灰封存了两千年的罗马古城。在斑驳的壁画与静默的石膏躯壳前驻足，时间仿佛凝固 —— 一场跨越山海与时空的对话。
+                            <h3 class="text-xl font-black text-slate-900 mb-1">先是闲逛</h3>
+                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 东城 · 无目的</div>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify font-serif-sc">
+                                不急着去哪儿。下了车，先在老城的街巷里随意走走。看遛鸟的老人，看墙根下打盹的猫，看阳光一点点爬上灰瓦。故地重游的好，正在于可以理直气壮地浪费时间。
                             </p>
                         </div>
                     </div>
 
                     <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                         <div class="md:w-24 shrink-0">
-                            <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">14:30</span>
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">下午</span>
                         </div>
                         <div class="flex-1 pb-10 border-b border-gray-100">
                             <div class="mb-2">
-                                <span class="tag bg-red-100 text-red-700 font-sf">🏯 Landmark</span>
-                                <span class="tag bg-amber-100 text-amber-700 font-sf">👑 Imperial</span>
+                                <span class="tag bg-teal-100 text-teal-700 font-sf">🏺 特展</span>
+                                <span class="tag bg-slate-100 text-slate-600 font-sf">🏛️ 国博</span>
                             </div>
-                            <h3 class="text-xl font-black text-slate-900 mb-1">故宫博物院</h3>
-                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 东城区 · 景山前街</div>
-                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                第三次走进这座城。不再执着于打卡中轴线上的每一座大殿，而是随意拐进一处僻静的宫巷，看午后斜阳洒在红墙金瓦上。故地重游的意义，恰恰在于这份不必赶路的从容。
+                            <h3 class="text-xl font-black text-slate-900 mb-1">庞贝 · 被时间封存的城</h3>
+                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 国家博物馆 · 天安门广场东</div>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify font-serif-sc">
+                                午后，躲进国博去看那座两千年前的罗马古城。火山灰落下来的时候，有人正在吃饭，有人正在熟睡。时间在那里戛然而止，又在这里被轻轻唤醒。隔着玻璃与他们对望，像隔着一条很长的河。
                             </p>
                         </div>
                     </div>
 
                     <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                         <div class="md:w-24 shrink-0">
-                            <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">18:00</span>
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-amber-600 transition-colors font-sf">傍晚</span>
                         </div>
                         <div class="flex-1">
                             <div class="mb-2">
-                                <span class="tag bg-orange-100 text-orange-700 font-sf">🌇 Evening</span>
-                                <span class="tag bg-slate-100 text-slate-600 font-sf">🍜 Taste</span>
+                                <span class="tag bg-red-100 text-red-700 font-sf">🏯 故宫</span>
+                                <span class="tag bg-amber-100 text-amber-700 font-sf">🌇 斜阳</span>
                             </div>
-                            <h3 class="text-xl font-black text-slate-900 mb-1">胡同里的晚餐</h3>
-                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 东城 · 胡同深处</div>
-                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                从神武门出来，钻进老北京的胡同里觅食。一碗炸酱面，或是一顿铜锅涮肉，在升腾的热气里结束这充实的一天。明天，去长城当好汉。
+                            <h3 class="text-xl font-black text-slate-900 mb-1">第三次进宫</h3>
+                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 故宫博物院</div>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify font-serif-sc">
+                                第三次来，终于可以不走中轴线了。拐进一条僻静的宫巷，看夕阳把红墙染得更红，把金瓦照得更暖。游客散去的角落，这座城才慢慢露出它本来的样子 —— 安静，苍老，又温柔。
                             </p>
                         </div>
                     </div>
@@ -282,9 +279,9 @@
         <!-- ============ Day 3 ============ -->
         <section class="reveal-on-scroll">
             <div class="flex items-center gap-6 mb-6">
-                <span class="text-5xl md:text-7xl font-black text-sky-200/80 select-none tracking-tighter font-sf">Day 3</span>
+                <span class="text-5xl md:text-7xl font-black text-sky-200/80 select-none tracking-tighter font-sf">叁</span>
                 <div>
-                    <h2 class="text-3xl font-black text-slate-900">长城 · 归途 Return</h2>
+                    <h2 class="text-3xl font-black text-slate-900">归途 <span class="text-slate-400 font-bold text-2xl">Homeward</span></h2>
                     <div class="flex items-center gap-3 mt-1 text-slate-600 font-bold font-sf">
                         <span class="text-sky-600">周日 Sunday</span>
                         <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
@@ -298,53 +295,53 @@
                 <div class="space-y-12">
                     <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                         <div class="md:w-24 shrink-0">
-                            <span class="text-2xl font-black text-slate-900 group-hover:text-sky-600 transition-colors font-sf">08:30</span>
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-sky-600 transition-colors font-sf">清晨</span>
                         </div>
                         <div class="flex-1 pb-10 border-b border-gray-100">
                             <div class="mb-2">
-                                <span class="tag bg-green-100 text-green-700 font-sf">⛰️ Great Wall</span>
-                                <span class="tag bg-slate-100 text-slate-600 font-sf">🥾 Hiking</span>
+                                <span class="tag bg-green-100 text-green-700 font-sf">⛰️ 长城</span>
+                                <span class="tag bg-slate-100 text-slate-600 font-sf">🌬️ 山风</span>
                             </div>
-                            <h3 class="text-xl font-black text-slate-900 mb-1">八达岭长城</h3>
-                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 延庆区 · 军都山</div>
-                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                不到长城非好汉。趁着清晨人少登上八达岭，看城墙随山势蜿蜒起伏，一直铺向远方的天际线。山风猎猎，极目远眺，北国风光尽收眼底。
+                            <h3 class="text-xl font-black text-slate-900 mb-1">八达岭的早晨</h3>
+                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 延庆 · 军都山</div>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify font-serif-sc">
+                                起个大早，趁人还少的时候上山。城墙顺着山脊一路蜿蜒，伸向看不见的远方。风从关口吹过来，带着北方特有的干爽。站在高处望出去，天地很大，人很小，烦恼也是。
                             </p>
                         </div>
                     </div>
 
                     <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                         <div class="md:w-24 shrink-0">
-                            <span class="text-2xl font-black text-slate-900 group-hover:text-sky-600 transition-colors font-sf">17:30</span>
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-sky-600 transition-colors font-sf">黄昏</span>
                         </div>
                         <div class="flex-1 pb-10 border-b border-gray-100">
                             <div class="mb-2">
-                                <span class="tag bg-rose-100 text-rose-700 font-sf">🛋️ Lounge</span>
-                                <span class="tag bg-red-100 text-red-700 font-sf">⭐ This Trip's Highlight</span>
+                                <span class="tag bg-slate-100 text-slate-600 font-sf">🛋️ 候机</span>
+                                <span class="tag bg-slate-100 text-slate-600 font-sf">✈️ 大兴</span>
                             </div>
-                            <h3 class="text-xl font-black text-slate-900 mb-1">大兴机场 · 东航 V3 休息室</h3>
-                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 大兴国际机场 PKX · 东航自营</div>
-                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify">
-                                此行真正的"目的地"。提前抵达大兴机场，在东航自营的 V3 休息室安顿下来。一碗现做的东航那碗面，一杯特调，配上宽敞明亮的空间 —— 为了这一刻的松弛，专程飞来也值了。
+                            <h3 class="text-xl font-black text-slate-900 mb-1">在机场，等一场日落</h3>
+                            <div class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1 font-sf">📍 大兴机场 · 东航休息室</div>
+                            <p class="text-slate-700 text-body-bold leading-relaxed text-justify font-serif-sc">
+                                提前到了大兴。在休息室里要一碗热面，挑个靠窗的位置坐下。看飞机起起落落，看天色一寸寸暗下去。旅程将尽，心里反倒生出一点不舍 —— 那就再坐一会儿吧。
                             </p>
                         </div>
                     </div>
 
                     <div class="flex flex-col md:flex-row gap-4 md:gap-10 group reveal-on-scroll">
                         <div class="md:w-24 shrink-0">
-                            <span class="text-2xl font-black text-slate-900 group-hover:text-sky-600 transition-colors font-sf">21:00</span>
+                            <span class="text-2xl font-black text-slate-900 group-hover:text-sky-600 transition-colors font-sf">入夜</span>
                         </div>
                         <div class="flex-1">
                             <div class="mb-4">
-                                <span class="tag bg-slate-800 text-white font-sf">✈️ Flight Home</span>
+                                <span class="tag bg-slate-800 text-white font-sf">🌙 夜航</span>
                             </div>
                             <div class="flight-card bg-gradient-to-br from-slate-50 to-white p-6 rounded-2xl group relative border border-slate-200">
                                 <div class="flex justify-between items-center relative z-10">
                                     <div>
-                                        <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 font-sf">OUTBOUND FLIGHT</div>
+                                        <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 font-sf">RETURN FLIGHT</div>
                                         <div class="flex items-baseline gap-3">
                                             <span class="text-3xl font-black text-slate-900 font-sf">MU2842</span>
-                                            <span class="text-sm font-bold text-slate-500 font-sf">China Eastern · A320</span>
+                                            <span class="text-sm font-bold text-slate-500 font-sf">东航 · A320</span>
                                         </div>
                                         <div class="mt-2 flex items-center gap-4 text-sm font-bold text-slate-700 font-sf">
                                             <span>大兴 PKX</span>
@@ -354,8 +351,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="text-slate-500 text-sm font-bold mt-4 font-sf">
-                                带着一身松弛与满足，夜航南归。第三次北京，故地重游，刚刚好。
+                            <p class="text-slate-500 text-sm font-medium mt-4 font-serif-sc leading-relaxed">
+                                夜里起飞，城市在脚下变成一片灯海。三天的重逢很短，短得像一场梦。但没关系 —— 来过，看过，就够了。
                             </p>
                         </div>
                     </div>
@@ -365,8 +362,8 @@
 
     </div>
 
-    <footer class="mt-20 text-center text-slate-400 text-sm font-bold tracking-wide font-sf">
-        <p>GU DI CHONG YOU · 故地重游</p>
+    <footer class="mt-20 text-center text-slate-400 text-sm font-medium tracking-wide font-serif-sc">
+        <p>三顾京城 · 不为抵达，只为重逢</p>
     </footer>
 
 </div>
