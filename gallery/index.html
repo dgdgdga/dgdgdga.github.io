@@ -4,11 +4,33 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>THE MEOWSEUM · 喵術館 · 展館</title>
+<!-- 入口那面牆是進館第一眼，先讓它開始下載（不等 JS 解析到）。 -->
+<link rel="preload" as="image" href="../assets/title-wall.webp" fetchpriority="high">
 <style>
 /* ============================================================
    THE MEOWSEUM · 3D 展館
    排版沿用展签规范：白卡 · 黑字 · 宋体 · 无装饰
    ============================================================ */
+
+/* ---------- 自帶字型 ----------
+   展館有一半的字是畫在 canvas 上的（展籤、廳牌、海報），而 canvas 不會等 webfont，
+   所以字型必須在開始蓋展館之前就備好（見 app.js 開頭的 await）。
+   src 一律 local() 優先：系統本來就有宋體（macOS / Windows）就一個 byte 都不下載，
+   真的沒有才去拿 vendor/fonts/ 的子集。子集怎麼生：python3 scripts/make_font.py
+   （Noto Serif TC，SIL OFL 1.1，授權全文見 vendor/fonts/OFL.txt）。 */
+@font-face{
+  font-family:"Meowseum Serif";font-style:normal;font-weight:400;font-display:swap;
+  src:local("Songti TC"),local("Songti SC"),local("Songti"),local("宋体-繁"),
+      local("STSong"),local("SimSun"),local("宋体"),local("Noto Serif TC"),
+      url("./vendor/fonts/meowseum-serif-400.woff2") format("woff2");
+}
+@font-face{
+  font-family:"Meowseum Serif";font-style:normal;font-weight:700;font-display:swap;
+  src:local("Songti TC Bold"),local("Songti SC Bold"),local("宋体-繁"),
+      local("STSong"),local("SimSun Bold"),local("SimSun"),local("Noto Serif TC Bold"),
+      url("./vendor/fonts/meowseum-serif-700.woff2") format("woff2");
+}
+
 :root{
   --paper:#FFFFFF;
   --ink:#111213;
@@ -18,8 +40,8 @@
   --rule:#D6D9DB;
   --green:#0E2B22;
   --wine:#3E0F1B;
-  --f-title:"Songti TC","宋体-繁","Songti SC","Songti","Noto Serif TC",serif;
-  --f-lat:"Baskerville","Iowan Old Style","Times New Roman",serif;
+  --f-title:"Meowseum Serif","Songti TC","宋体-繁","Songti SC","Songti","Noto Serif TC",serif;
+  --f-lat:"Baskerville","Iowan Old Style","Times New Roman","Meowseum Serif",serif;
   --f-ui:ui-sans-serif,system-ui,-apple-system,"PingFang TC","PingFang SC",sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}

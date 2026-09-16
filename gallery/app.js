@@ -5,6 +5,22 @@
 import * as THREE from 'three';
 import { DATA } from './data.js';
 
+/* 牆上的字有一半是畫在 canvas 上的（展籤、廳牌、海報），而 canvas 的 fillText
+   不會等 webfont：字型還沒到就畫，缺字會直接烤成替代字形、之後補不回來。
+   所以先把兩個字重都確定就緒，才開始蓋展館。
+   @font-face 的 src 是 local() 優先，系統本來就有宋體的機器這裡不會有任何下載；
+   真的沒有才會抓 vendor/fonts/ 的子集（約 300 KB）。
+   加個時限，免得字型出狀況時卡在「Preparing the galleries…」不動。 */
+try {
+  await Promise.race([
+    Promise.all([
+      document.fonts.load('400 16px "Meowseum Serif"'),
+      document.fonts.load('700 16px "Meowseum Serif"'),
+    ]),
+    new Promise((r) => setTimeout(r, 10000)),
+  ]);
+} catch (_) {}
+
 /* ---------------- 展館尺寸 ---------------- */
 const T      = 0.28;    // 牆厚
 const PORTAL = 1.35;    // 門洞半寬 → 淨寬 2.7 m
@@ -1780,6 +1796,11 @@ function hideLoader() {
   el('load').classList.add('off');
 }
 
+/* 收掉「Preparing the galleries…」的時機是入口那面牆的圖稿到位（見 TW_ART 的
+   callback）——那面牆是進館第一眼，寧可多等一秒也不要空牆。這裡放個保險，
+   圖稿萬一掛掉也不會永遠停在準備畫面。 */
+setTimeout(hideLoader, 15000);
+
 /* ============================================================
    主迴圈
    ============================================================ */
@@ -1872,7 +1893,6 @@ function tick() {
   if (hudT > 0.1) { hudT = 0; updateHUD(); renderMap(); }
 
   renderer.render(scene, camera);
-  hideLoader();
   requestAnimationFrame(tick);
 }
 
