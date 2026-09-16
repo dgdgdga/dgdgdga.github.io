@@ -1289,6 +1289,222 @@ box(9.80, 3.62, -47.5, 0.10, 0.24, 0.66, 'exit', { collide: false });   // 掛�
 box(22 - T / 2 - 0.02, 1.5, -53.5, 0.04, 1.1, 0.8, 'merch', { collide: false });
 
 /* ============================================================
+   第一展廳的牆上投影
+   ------------------------------------------------------------
+   東牆（x = -7）整片留白，拿來當投影面：一台吊在天花板上的投影機，
+   把一句一句「故弄玄虛」的話打在牆上，一句一句慢慢換。
+
+   手法：開場把六句話各畫成一張 canvas 貼圖，之後只用兩塊平面（A / B）
+   輪流淡入淡出。換場時改的是不透明度與兩塊平面的位置，貼圖本身不動，
+   所以整場跑下來 canvas 只畫 6 次，其餘時間 CPU 與 GPU 都沒有額外負擔。
+
+   投影不接 TrackLamp，也不進 SHEET / COLLIDERS：它是光，不是紙，也不是牆。
+   ============================================================ */
+const PROJ_PHRASES = [
+  { cn: '牆上本來沒有字。',
+    en: 'You are the only one who can read this.',        i: 'I' },
+  { cn: '牠不是被畫進去的。',
+    en: 'The cat was not painted in. Look again.',        i: 'II' },
+  { cn: '有一筆，沒有人下過。',
+    en: 'One stroke was never laid down by any hand.',    i: 'III' },
+  { cn: '她記得你沒看見的那一幕。',
+    en: 'She remembers what you did not notice.',         i: 'IV' },
+  { cn: '站在這裡的人都會少看一件。',
+    en: 'Everyone who stands here misses one.',           i: 'V' },
+  { cn: '不要問誰還記得。',
+    en: 'Do not ask who remembers. Ask what is looking.', i: 'VI' },
+];
+
+/* 牆有多大，畫布就長什麼樣（2 MP，牆上約 0.25 m / 100 px） */
+const PROJ = {
+  W: 6.40, H: 2.75, X: -6.855, Z: -13.60, Y: 2.62,
+  CW: 2048, CH: 880,              // 2.33:1，跟牆面同一組比例
+  SAFE_W: 0.74,                   // 版面不超過畫布的比例（四周留白，讀起來才有餘裕）
+  HOLD: [5.2, 6.8],               // 停留秒數範圍（每輪抽一次，節奏才不會死板）
+  FADE: 1.9,                      // 換場秒數
+  RISE: 0.032,                    // 換場時往上浮的距離（公尺）
+};
+
+function projTexture(phrase) {
+  const { c, x } = makeCanvas(PROJ.CW, PROJ.CH);
+  const W = PROJ.CW, H = PROJ.CH;
+  x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+
+  const maxW = W * PROJ.SAFE_W;
+  let fs = Math.round(H * 0.20);
+  let lines;
+  for (;;) {
+    x.font = songti(fs, 700);
+    lines = wrapText(x, phrase.cn, maxW);
+    if (lines.length <= 3 && lines.length * fs * 1.24 + H * 0.28 <= H || fs <= 40) break;
+    fs = Math.round(fs * 0.90);
+  }
+  const lh = fs * 1.24;
+  const es = Math.round(H * 0.050);
+  const gap = H * 0.062;                    // 主句與小字之間
+  const total = lines.length * lh + gap + es * 0.92;
+  let y = H / 2 - total / 2 + fs * 0.80;
+
+  // 索引：主句上方一段距離，兩側各一條短線
+  const ry = y - fs * 1.55;
+  x.font = bask(Math.round(H * 0.033), true);
+  x.fillStyle = 'rgba(242,234,216,.42)';
+  x.fillText(phrase.i, W / 2, ry);
+  const rw = W * 0.052, rg = x.measureText(phrase.i).width / 2 + W * 0.022;
+  x.strokeStyle = 'rgba(242,234,216,.22)';
+  x.lineWidth = Math.max(1, H * 0.0012);
+  for (const s of [-1, 1]) {
+    x.beginPath();
+    x.moveTo(W / 2 + s * rg, ry - H * 0.011);
+    x.lineTo(W / 2 + s * (rg + rw), ry - H * 0.011);
+    x.stroke();
+  }
+
+  x.font = songti(fs, 700);
+  x.fillStyle = '#F2EAD8';
+  x.shadowColor = 'rgba(255,238,205,.55)';
+  x.shadowBlur = H * 0.030;                 // 一點點暈開，像是打在牆上的光
+  for (const t of lines) { x.fillText(t, W / 2, y); y += lh; }
+  x.shadowBlur = 0;
+
+  x.font = bask(es, true);
+  x.fillStyle = 'rgba(232,222,200,.58)';
+  x.fillText(phrase.en, W / 2, y + gap * 0.32 + es * 0.60);
+
+  return canvasTex(c);
+}
+
+/* 投影機打出來的那一小片亮：四周羽化，像光不像貼紙。
+   逐點算 alpha 而不是用 canvas 的 blur filter——每個瀏覽器濾鏡品質不一，
+   這裡要的是一塊邊緣確定會溶掉的長方形。 */
+function projPoolTexture() {
+  const W = 512, H = 224, { c, x } = makeCanvas(W, H);
+  const img = x.createImageData(W, H), d = img.data;
+  const FX = 0.10, FY = 0.16;                    // 從邊緣算起的羽化比例
+  const sm = (t) => { t = t < 0 ? 0 : t > 1 ? 1 : t; return t * t * (3 - 2 * t); };
+  for (let j = 0; j < H; j++) {
+    for (let i = 0; i < W; i++) {
+      const u = i / (W - 1), v = j / (H - 1);
+      const a = sm(u / FX) * sm((1 - u) / FX) * sm(v / FY) * sm((1 - v) / FY);
+      const o = (j * W + i) * 4;
+      d[o] = 255; d[o + 1] = 242; d[o + 2] = 220;
+      d[o + 3] = Math.round(255 * a * a);        // 平方一次，中心才不會一片平
+    }
+  }
+  x.putImageData(img, 0, 0);
+  return canvasTex(c);
+}
+
+const PROJ_TEX = PROJ_PHRASES.map(projTexture);
+const PROJ_N = new THREE.Vector3(1, 0, 0);        // 東牆內面朝 +x
+
+/* 亮的先畫、字的後畫；同一點上三塊都開 depthWrite:false，靠 renderOrder 分先後 */
+{
+  const wallX = -7 + T / 2;                       // 內牆面 -6.86
+  const pool = new THREE.Mesh(new THREE.PlaneGeometry(PROJ.W, PROJ.H),
+    new THREE.MeshBasicMaterial({
+      map: projPoolTexture(), transparent: true, opacity: 0.05,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    }));
+  pool.position.set(wallX + 0.005, PROJ.Y, PROJ.Z);
+  pool.rotation.y = orient(PROJ_N);
+  pool.renderOrder = 1;
+  scene.add(pool);
+}
+
+const PROJ_PLANE = [];
+for (const k of [0, 1]) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(PROJ.W, PROJ.H),
+    new THREE.MeshStandardMaterial({
+      map: PROJ_TEX[0], transparent: true, opacity: 0, depthWrite: false,
+      roughness: 0.92, metalness: 0.0, envMapIntensity: 0.2,
+      emissive: 0xFFFFFF, emissiveMap: PROJ_TEX[0], emissiveIntensity: 0.90,
+    }));
+  m.position.set(PROJ.X, PROJ.Y, PROJ.Z);
+  m.rotation.y = orient(PROJ_N);
+  m.renderOrder = 3 + k;                          // 淡出那塊在下、淡入那塊在上
+  scene.add(m);
+  PROJ_PLANE.push(m);
+}
+
+/* 投影機本體：吊桿 + 機身 + 鏡頭，機首朝著牆 */
+{
+  const g = new THREE.Group();
+  g.position.set(3.10, 4.055, -15.50);
+  const dir = new THREE.Vector3(-1, -0.36, 0.22).normalize();
+  g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
+  scene.add(g);
+
+  const part = (geo, matKey, x2, y2, z2) => {
+    const m = new THREE.Mesh(geo, MATS[matKey]);
+    m.position.set(x2, y2, z2);
+    g.add(m); OCCLUDERS.push(m);
+    return m;
+  };
+  part(new THREE.CylinderGeometry(0.022, 0.022, 0.30, 12), 'dark', 0, 0.30, 0);   // 吊桿
+  part(new THREE.BoxGeometry(0.42, 0.17, 0.34), 'dark', 0, 0, 0);                 // 機身
+  part(new THREE.CylinderGeometry(0.062, 0.072, 0.085, 20), 'dark', 0, 0.005, -0.205);
+  const lens = new THREE.Mesh(new THREE.CircleGeometry(0.050, 20),
+    new THREE.MeshBasicMaterial({ color: 0xFFF3DC }));
+  lens.position.set(0, 0.005, -0.249); lens.rotation.y = Math.PI;
+  g.add(lens);
+}
+
+/* 投影的光柱與補光：這一段是「打得亮」的來源，不是裝飾 */
+{
+  const target = new THREE.Vector3(-6.86, PROJ.Y, PROJ.Z);
+
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 2.05, 1, 18, 1, true),
+    new THREE.MeshBasicMaterial({ color: 0xFFF0D4, transparent: true, opacity: 0.045,
+      blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+  const src = new THREE.Vector3(3.10, 4.05, -15.50);
+  beam.scale.set(1, src.distanceTo(target), 1);
+  beam.position.copy(src).lerp(target, 0.5);
+  beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0),
+    new THREE.Vector3().subVectors(target, src).normalize());
+  beam.renderOrder = 2;
+  scene.add(beam);
+
+  const sp = new THREE.SpotLight(0xFFECD3, 8.5, 18, 0.62, 0.96, 1.40);
+  sp.position.set(3.10, 4.05, -15.50);
+  sp.target.position.copy(target);
+  scene.add(sp, sp.target);
+}
+
+/* 換場排程：停留 → 淡出／淡入（同時、等長）→ 下一句。
+   淡入那塊 renderOrder 較大，兩句交疊時新句壓在上面，不會糊成一團。 */
+const projState = { i: 0, next: 1, t: 0, dur: 0, ph: 'hold', fade: 0 };
+PROJ_PLANE[0].material.opacity = 1;       // 開場先讓第一句亮著
+projState.dur = PROJ.HOLD[0] + Math.random() * (PROJ.HOLD[1] - PROJ.HOLD[0]);
+function projectNext(dt) {
+  const st = projState, a = PROJ_PLANE[st.i], b = PROJ_PLANE[st.next];
+  st.t += dt;
+  if (st.ph === 'hold') {
+    a.material.opacity = 1;
+    b.material.opacity = 0;
+    a.position.x = PROJ.X; b.position.x = PROJ.X;
+    if (st.t >= st.dur) { st.ph = 'fade'; st.t = 0; }
+    return;
+  }
+  const u = Math.min(1, st.t / PROJ.FADE), e = u * u * (3 - 2 * u);   // smoothstep
+  a.material.opacity = 1 - e;
+  b.material.opacity = e;
+  a.position.x = PROJ.X + PROJ.RISE * e;        // 舊句往上飄走
+  b.position.x = PROJ.X + PROJ.RISE * (1 - e);  // 新句從下方浮上來
+  if (u >= 1) {
+    a.material.opacity = 0;
+    const done = st.next;
+    st.i = done;
+    st.next = (done + 1) % PROJ_PLANE.length;   // 只有兩塊，輪流用
+    b.material.map = PROJ_TEX[st.i];
+    b.material.emissiveMap = PROJ_TEX[st.i];
+    b.material.needsUpdate = true;
+    st.dur = PROJ.HOLD[0] + Math.random() * (PROJ.HOLD[1] - PROJ.HOLD[0]);
+    st.ph = 'hold'; st.t = 0; st.fade += 1;
+  }
+}
+
+/* ============================================================
    操作
    ============================================================ */
 /* 站在某個牆面物件正前方 dist 公尺、平視它的機位 */
@@ -1888,6 +2104,9 @@ function tick() {
   } else {
     dot.classList.remove('hot'); tipEl.classList.remove('on');
   }
+
+  // 展廳牆上的投影：只改不透明度，貼圖只有在換句時才換
+  projectNext(dt);
 
   hudT += dt;
   if (hudT > 0.1) { hudT = 0; updateHUD(); renderMap(); }
