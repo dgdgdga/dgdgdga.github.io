@@ -1505,7 +1505,7 @@ function zZoomTo(s, cx = 0, cy = 0) {
   zApply();
 }
 
-function zReset() { zScale = 1; ztx = 0; zty = 0; zDrag = null; zDragMoved = 0; zApply(); }
+function zReset() { zScale = 1; ztx = 0; zty = 0; zEndDrag(); zDragMoved = 0; zApply(); }
 
 el('sheetClose').onclick = closeSheet;
 el('sheetIn').onclick = () => zZoomTo(zScale * ZSTEP);
@@ -1526,18 +1526,26 @@ el('sheet').addEventListener('pointerdown', (e) => {
   zDragMoved = 0;
   el('sheet').classList.add('dragging');
 });
+
+/* 收工。pointercancel 也要走這裡：這張圖是原生可拖的 <img>，按住拖曳時瀏覽器
+   會去接手原生拖曳、取消指標串流，只發 pointercancel 不發 pointerup。漏掉的話
+   zDrag 會卡住不清，圖就一直黏著滑鼠跑（.dragging 也跟著留在上面）。 */
+function zEndDrag() {
+  if (!zDrag) return;
+  zDrag = null;
+  el('sheet').classList.remove('dragging');
+}
+
 addEventListener('pointermove', (e) => {
-  if (!zDrag || e.pointerId !== zDrag.id) return;
+  if (!zDrag || e.pointerId !== zDrag.id || !e.buttons) return;   // 沒按著就不算在拖曳
+
   const dx = e.clientX - zDrag.x, dy = e.clientY - zDrag.y;
   zDragMoved = Math.max(zDragMoved, Math.hypot(dx, dy));
   zPan(zDrag.tx + dx, zDrag.ty + dy);
   zApply();
 });
-addEventListener('pointerup', () => {
-  if (!zDrag) return;
-  zDrag = null;
-  el('sheet').classList.remove('dragging');
-});
+addEventListener('pointerup', zEndDrag);
+addEventListener('pointercancel', zEndDrag);
 
 /* 點圖快速來回：一倍 ↔ 兩倍半（支點在游標，跟滾輪同一套） */
 el('sheet').addEventListener('dblclick', (e) => {

@@ -102,6 +102,7 @@ body.gated #hud{opacity:0}
   display:block;max-width:min(88vw,1360px);max-height:calc(100vh - 128px);
   box-shadow:0 2px 4px rgba(0,0,0,.55),0 44px 96px -32px rgba(0,0,0,.95);
   transform-origin:center center;will-change:transform;
+  -webkit-user-drag:none;user-drag:none;   /* 別讓瀏覽器起原生圖片拖曳，見 app.js zEndDrag */
 }
 #sheet.zoomed img{cursor:grab}
 #sheet.dragging img{cursor:grabbing}
@@ -270,7 +271,7 @@ body.touch #hud,body.touch #gate,body.touch #load{display:none !important}
 
   <div id="sheet">
     <button class="close" id="sheetClose" title="關閉（Esc）">×</button>
-    <figure><img id="sheetImg" alt=""><figcaption id="sheetCap"></figcaption></figure>
+    <figure><img id="sheetImg" alt="" draggable="false"><figcaption id="sheetCap"></figcaption></figure>
     <div class="zoom">
       <button id="sheetOut" title="縮小（－）" aria-label="縮小">－</button>
       <button class="pct" id="sheetPct" title="回到剛好放滿（0）">100%</button>
