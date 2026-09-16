@@ -827,6 +827,72 @@ for (const p of PASSAGES) {
   pf.material.map.needsUpdate = true;
 }
 
+/* ---------------------------------------------------------------
+   照壁：立在門洞正後方的一道獨立板牆
+   四個門洞對成一直線，站在大廳就能一眼看穿到第二展廳的長凳；
+   第一展廳於是變成一條走道，而不是一個展廳。這道牆把軸線收在
+   Room I 的門口，人得繞過去才進得了展廳；碑面同時是整檔展覽的第一句話。
+   3.00 × 3.10 × 0.24 m，兩側各留 5.5 m 可以繞。
+   --------------------------------------------------------------- */
+const SCREEN = { z: -6.45, hw: 1.50, h: 3.10, th: 0.24 };
+{
+  const S = SCREEN;
+  box(0, S.h / 2, S.z, S.hw * 2, S.h, S.th, 'wallA');
+  for (const s of [1, -1]) {
+    box(0, 0.0675, S.z + s * (S.th / 2 + 0.019), S.hw * 2, 0.135, 0.038, 'skirt', { collide: false });
+  }
+  box(0, S.h + 0.045, S.z, S.hw * 2 + 0.20, 0.09, S.th + 0.20, 'dark', { collide: false });
+
+  /* 碑面：淺灰底、墨字、橫排。整個展覽就從這一句開始，所以不掛廳名、
+     不標年代、不畫分隔線——只有一句話，其餘交給留白。
+     館名與卷次收在底部一行小字，像封面的副標；右下角一枚朱紅小印。
+     板面 2.90 × 3.00 m → 畫布 1200 × 1240，1 px ≈ 2.4 mm。 */
+  {
+    const W = 1200, H = 1240;
+    const INK = '#111213';
+    const { c, x } = makeCanvas(W, H);
+    x.fillStyle = '#C7C4BE'; x.fillRect(0, 0, W, H);
+    x.strokeStyle = INK; x.globalAlpha = 0.13; x.lineWidth = 2;
+    x.strokeRect(30, 30, W - 60, H - 60);        // 極淡的內框：讓板面讀得出是一件「物件」
+    x.globalAlpha = 1;
+    x.textBaseline = 'middle';
+
+    const MAIN = '歡迎光臨';                      // 換句子只要改這一行，級數會自己重算
+    x.textAlign = 'center';
+    x.font = songti(150, 700);
+    const size = Math.min(232, 150 * (W * 0.80 / x.measureText(MAIN).width));
+    x.font = songti(size, 700); x.fillStyle = INK;
+    x.fillText(MAIN, W / 2, H * 0.44);
+
+    x.textAlign = 'left';
+    x.font = bask(28); x.fillStyle = INK; x.globalAlpha = 0.55; x.letterSpacing = '5px';
+    x.fillText('THE MEOWSEUM  ·  VOL. I  ·  1486 – 1942', 96, H - 140);
+    x.letterSpacing = '0px'; x.globalAlpha = 1;
+
+    x.fillStyle = '#9E2B25';                      // 全館唯一的朱紅
+    x.fillRect(W - 172, H - 178, 76, 76);
+    x.textAlign = 'center'; x.fillStyle = '#F4F1E8'; x.font = songti(28, 700);
+    x.fillText('喵', W - 134, H - 154); x.fillText('術', W - 134, H - 122);
+
+    const tex = canvasTex(c);
+    const face = new THREE.Mesh(
+      new THREE.PlaneGeometry(S.hw * 2 - 0.10, S.h - 0.10),
+      new THREE.MeshStandardMaterial({
+        map: tex, roughness: 0.96, emissive: 0xFFFFFF, emissiveMap: tex, emissiveIntensity: 0.05 }));
+    face.position.set(0, S.h / 2, S.z + S.th / 2 + 0.006);
+    scene.add(face);
+  }
+
+  /* 洗牆燈：只有一顆，光暈落在碑面上，地上留一點餘光 */
+  const wash = new THREE.SpotLight(0xFFEFD6, 15, 10, 0.58, 0.80, 1.4);
+  wash.position.set(0, 4.45, -5.20);
+  wash.target.position.set(0, 1.45, S.z - 0.20);
+  scene.add(wash, wash.target);
+  const pool = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 2.6), MATS.pool.clone());
+  pool.rotation.x = -Math.PI / 2; pool.position.set(0, 0.012, S.z + 1.55);
+  scene.add(pool);
+}
+
 /* 入口玻璃門 */
 box(0, 1.75, 12 - T / 2 + 0.02, 5.4, 3.5, 0.06, 'glass', { collide: false });
 for (const x of [-2.7, -0.9, 0.9, 2.7]) box(x, 1.75, 12 - T / 2 + 0.06, 0.07, 3.5, 0.05, 'dark', { collide: false });
