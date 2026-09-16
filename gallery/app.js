@@ -1292,62 +1292,62 @@ box(22 - T / 2 - 0.02, 1.5, -53.5, 0.04, 1.1, 0.8, 'merch', { collide: false });
    第一展廳的牆上投影
    ------------------------------------------------------------
    東牆（x = -7）整片留白，拿來當投影面：一台吊在天花板上的投影機，
-   把一句一句「故弄玄虛」的話打在牆上，一句一句慢慢換。
+   把 Lady Mimi 自己的話一句一句打在牆上。
 
-   手法：開場把六句話各畫成一張 canvas 貼圖，之後只用兩塊平面（A / B）
-   輪流淡入淡出。換場時改的是不透明度與兩塊平面的位置，貼圖本身不動，
-   所以整場跑下來 canvas 只畫 6 次，其餘時間 CPU 與 GPU 都沒有額外負擔。
+   手法：開場把六句話各畫成一張 canvas 貼圖，之後不動 canvas 也不動貼圖，
+   打字機效果全在 fragment shader 裡做——一條由左往右掃的前緣，
+   左邊的字清楚、右邊還沒出現，前緣附近用 5 tap 抽樣糊掉。
+   換場是反過來掃：舊句從左邊被擦掉，新句跟著補上。
 
    投影不接 TrackLamp，也不進 SHEET / COLLIDERS：它是光，不是紙，也不是牆。
    ============================================================ */
 const PROJ_PHRASES = [
-  { cn: '牆上本來沒有字。',
-    en: 'You are the only one who can read this.',        i: 'I' },
-  { cn: '牠不是被畫進去的。',
-    en: 'The cat was not painted in. Look again.',        i: 'II' },
-  { cn: '有一筆，沒有人下過。',
-    en: 'One stroke was never laid down by any hand.',    i: 'III' },
-  { cn: '她記得你沒看見的那一幕。',
-    en: 'She remembers what you did not notice.',         i: 'IV' },
-  { cn: '站在這裡的人都會少看一件。',
-    en: 'Everyone who stands here misses one.',           i: 'V' },
-  { cn: '不要問誰還記得。',
-    en: 'Do not ask who remembers. Ask what is looking.', i: 'VI' },
+  { cn: '我不是被畫進去的。',       en: 'I was not painted in. I was always here.', i: 'I' },
+  { cn: '我沒有在看你。',           en: 'I am not looking at you.',                 i: 'II' },
+  { cn: '這面牆本來是空的。',       en: 'This wall used to be blank.',              i: 'III' },
+  { cn: '把我掛在這裡是可以的。',   en: 'Hanging me here is acceptable.',           i: 'IV' },
+  { cn: '我不會說謝謝。',           en: 'I will not say thank you.',                i: 'V' },
+  { cn: '你可以繼續看。',           en: 'You may keep looking.',                    i: 'VI' },
 ];
 
-/* 牆有多大，畫布就長什麼樣（2 MP，牆上約 0.25 m / 100 px） */
+/* 牆有多大，畫布就長什麼樣（1.8 MP，牆上約 3.1 mm / px） */
 const PROJ = {
   W: 6.40, H: 2.75, X: -6.855, Z: -13.60, Y: 2.62,
   CW: 2048, CH: 880,              // 2.33:1，跟牆面同一組比例
-  SAFE_W: 0.74,                   // 版面不超過畫布的比例（四周留白，讀起來才有餘裕）
-  HOLD: [5.2, 6.8],               // 停留秒數範圍（每輪抽一次，節奏才不會死板）
-  FADE: 1.9,                      // 換場秒數
-  RISE: 0.032,                    // 換場時往上浮的距離（公尺）
+  SAFE_W: 0.82,                   // 版面不超過畫布的比例（六句都收成一行）
+  HOLD: [4.0, 5.6],               // 停留秒數範圍（每輪抽一次，節奏才不會死板）
+  FADE: 1.50,                     // 換場秒數
+  REVEAL: 0.46,                   // 打字機掃過版面的速度（版面寬度／秒）
+  LEAD: 0.36,                     // 軟開場：字還沒開始打就先亮起來
 };
 
+/* 六句話各一張貼圖：置中的一句話，上面一條索引，下面一行小字英文。
+   打字機的前緣是垂直掃的，所以會換行的句子會變成「先打完第一行再打第二行」，
+   讀起來剛好就是斷句。 */
 function projTexture(phrase) {
   const { c, x } = makeCanvas(PROJ.CW, PROJ.CH);
   const W = PROJ.CW, H = PROJ.CH;
   x.textAlign = 'center'; x.textBaseline = 'alphabetic';
 
   const maxW = W * PROJ.SAFE_W;
-  let fs = Math.round(H * 0.20);
-  let lines;
+  // 一律收成一行：打字機是橫著掃的，換行的句子前緣會一次打在兩行上，
+  // 掃過去會變成「兩行一起長出來」，不像打字。所以先量寬度再定字級。
+  let fs = Math.round(H * 0.26);
   for (;;) {
     x.font = songti(fs, 700);
-    lines = wrapText(x, phrase.cn, maxW);
-    if (lines.length <= 3 && lines.length * fs * 1.24 + H * 0.28 <= H || fs <= 40) break;
-    fs = Math.round(fs * 0.90);
+    if (x.measureText(phrase.cn).width <= maxW || fs <= 40) break;
+    fs = Math.round(fs * 0.94);
   }
-  const lh = fs * 1.24;
-  const es = Math.round(H * 0.050);
-  const gap = H * 0.062;                    // 主句與小字之間
+  const lines = [phrase.cn];
+  const lh = fs * 1.22;
+  const es = Math.round(H * 0.055);
+  const gap = H * 0.11;                       // 主句與小字之間
   const total = lines.length * lh + gap + es * 0.92;
   let y = H / 2 - total / 2 + fs * 0.80;
 
   // 索引：主句上方一段距離，兩側各一條短線
   const ry = y - fs * 1.55;
-  x.font = bask(Math.round(H * 0.033), true);
+  x.font = bask(Math.round(H * 0.034), true);
   x.fillStyle = 'rgba(242,234,216,.42)';
   x.fillText(phrase.i, W / 2, ry);
   const rw = W * 0.052, rg = x.measureText(phrase.i).width / 2 + W * 0.022;
@@ -1363,13 +1363,13 @@ function projTexture(phrase) {
   x.font = songti(fs, 700);
   x.fillStyle = '#F2EAD8';
   x.shadowColor = 'rgba(255,238,205,.55)';
-  x.shadowBlur = H * 0.030;                 // 一點點暈開，像是打在牆上的光
+  x.shadowBlur = H * 0.030;                   // 一點點暈開，像是打在牆上的光
   for (const t of lines) { x.fillText(t, W / 2, y); y += lh; }
   x.shadowBlur = 0;
 
   x.font = bask(es, true);
   x.fillStyle = 'rgba(232,222,200,.58)';
-  x.fillText(phrase.en, W / 2, y + gap * 0.32 + es * 0.60);
+  x.fillText(phrase.en, W / 2, y + gap * 0.20 + es * 0.60);
 
   return canvasTex(c);
 }
@@ -1395,6 +1395,45 @@ function projPoolTexture() {
   return canvasTex(c);
 }
 
+/* 打字機＋模糊。
+   文字與小字都在同一張貼圖裡，所以用 vUv.x 掃：左邊 u 小（先出現）。
+   前緣用 smoothstep 給 0.055 的軟邊（版面約 35 cm，前緣不會是一刀切），
+   再按 (前緣 − u) 抽樣 5 個點糊掉在那道邊上；字本身夠大，
+   5 個點還不足以讓它認不出來。
+
+   一塊平面同時吃 uFwd / uRev 這兩個前緣：
+   平常 uFwd 從 0 掃到 1（新句打出來，uRev 停在 0）；
+   換場時 uRev 從 0 掃到 1，把舊句從左邊擦掉，uFwd 再從頭打一次新句。
+   交集的結果就是「舊句被擦掉、新句跟著補上」。
+   全程只改這兩個 uniform。 */
+
+const PROJ_VERT = `
+varying vec2 vUv;
+void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+`;
+
+const PROJ_FRAG = `
+uniform sampler2D tMap;
+uniform float uFwd, uRev, uOpacity, uOn, uGlow;
+varying vec2 vUv;
+void main() {
+  float edge = 0.040;
+  float blank = 1.0 - smoothstep(uFwd, uFwd + edge, vUv.x);
+  float gone  = smoothstep(uRev, uRev + edge, vUv.x);
+  float m = blank * gone;
+  float w = smoothstep(0.0, edge, uFwd - vUv.x);
+  vec2 px = vec2(2.0 / 2048.0, 0.0);
+  vec4 t = texture2D(tMap, vUv) * 0.44
+         + texture2D(tMap, vUv + px * w) * 0.14
+         + texture2D(tMap, vUv - px * w) * 0.14
+         + texture2D(tMap, vUv + px * 2.0 * w) * 0.14
+         + texture2D(tMap, vUv - px * 2.0 * w) * 0.14;
+  gl_FragColor = vec4(t.rgb * uGlow, t.a * m * uOpacity * uOn);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
+}
+`;
+
 const PROJ_TEX = PROJ_PHRASES.map(projTexture);
 const PROJ_N = new THREE.Vector3(1, 0, 0);        // 東牆內面朝 +x
 
@@ -1415,14 +1454,18 @@ const PROJ_N = new THREE.Vector3(1, 0, 0);        // 東牆內面朝 +x
 const PROJ_PLANE = [];
 for (const k of [0, 1]) {
   const m = new THREE.Mesh(new THREE.PlaneGeometry(PROJ.W, PROJ.H),
-    new THREE.MeshStandardMaterial({
-      map: PROJ_TEX[0], transparent: true, opacity: 0, depthWrite: false,
-      roughness: 0.92, metalness: 0.0, envMapIntensity: 0.2,
-      emissive: 0xFFFFFF, emissiveMap: PROJ_TEX[0], emissiveIntensity: 0.90,
+    new THREE.ShaderMaterial({
+      vertexShader: PROJ_VERT, fragmentShader: PROJ_FRAG,
+      uniforms: {
+        tMap: { value: PROJ_TEX[k] },
+        uFwd: { value: 0 }, uRev: { value: 0 },      // 兩個都 0 → 整面黑，開場才交給排程
+        uOpacity: { value: 0 }, uOn: { value: 1 }, uGlow: { value: 1.05 },
+      },
+      transparent: true, depthWrite: false, side: THREE.FrontSide,
     }));
   m.position.set(PROJ.X, PROJ.Y, PROJ.Z);
   m.rotation.y = orient(PROJ_N);
-  m.renderOrder = 3 + k;                          // 淡出那塊在下、淡入那塊在上
+  m.renderOrder = 3 + k;                          // 淡入那塊在上
   scene.add(m);
   PROJ_PLANE.push(m);
 }
@@ -1471,36 +1514,51 @@ for (const k of [0, 1]) {
   scene.add(sp, sp.target);
 }
 
-/* 換場排程：停留 → 淡出／淡入（同時、等長）→ 下一句。
-   淡入那塊 renderOrder 較大，兩句交疊時新句壓在上面，不會糊成一團。 */
-const projState = { i: 0, next: 1, t: 0, dur: 0, ph: 'hold', fade: 0 };
-PROJ_PLANE[0].material.opacity = 1;       // 開場先讓第一句亮著
-projState.dur = PROJ.HOLD[0] + Math.random() * (PROJ.HOLD[1] - PROJ.HOLD[0]);
+/* 排程：軟開場 → 打字 → 停留 →（舊句從左邊擦掉、新句順手補上）→ …
+   只有兩塊平面，所以永遠是「一塊顯示這一句、另一塊先領好下一句的貼圖」，
+   nxt 不必記，就是 1 - cur。 */
+const projState = { cur: 0, tex: 0, ph: 'lead', t: 0, dur: PROJ.HOLD[0] };
 function projectNext(dt) {
-  const st = projState, a = PROJ_PLANE[st.i], b = PROJ_PLANE[st.next];
+  const st = projState;
+  const a = PROJ_PLANE[st.cur], b = PROJ_PLANE[1 - st.cur];
+  const ua = a.material.uniforms, ub = b.material.uniforms;
+
   st.t += dt;
-  if (st.ph === 'hold') {
-    a.material.opacity = 1;
-    b.material.opacity = 0;
-    a.position.x = PROJ.X; b.position.x = PROJ.X;
+  let up = 0;
+
+  if (st.ph === 'lead') {                        // 光先亮，字還沒開始打
+    up = Math.min(1, st.t / PROJ.LEAD);
+    ua.uFwd.value = 0; ua.uRev.value = 0; ua.uOpacity.value = 1; ua.uOn.value = 1;
+    if (up >= 1) { st.ph = 'run'; st.t = 0; }
+  } else if (st.ph === 'run') {                  // 前緣從左掃過版面
+    up = Math.min(1, st.t * PROJ.REVEAL);
+    ua.uFwd.value = up; ua.uRev.value = 0; ua.uOpacity.value = 1; ua.uOn.value = 1;
+    if (up >= 1) {
+      st.ph = 'hold'; st.t = 0;
+      st.dur = PROJ.HOLD[0] + Math.random() * (PROJ.HOLD[1] - PROJ.HOLD[0]);
+    }
+  } else if (st.ph === 'hold') {
+    ua.uFwd.value = 1; ua.uRev.value = 0; ua.uOpacity.value = 1; ua.uOn.value = 1;
     if (st.t >= st.dur) { st.ph = 'fade'; st.t = 0; }
-    return;
-  }
-  const u = Math.min(1, st.t / PROJ.FADE), e = u * u * (3 - 2 * u);   // smoothstep
-  a.material.opacity = 1 - e;
-  b.material.opacity = e;
-  a.position.x = PROJ.X + PROJ.RISE * e;        // 舊句往上飄走
-  b.position.x = PROJ.X + PROJ.RISE * (1 - e);  // 新句從下方浮上來
-  if (u >= 1) {
-    a.material.opacity = 0;
-    const done = st.next;
-    st.i = done;
-    st.next = (done + 1) % PROJ_PLANE.length;   // 只有兩塊，輪流用
-    b.material.map = PROJ_TEX[st.i];
-    b.material.emissiveMap = PROJ_TEX[st.i];
-    b.material.needsUpdate = true;
-    st.dur = PROJ.HOLD[0] + Math.random() * (PROJ.HOLD[1] - PROJ.HOLD[0]);
-    st.ph = 'hold'; st.t = 0; st.fade += 1;
+  } else {                                       // 舊的擦掉、新的補上
+    up = Math.min(1, st.t / PROJ.FADE);
+    const done = up >= 1;
+    ua.uRev.value = up;                          // 舊句：前緣掃過去就沒了
+    ua.uOpacity.value = 1 - 0.25 * up;           // 順手整體淡一點，邊緣才不會髒
+    ub.uOpacity.value = 1;
+    ub.uRev.value = 0;
+    ub.uFwd.value = Math.min(1, up * 1.6);       // 新句：打得比擦的快一點，才追得上
+
+    if (done) {
+      a.material.uniforms.uOpacity.value = 0;
+      a.material.uniforms.uOn.value = 0;
+      st.cur = 1 - st.cur;
+      st.tex = (st.tex + 1) % PROJ_TEX.length;   // 這塊接下來要顯示的話
+      const nxtTex = PROJ_TEX[(st.tex + 1) % PROJ_TEX.length];
+      PROJ_PLANE[1 - st.cur].material.uniforms.tMap.value = nxtTex;
+      st.ph = 'hold'; st.t = 0;
+      st.dur = PROJ.HOLD[0] + Math.random() * (PROJ.HOLD[1] - PROJ.HOLD[0]);
+    }
   }
 }
 
