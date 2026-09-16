@@ -1224,13 +1224,14 @@ box(9.80, 3.62, -47.5, 0.10, 0.24, 0.66, 'exit', { collide: false });   // 掛�
 
 /* 禮品店門口的告示架：底座 + 立柱 + 斜面板，板上夾一張 A 字級的白紙 */
 {
-  /* 位置有兩個硬條件：
-     1) 要在店裡，不能在門洞的視線上——不然站在 Room III 就能從門洞看到它，
-        看起來像還放在上一廳（準心也會以為那是上一個廳的東西）。
-     2) 一進門（往 +x 走）第一眼就要看到，所以在門的右手邊、斜朝門口。
-     站在 (7.5, -47.5) 往東看時，視線切過 x = 10 的位置是 z ≈ -46.0，
-     落在門洞（-48.7…-46.3）北側的牆面上，就被牆擋住了。 */
-  const NX = 12.40, NZ = -44.60, RY = -2.15;
+  /* 位置有兩個條件：
+     1) 要在店裡、不能出現在門洞的視線上。站在 Room III（x < 8）往東看時，
+        視線切過 x = 10 的落點必須落在門洞南側的牆面（z > -46.3），
+        所以告示要往門的右手邊、靠南一點擺，才不會被看成「還放在上一廳」。
+     2) 一進門（往 +x 走）往右一看就要看到它，所以貼著門內側、斜朝門口。
+     以 (11.95, -45.05) 為例：從 (7.5, -47.5) 看過去，視線在 x = 10 的落點
+     是 z ≈ -46.12，被門南側那道牆擋住；人一站進門就整個露出來。 */
+  const NX = 11.95, NZ = -45.05, RY = -2.02;
   const g = new THREE.Group();
   g.position.set(NX, 0, NZ);
   g.rotation.y = RY;
@@ -1296,6 +1297,13 @@ function blocked(x, z) {
 
 addEventListener('keydown', (e) => {
   if (e.code === 'Escape' && sheetEntry) { closeSheet(); return; }
+  if (sheetEntry) {
+    // 大圖開著的時候只認縮放鍵，WASD 不要餵給走動
+    if (e.key === '+' || e.key === '=') { zZoomTo(zScale * ZSTEP); return; }
+    if (e.key === '-' || e.key === '_') { zZoomTo(zScale / ZSTEP); return; }
+    if (e.key === '0') { zReset(); return; }
+    return;
+  }
   if (e.code === 'Escape' && focused) { closeFocus(); return; }
   if (focused && (e.code === 'ArrowLeft' || e.code === 'ArrowRight')) { stepWork(e.code === 'ArrowRight' ? 1 : -1); return; }
   keys.add(e.code);
@@ -1445,16 +1453,105 @@ function openSheet(entry) {
   el('sheetImg').src = src && src.toDataURL ? src.toDataURL('image/png') : '';
   el('sheetCap').textContent = entry.cap || '';
   el('sheet').classList.add('on');
+  zReset();
   if (document.pointerLockElement) document.exitPointerLock();
 }
 function closeSheet() {
   sheetEntry = null;
   el('sheet').classList.remove('on');
   el('sheetImg').removeAttribute('src');
+  zReset();
   if (!isTouch) tryLock();
 }
+
+/* ------------------------------------------------------------
+   大圖的縮放：按鈕、滾輪、拖曳
+   ------------------------------------------------------------
+   比例是「相對剛好放滿」的倍率——100% 就是剛點開時的大小，
+   接下來只是把同一張點陣圖放大，所以上限停在 4 倍（再上去只是變糊）。
+   圖比視窗大之後用 transform 平移，超出 #sheet 的部分直接被裁掉。 */
+const ZMIN = 1, ZMAX = 4, ZSTEP = 1.25;
+const ZPAD = { x: 88, y: 78 };          // #sheet 的 padding：左右 44、上下 44 + 34
+let zScale = 1, ztx = 0, zty = 0, zDrag = null, zDragMoved = 0;
+
+const zClamp = (v, a, b) => Math.min(Math.max(v, a), b);
+
+function zApply() {
+  el('sheetImg').style.transform =
+    `translate(${ztx.toFixed(1)}px,${zty.toFixed(1)}px) scale(${zScale.toFixed(3)})`;
+  el('sheetPct').textContent = `${Math.round(zScale * 100)}%`;
+  el('sheetOut').disabled = zScale <= ZMIN + 1e-3;
+  el('sheetIn').disabled = zScale >= ZMAX - 1e-3;
+  el('sheet').classList.toggle('zoomed', zScale > ZMIN + 1e-3);
+}
+
+/* 可以拖多遠：圖的邊拉進來剛好看得到就好，不要拖到整張飛出畫面 */
+function zPan(px, py) {
+  const img = el('sheetImg'), box = el('sheet');
+  const mx = Math.max(0, (img.offsetWidth * zScale - (box.clientWidth - ZPAD.x)) / 2);
+  const my = Math.max(0, (img.offsetHeight * zScale - (box.clientHeight - ZPAD.y)) / 2);
+  ztx = zClamp(px, -mx, mx);
+  zty = zClamp(py, -my, my);
+}
+
+/* cx / cy 是縮放的支點（游標相對畫面中央的位移），按鈕縮放就傳 0（畫面中央） */
+function zZoomTo(s, cx = 0, cy = 0) {
+  const k = zClamp(s, ZMIN, ZMAX) / zScale;
+  if (Math.abs(k - 1) < 1e-4) return;
+  ztx = cx - (cx - ztx) * k;
+  zty = cy - (cy - zty) * k;
+  zScale *= k;
+  zPan(ztx, zty);
+  zApply();
+}
+
+function zReset() { zScale = 1; ztx = 0; zty = 0; zDrag = null; zDragMoved = 0; zApply(); }
+
 el('sheetClose').onclick = closeSheet;
-el('sheet').addEventListener('click', (e) => { if (e.target.id === 'sheet') closeSheet(); });
+el('sheetIn').onclick = () => zZoomTo(zScale * ZSTEP);
+el('sheetOut').onclick = () => zZoomTo(zScale / ZSTEP);
+el('sheetPct').onclick = zReset;
+
+el('sheet').addEventListener('wheel', (e) => {
+  if (!sheetEntry) return;
+  e.preventDefault();
+  const r = el('sheet').getBoundingClientRect();
+  zZoomTo(zScale * (e.deltaY < 0 ? 1.14 : 1 / 1.14),
+    e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+}, { passive: false });
+
+el('sheet').addEventListener('pointerdown', (e) => {
+  if (!sheetEntry || zScale <= ZMIN + 1e-3 || e.target.closest('button')) return;
+  zDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, tx: ztx, ty: zty };
+  zDragMoved = 0;
+  el('sheet').classList.add('dragging');
+});
+addEventListener('pointermove', (e) => {
+  if (!zDrag || e.pointerId !== zDrag.id) return;
+  const dx = e.clientX - zDrag.x, dy = e.clientY - zDrag.y;
+  zDragMoved = Math.max(zDragMoved, Math.hypot(dx, dy));
+  zPan(zDrag.tx + dx, zDrag.ty + dy);
+  zApply();
+});
+addEventListener('pointerup', () => {
+  if (!zDrag) return;
+  zDrag = null;
+  el('sheet').classList.remove('dragging');
+});
+
+/* 點圖快速來回：一倍 ↔ 兩倍半（支點在游標，跟滾輪同一套） */
+el('sheet').addEventListener('dblclick', (e) => {
+  if (!sheetEntry || e.target.id !== 'sheetImg') return;
+  const r = el('sheet').getBoundingClientRect();
+  if (zScale > ZMIN + 1e-3) zReset();
+  else zZoomTo(2.5, e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+});
+
+el('sheet').addEventListener('click', (e) => {
+  const dragged = zDragMoved > 4;      // 剛剛是拖曳，不是點背景
+  zDragMoved = 0;
+  if (!dragged && e.target.id === 'sheet') closeSheet();
+});
 
 function closeFocus() {
   focused = null;

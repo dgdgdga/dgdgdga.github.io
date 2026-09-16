@@ -93,7 +93,7 @@ body.gated #hud{opacity:0}
 /* ---------- 大圖：點牆上的展籤 / 廳牌 / 海報，攤平放大看 ---------- */
 #sheet{
   position:fixed;inset:0;z-index:40;display:none;place-items:center;padding:44px 44px 34px;
-  background:rgba(8,10,9,.88);
+  background:rgba(8,10,9,.88);overflow:hidden;
   -webkit-backdrop-filter:blur(11px) saturate(.9);backdrop-filter:blur(11px) saturate(.9);
 }
 #sheet.on{display:grid}
@@ -101,7 +101,35 @@ body.gated #hud{opacity:0}
 #sheet img{
   display:block;max-width:min(88vw,1360px);max-height:calc(100vh - 128px);
   box-shadow:0 2px 4px rgba(0,0,0,.55),0 44px 96px -32px rgba(0,0,0,.95);
+  transform-origin:center center;will-change:transform;
 }
+#sheet.zoomed img{cursor:grab}
+#sheet.dragging img{cursor:grabbing}
+/* 縮放列：比例是「相對剛好放滿」的倍率，100% 就是剛點開時的大小 */
+#sheet .zoom{
+  /* 擺左下角：圖說在正下方置中，縮放列放中間會壓到字 */
+  position:absolute;left:24px;bottom:22px;
+  display:flex;align-items:center;padding:3px;border-radius:999px;
+  border:1px solid rgba(244,241,232,.22);background:rgba(14,16,15,.58);
+  -webkit-backdrop-filter:blur(9px) saturate(1.05);backdrop-filter:blur(9px) saturate(1.05);
+}
+#sheet .zoom button{
+  width:34px;height:30px;border:0;background:transparent;border-radius:999px;cursor:pointer;
+  color:rgba(244,241,232,.86);font:15px/1 var(--f-ui);display:grid;place-items:center;
+}
+#sheet .zoom button:hover{background:rgba(244,241,232,.15);color:#fff}
+#sheet .zoom button:disabled{opacity:.26;cursor:default;background:none}
+#sheet .zoom .pct{
+  min-width:58px;border:0;background:transparent;cursor:pointer;
+  font-family:var(--f-lat);font-size:11px;letter-spacing:.12em;color:rgba(244,241,232,.70);
+  font-variant-numeric:tabular-nums;
+}
+#sheet .zoom .pct:hover{color:#fff}
+#sheet .howto{
+  position:absolute;right:24px;bottom:27px;font-family:var(--f-lat);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:rgba(244,241,232,.40);
+}
+@media (max-width:1040px){#sheet .howto{display:none}}
 #sheet figcaption{font-family:var(--f-lat);font-size:11px;letter-spacing:.13em;color:rgba(244,241,232,.60);text-transform:uppercase}
 #sheet .close{
   position:absolute;right:22px;top:20px;width:32px;height:32px;border:1px solid rgba(244,241,232,.32);
@@ -241,8 +269,14 @@ body.touch #hud,body.touch #gate,body.touch #load{display:none !important}
   </div>
 
   <div id="sheet">
-    <button class="close" id="sheetClose" title="關閉">×</button>
+    <button class="close" id="sheetClose" title="關閉（Esc）">×</button>
     <figure><img id="sheetImg" alt=""><figcaption id="sheetCap"></figcaption></figure>
+    <div class="zoom">
+      <button id="sheetOut" title="縮小（－）" aria-label="縮小">－</button>
+      <button class="pct" id="sheetPct" title="回到剛好放滿（0）">100%</button>
+      <button id="sheetIn" title="放大（＋）" aria-label="放大">＋</button>
+    </div>
+    <div class="howto">Scroll to zoom · Drag to pan · Esc to close</div>
   </div>
 
   <div id="paused" class="card">
