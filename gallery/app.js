@@ -843,9 +843,8 @@ const SCREEN = { z: -6.45, hw: 1.50, h: 3.10, th: 0.24 };
   }
   box(0, S.h + 0.045, S.z, S.hw * 2 + 0.20, 0.09, S.th + 0.20, 'dark', { collide: false });
 
-  /* 碑面：淺灰底、墨字、橫排。整個展覽就從這一句開始，所以不掛廳名、
-     不標年代、不畫分隔線——只有一句話，其餘交給留白。
-     館名與卷次收在底部一行小字，像封面的副標；右下角一枚朱紅小印。
+  /* 碑面：淺灰底、墨字、橫排。整檔展覽就從這一句開始，所以只有一句話
+     加一行英文，不掛廳名、不標年代、不留分隔線，其餘交給留白。
      板面 2.90 × 3.00 m → 畫布 1200 × 1240，1 px ≈ 2.4 mm。 */
   {
     const W = 1200, H = 1240;
@@ -855,24 +854,16 @@ const SCREEN = { z: -6.45, hw: 1.50, h: 3.10, th: 0.24 };
     x.strokeStyle = INK; x.globalAlpha = 0.13; x.lineWidth = 2;
     x.strokeRect(30, 30, W - 60, H - 60);        // 極淡的內框：讓板面讀得出是一件「物件」
     x.globalAlpha = 1;
-    x.textBaseline = 'middle';
+    x.textAlign = 'center'; x.textBaseline = 'middle';
 
     const MAIN = '歡迎光臨';                      // 換句子只要改這一行，級數會自己重算
-    x.textAlign = 'center';
     x.font = songti(150, 700);
-    const size = Math.min(232, 150 * (W * 0.80 / x.measureText(MAIN).width));
+    const size = Math.min(160, 150 * (W * 0.80 / x.measureText(MAIN).width));
     x.font = songti(size, 700); x.fillStyle = INK;
-    x.fillText(MAIN, W / 2, H * 0.44);
+    x.fillText(MAIN, W / 2, H * 0.46);
 
-    x.textAlign = 'left';
-    x.font = bask(28); x.fillStyle = INK; x.globalAlpha = 0.55; x.letterSpacing = '5px';
-    x.fillText('THE MEOWSEUM  ·  VOL. I  ·  1486 – 1942', 96, H - 140);
-    x.letterSpacing = '0px'; x.globalAlpha = 1;
-
-    x.fillStyle = '#9E2B25';                      // 全館唯一的朱紅
-    x.fillRect(W - 172, H - 178, 76, 76);
-    x.textAlign = 'center'; x.fillStyle = '#F4F1E8'; x.font = songti(28, 700);
-    x.fillText('喵', W - 134, H - 154); x.fillText('術', W - 134, H - 122);
+    x.font = bask(31, true); x.fillStyle = INK; x.globalAlpha = 0.48;
+    x.fillText('Welcome to The Meowseum.', W / 2, H * 0.46 + size * 0.92 + 66);
 
     const tex = canvasTex(c);
     const face = new THREE.Mesh(
