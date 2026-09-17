@@ -12,15 +12,21 @@ LOAD.mile(18, '下載入口主視覺 · Loading the entrance wall');
 
 /* 牆上的字有一半是畫在 canvas 上的（展籤、廳牌、海報），而 canvas 的 fillText
    不會等 webfont：字型還沒到就畫，缺字會直接烤成替代字形、之後補不回來。
-   所以先把兩個字重都確定就緒，才開始蓋展館。
-   @font-face 的 src 是 local() 優先，系統本來就有宋體的機器這裡不會有任何下載；
-   真的沒有才會抓 vendor/fonts/ 的子集（約 300 KB）。
+   所以先把畫得到的每個字族、每個字重都確定就緒，才開始蓋展館。
+   @font-face 的 src 是 local() 優先，系統本來就有宋體／Baskerville 的機器這裡
+   不會有任何下載；真的沒有才會抓 vendor/fonts/ 的子集（約 510 KB）。
+   兩族都要等（2026-09-17）：Windows 上一個 local() 都命中不了，只等 Serif 的話
+   英文那族會在下載途中就開始烤字，烤出來的英文是替代字形，而且只在 Windows
+   看得出來——作者那台 Mac 有真的 Baskerville 頂著，永遠不會走到這條路。
    加個時限，免得字型出狀況時卡在「Preparing the galleries…」不動。 */
 try {
   await Promise.race([
     Promise.all([
       document.fonts.load('400 16px "Meowseum Serif"'),
       document.fonts.load('700 16px "Meowseum Serif"'),
+      document.fonts.load('400 16px "Meowseum Baskerville"'),
+      document.fonts.load('700 16px "Meowseum Baskerville"'),
+      document.fonts.load('italic 400 16px "Meowseum Baskerville"'),
     ]),
     new Promise((r) => setTimeout(r, 10000)),
   ]);
@@ -123,7 +129,7 @@ const CREAM = '#F4F1E8', GREEN = '#0E2B22';
 // 廳牌（深綠底）上的字：不純白，帶一點米，跟主視覺牆同一組
 const CARD_TXT = '#D8D2C2', CARD_DIM = '#948F80', CARD_RULE = 'rgba(216,210,194,.30)';
 const FT = '"Meowseum Serif",Songti TC,"宋体-繁","Songti SC","Songti","Noto Serif TC",serif';
-const FL = 'Baskerville,"Iowan Old Style","Times New Roman","Meowseum Serif",serif';
+const FL = '"Meowseum Baskerville",Baskerville,"Iowan Old Style","Times New Roman","Meowseum Serif",serif';
 const MM = 25.4 / 72;                       // pt → mm
 
 const songti = (px, w = 700) => `${w} ${px}px ${FT}`;
@@ -473,7 +479,7 @@ function posterMapTexture() {
     x.fillText(label, lx + gw + M(3.4), ly);
     lx += gw + M(3.4) + x.measureText(label).width + M(gapAfter);
   };
-  item('▸', '入口　ENTRANCE', 16);
+  item('▶', '入口　ENTRANCE', 16);
   item('●', '展品位置　WORKS', 16);
   item('Ⅰ–Ⅳ', '四個展廳　ROOMS', 0);
 
