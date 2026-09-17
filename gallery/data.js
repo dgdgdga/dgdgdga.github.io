@@ -4,10 +4,14 @@
 
 export const DATA = {
   "titleWall": {
-    "image": "../assets/title-wall.webp",
+    "image": "assets/title-wall.webp",
     "arc": 8.4,
     "h": 4.2,
     "aspect": 2.0
+  },
+  "shopPhoto": {
+    "image": "assets/mimi-dress.webp",
+    "aspect": 0.75
   },
   "brand": {
     "museumCn": "喵術館",
@@ -130,8 +134,8 @@ export const DATA = {
       "punchEn": "The paw was not extended to receive life. It was extended to knock it off the table.",
       "w": 2.419,
       "h": 1.35,
-      "image": "../artworks/lady-mimi/01-the-creation-of-cat.webp",
-      "refImage": "../reference/28-pouncing-paws-forward-indoors.webp"
+      "image": "artworks/lady-mimi/01-the-creation-of-cat.webp",
+      "refImage": "reference/28-pouncing-paws-forward-indoors.webp"
     },
     {
       "no": "02",
@@ -147,8 +151,8 @@ export const DATA = {
       "punchEn": "She was not carried ashore. She walked.",
       "w": 2.385,
       "h": 1.6,
-      "image": "../artworks/lady-mimi/02-the-birth-of-meownus.webp",
-      "refImage": "../reference/17-outdoors-standing-full-body.webp"
+      "image": "artworks/lady-mimi/02-the-birth-of-meownus.webp",
+      "refImage": "reference/17-outdoors-standing-full-body.webp"
     },
     {
       "no": "03",
@@ -164,8 +168,8 @@ export const DATA = {
       "punchEn": "The smile is explained.",
       "w": 1.142,
       "h": 1.53,
-      "image": "../artworks/lady-mimi/03-meowna-lisa.webp",
-      "refImage": "../reference/27-closeup-face-portrait.webp"
+      "image": "artworks/lady-mimi/03-meowna-lisa.webp",
+      "refImage": "reference/27-closeup-face-portrait.webp"
     },
     {
       "no": "04",
@@ -181,8 +185,8 @@ export const DATA = {
       "punchEn": "The mastiff was asked to leave the frame. It still does not know why.",
       "w": 1.7,
       "h": 1.7,
-      "image": "../artworks/lady-mimi/04-las-meowninas.webp",
-      "refImage": "../reference/14-sitting-upright-alert-indoors.webp"
+      "image": "artworks/lady-mimi/04-las-meowninas.webp",
+      "refImage": "reference/14-sitting-upright-alert-indoors.webp"
     },
     {
       "no": "05",
@@ -198,8 +202,8 @@ export const DATA = {
       "punchEn": "The pearl is present. The earring is not. There is a bead on the floor.",
       "w": 1.05,
       "h": 1.05,
-      "image": "../artworks/lady-mimi/05-cat-with-a-pearl-earring.webp",
-      "refImage": "../reference/07-sitting-upright-profile-on-bed.webp"
+      "image": "artworks/lady-mimi/05-cat-with-a-pearl-earring.webp",
+      "refImage": "reference/07-sitting-upright-profile-on-bed.webp"
     },
     {
       "no": "06",
@@ -215,8 +219,8 @@ export const DATA = {
       "punchEn": "She insists on the official title.",
       "w": 0.971,
       "h": 1.3,
-      "image": "../artworks/lady-mimi/06-whistlers-cat.webp",
-      "refImage": "../reference/25-wearing-fuzzy-hat-eyes-squinting.webp"
+      "image": "artworks/lady-mimi/06-whistlers-cat.webp",
+      "refImage": "reference/25-wearing-fuzzy-hat-eyes-squinting.webp"
     },
     {
       "no": "07",
@@ -232,8 +236,8 @@ export const DATA = {
       "punchEn": "She is not contemplating the sublime. She is watching a bird.",
       "w": 1.902,
       "h": 1.42,
-      "image": "../artworks/lady-mimi/07-cat-above-the-sea-of-fog.webp",
-      "refImage": "../reference/13-on-balcony-seen-from-behind.webp"
+      "image": "artworks/lady-mimi/07-cat-above-the-sea-of-fog.webp",
+      "refImage": "reference/13-on-balcony-seen-from-behind.webp"
     },
     {
       "no": "08",
@@ -249,8 +253,8 @@ export const DATA = {
       "punchEn": "She was only yawning. The background took it personally.",
       "w": 1.473,
       "h": 1.1,
-      "image": "../artworks/lady-mimi/08-the-meow.webp",
-      "refImage": "../reference/03-closeup-open-mouth-yawn.webp"
+      "image": "artworks/lady-mimi/08-the-meow.webp",
+      "refImage": "reference/03-closeup-open-mouth-yawn.webp"
     },
     {
       "no": "09",
@@ -266,8 +270,8 @@ export const DATA = {
       "punchEn": "She has no intention of explaining the pitchfork.",
       "w": 1.1,
       "h": 1.1,
-      "image": "../artworks/lady-mimi/09-american-cat-othic.webp",
-      "refImage": "../reference/20-wearing-black-top-white-skirt.webp"
+      "image": "artworks/lady-mimi/09-american-cat-othic.webp",
+      "refImage": "reference/20-wearing-black-top-white-skirt.webp"
     },
     {
       "no": "10",
@@ -283,8 +287,8 @@ export const DATA = {
       "punchEn": "She has been waiting for the diner to open since 1942.",
       "w": 2.06,
       "h": 1.15,
-      "image": "../artworks/lady-mimi/10-nightcats.webp",
-      "refImage": "../reference/24-sitting-by-shopfront-outdoors.webp"
+      "image": "artworks/lady-mimi/10-nightcats.webp",
+      "refImage": "reference/24-sitting-by-shopfront-outdoors.webp"
     }
   ]
 };

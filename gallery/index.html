@@ -4,8 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>THE MEOWSEUM · 喵術館 · 展館</title>
-<!-- 入口那面牆是進館第一眼，先讓它開始下載（不等 JS 解析到）。 -->
-<link rel="preload" as="image" href="../assets/title-wall.webp" fetchpriority="high">
+<!-- 入口那面牆是進館第一眼，在 HTML 就把它排到最前面下載（不等 three.js 與
+     app.js 下載完才開始）。這裡寫的是 dev 的檔名，dist 版由 make_dist.py 改成 .webp。 -->
+<link rel="preload" as="image" href="assets/title-wall.webp" fetchpriority="high">
+<!-- app.js 是 module，它 import 什麼要等下載完才知道——那又是一次來回。
+     這裡先把三支 module 的抓取排進去（modulepreload 會一起帶上
+     three.core.min.js，它是 three.module.min.js 的靜態 import）。 -->
+<link rel="modulepreload" href="./vendor/three.module.min.js">
+<link rel="modulepreload" href="./data.js">
 <style>
 /* ============================================================
    THE MEOWSEUM · 3D 展館
@@ -118,10 +124,31 @@ body.gated #hud{opacity:0}
   background:rgba(8,10,9,.88);overflow:hidden;
   -webkit-backdrop-filter:blur(11px) saturate(.9);backdrop-filter:blur(11px) saturate(.9);
 }
-#sheet.on{display:grid}
+/* 進出場：底先淡、紙再彈進來；收場反過來，而且動畫跑完才真的 display:none
+   （見 app.js 的 closeSheet 那個 260 ms）。
+   figure 當「紙」、動的是 figure——img 身上有 zApply() 寫的縮放 transform，
+   同一層會打架。收場的 .off 一定要寫在 .on 後面：兩個 class 同時在的那 260 ms
+   比的是先後，不是 specificity。 */
+#sheet.on{display:grid;animation:sheetBgIn .30s ease both}
+#sheet.off{animation:sheetBgOut .24s ease both}
+#sheet.on figure{animation:sheetPop .42s cubic-bezier(.19,.78,.24,1) both}
+#sheet.off figure{animation:sheetDrop .22s cubic-bezier(.5,0,.75,.2) both}
+#sheet.on .close,#sheet.on .zoom,#sheet.on .howto,#sheet.on .dl{animation:sheetFade .34s ease .07s both}
+#sheet.off .close,#sheet.off .zoom,#sheet.off .howto,#sheet.off .dl{animation:sheetFade .16s ease reverse both}
+@keyframes sheetBgIn{from{opacity:0}to{opacity:1}}
+@keyframes sheetBgOut{from{opacity:1}to{opacity:0}}
+@keyframes sheetPop{from{opacity:0;transform:scale(.93) translateY(16px)}to{opacity:1;transform:none}}
+@keyframes sheetDrop{to{opacity:0;transform:scale(.965) translateY(10px)}}
+@keyframes sheetFade{from{opacity:0}to{opacity:1}}
 #sheet figure{display:flex;flex-direction:column;align-items:center;gap:15px;max-width:100%;max-height:100%}
 #sheet img{
   display:block;max-width:min(88vw,1360px);max-height:calc(100vh - 128px);
+  /* 紙的寬高比不能被改掉。openSheet() 會把 canvas 的像素尺寸寫進 width/height
+     屬性（那是「圖還沒解碼時」的內在尺寸，避免進場動畫從一粒米彈開），
+     但屬性值在 CSS 裡算 px，於是被 max-width / max-height 各自夾一次——
+     兩個方向夾的比例不同，圖就被拉扁了（廳牌 2100×2970 被夾成 1360×872）。
+     這裡把 width/height 屬性降級成「建議」，讓 max-* 依內在比例等比縮放。 */
+  width:auto;height:auto;object-fit:contain;
   box-shadow:0 2px 4px rgba(0,0,0,.55),0 44px 96px -32px rgba(0,0,0,.95);
   transform-origin:center center;will-change:transform;
   -webkit-user-drag:none;user-drag:none;   /* 別讓瀏覽器起原生圖片拖曳，見 app.js zEndDrag */
@@ -160,6 +187,63 @@ body.gated #hud{opacity:0}
   font:16px/1 var(--f-ui);display:grid;place-items:center;
 }
 #sheet .close:hover{background:rgba(244,241,232,.14);color:#fff}
+/* 下載鈕：只有「有電子版」的紙才有（桌上的展冊、牆上的免費紀念冊告示）。
+   掛在關閉鈕左邊，和它同一條水平線。 */
+#sheet .dl{
+  position:absolute;right:64px;top:20px;height:32px;padding:0 15px;border-radius:999px;
+  display:grid;place-items:center;text-decoration:none;
+  border:1px solid rgba(244,241,232,.32);color:rgba(244,241,232,.82);
+  font-family:var(--f-lat);font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+}
+#sheet .dl:hover{background:rgba(244,241,232,.14);color:#fff}
+#sheet .dl[hidden]{display:none}
+
+/* ---------- 下載面板：點「免費紀念冊」告示 ----------
+   跟大圖同一片黑幕、同一顆關閉鈕，只是中間換成一張白卡：左邊封面、
+   右邊（面板中央）下載鈕。白卡、黑字、宋體、留白分節，和展籤同一套。 */
+#sheetOffer{
+  display:none;max-width:min(94vw,800px);
+  grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:44px;
+  padding:46px 46px 44px;background:var(--paper);color:var(--ink);
+  box-shadow:0 2px 4px rgba(0,0,0,.55),0 44px 96px -32px rgba(0,0,0,.95);
+}
+/* 攤平那一套（大圖、縮放列、右上角下載鈕、操作提示）在這一頁全部退場 */
+#sheet.offer figure,#sheet.offer .zoom,#sheet.offer .dl,#sheet.offer .howto{display:none}
+#sheet.offer #sheetOffer{display:grid}
+#sheetOffer img{
+  display:block;width:176px;height:auto;
+  box-shadow:0 1px 2px rgba(0,0,0,.20),0 18px 34px -16px rgba(0,0,0,.48);
+  -webkit-user-drag:none;user-drag:none;
+}
+#sheetOffer .pad{width:176px}
+#sheetOffer .offer-main{display:flex;flex-direction:column;align-items:center;text-align:center}
+#sheetOffer h3{font-size:34px;font-weight:700;line-height:1.16}
+#sheetOffer .en{font-family:var(--f-lat);font-size:14px;color:var(--grey);margin-top:6px}
+/* 下載鈕：館內唯一的實心綠按鈕。綠是展籤與展冊封面的那一塊綠，
+   不是新的顏色；字用宋體，跟紙上其他字同一支筆。 */
+#sheetOffer .big{
+  display:grid;place-items:center;height:54px;padding:0 36px;margin-top:26px;
+  border-radius:999px;background:var(--green);color:#F4F1E8;text-decoration:none;
+  font-family:var(--f-title);font-size:15px;font-weight:700;letter-spacing:.14em;
+  transition:background .18s,transform .18s;
+}
+#sheetOffer .big:hover{background:#17453A}
+#sheetOffer .big:active{transform:translateY(1px)}
+/* 頁數、語言、尺寸：館名與卷次封面自己已經寫了，這裡只留封面沒說的那幾個數字 */
+#sheetOffer .meta{
+  font-family:var(--f-title);font-size:11.5px;letter-spacing:.04em;
+  color:var(--grey-2);margin-top:22px;
+}
+/* 視窗變窄：三欄撐不住就收回單欄（封面在上、內容在下），
+   寧可換一種讀法，也不要讓下載鈕被擠出面板。 */
+@media (max-width:860px){
+  #sheetOffer{grid-template-columns:minmax(0,1fr);gap:30px;padding:36px 30px 34px;justify-items:center}
+  #sheetOffer .pad{display:none}
+  #sheetOffer img{width:158px}
+  #sheetOffer h3{font-size:30px}
+  #sheetOffer .big{margin-top:24px;height:52px;padding:0 34px}
+  #sheetOffer .meta{margin-top:20px}
+}
 
 /* ---------- 瞄准点 ---------- */
 #hud::after{content:"";position:absolute;inset:0;pointer-events:none;
@@ -193,54 +277,105 @@ body.gated #hud{opacity:0}
   background:rgba(11,11,12,.58);transition:opacity .45s;
 }
 #gate.off{opacity:0;pointer-events:none}
-#gateCard{
+/* 兩段式入場：先「這是什麼展」，再「怎麼逛」。一次只顯示一張，
+   換段時前一張先淡出、停一拍，下一張才淡入——疊在一起會很像表單。 */
+#gate .step{display:none}
+#gate .step.on{display:block;animation:gateIn .46s cubic-bezier(.22,.7,.2,1) both}
+#gate .step.out{display:block;animation:gateOut .30s ease both}
+@keyframes gateIn{from{opacity:0;transform:translateY(16px) scale(.988)}to{opacity:1;transform:none}}
+@keyframes gateOut{to{opacity:0;transform:translateY(-12px) scale(.99)}}
+.gatecard .back{
+  margin-top:10px;width:100%;padding:8px;border:0;background:none;cursor:pointer;
+  font-family:var(--f-ui);font-size:11.5px;letter-spacing:.05em;color:var(--grey-2);
+}
+.gatecard .back:hover{color:var(--ink-2)}
+.gatecard .hint{
+  margin-top:11px;text-align:center;font-family:var(--f-lat);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--grey-2);
+}
+.gatecard ul.notes{margin-top:16px;padding-left:0;list-style:none}
+.gatecard ul.notes li{
+  position:relative;padding-left:15px;font-size:12.5px;line-height:2.0;color:var(--grey);
+}
+.gatecard ul.notes li::before{
+  content:"";position:absolute;left:2px;top:12px;width:4px;height:4px;border-radius:50%;background:var(--rule);
+}
+.gatecard ul.notes li b{color:var(--ink-2)}
+.gatecard{
   width:min(680px,94vw);padding:30px 34px 26px;
   border:1px solid rgba(17,18,19,.16);
 }
-#gateCard .kicker{font-family:var(--f-lat);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey-2)}
-#gateCard h1{font-size:38px;font-weight:700;line-height:1.08;margin-top:8px}
-#gateCard .en{font-family:var(--f-lat);font-size:14.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);margin-top:6px}
-#gateCard .rule{margin:16px 0 15px}
-#gateCard .cols{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
-#gateCard .col{flex:1 1 236px;min-width:0}
-#gateCard .hero{font-family:var(--f-lat);font-size:25px;line-height:1.2}
-#gateCard .attr{font-size:12.5px;color:var(--grey);margin-top:6px;line-height:1.5}
-#gateCard .attr .en{display:block;font-family:var(--f-lat);font-style:italic;font-size:11.5px;
+.gatecard .kicker{font-family:var(--f-lat);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey-2)}
+.gatecard h1{font-size:38px;font-weight:700;line-height:1.08;margin-top:8px}
+.gatecard .en{font-family:var(--f-lat);font-size:14.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);margin-top:6px}
+.gatecard .rule{margin:16px 0 15px}
+.gatecard .cols{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
+.gatecard .col{flex:1 1 236px;min-width:0}
+.gatecard .hero{font-family:var(--f-lat);font-size:25px;line-height:1.2}
+.gatecard .attr{font-size:12.5px;color:var(--grey);margin-top:6px;line-height:1.5}
+.gatecard .attr .en{display:block;font-family:var(--f-lat);font-style:italic;font-size:11.5px;
   color:var(--grey-2);margin-top:2px;text-transform:none;letter-spacing:0}
-#gateCard .sub{font-size:14.5px;color:var(--ink-2);margin-top:12px;line-height:1.65}
-#gateCard .sub-en{font-family:var(--f-lat);font-size:12px;color:var(--grey);margin-top:3px}
-#gateCard .hd{
+.gatecard .sub{font-size:14.5px;color:var(--ink-2);margin-top:12px;line-height:1.65}
+.gatecard .sub-en{font-family:var(--f-lat);font-size:12px;color:var(--grey);margin-top:3px}
+.gatecard .hd{
   font-family:var(--f-lat);font-size:8.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--grey-2);
   padding-bottom:7px;border-bottom:1px solid var(--rule);
 }
-#gateCard .block + .block{margin-top:16px}
-#gateCard dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin-top:10px;font-size:11.5px;line-height:1.6}
-#gateCard dt{font-family:var(--f-lat);color:var(--grey-2);white-space:nowrap}
-#gateCard dd{color:var(--ink-2)}
+.gatecard .block + .block{margin-top:16px}
+.gatecard dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin-top:10px;font-size:11.5px;line-height:1.6}
+.gatecard dt{font-family:var(--f-lat);color:var(--grey-2);white-space:nowrap}
+.gatecard dd{color:var(--ink-2)}
 /* 操作：整張卡裡唯一要你動手的地方，給它底色與鍵帽，讓它跳出來 */
-#gateCard .block.keys{
+.gatecard .block.keys{
   margin-top:17px;padding:13px 16px 15px;background:#F4F3F0;border:1px solid var(--rule);
 }
-#gateCard .keys .hd{color:var(--ink-2);border-bottom:0;padding-bottom:0;font-size:9px;font-weight:700}
-#gateCard .keys dl{margin-top:12px;grid-template-columns:auto 1fr auto 1fr;gap:9px 22px;font-size:12.5px}
-#gateCard .keys dt{color:var(--ink)}
-#gateCard .keys dd{color:var(--ink-2)}
-#gateCard kbd{
+.gatecard .keys .hd{color:var(--ink-2);border-bottom:0;padding-bottom:0;font-size:9px;font-weight:700}
+.gatecard .keys dl{margin-top:12px;grid-template-columns:auto 1fr auto 1fr;gap:9px 22px;font-size:12.5px}
+.gatecard .keys dt{color:var(--ink)}
+.gatecard .keys dd{color:var(--ink-2)}
+.gatecard kbd{
   font-family:var(--f-lat);font-size:11.5px;color:var(--ink);background:#fff;
   border:1px solid var(--rule);border-bottom-width:2px;border-radius:3px;
   padding:1px 6px;margin-right:2px;white-space:nowrap;
 }
-#gateCard .go{
+.gatecard .go{
   margin-top:22px;width:100%;padding:12px;border:0;background:var(--ink);color:#fff;cursor:pointer;
   font-family:var(--f-title);font-size:14px;font-weight:700;letter-spacing:.02em;
 }
-#gateCard .go:hover{background:#000}
-#gateCard .tag{margin-top:18px;font-size:11px;line-height:1.9;color:var(--grey-2)}
-#gateCard .tag em{font-style:normal}
+.gatecard .go:hover{background:#000}
+.gatecard .tag{margin-top:18px;font-size:11px;line-height:1.9;color:var(--grey-2)}
+.gatecard .tag em{font-style:normal}
 
-#load{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#0b0b0c;color:#8B9095;
-  font-family:var(--f-lat);font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:opacity .4s}
+/* ---------- 準備畫面 ----------
+   進館第一眼是入口那面牆，所以準備畫面要真的交代「在等什麼」：
+   一條細線、一個 Baskerville 的數字、一句現在在做什麼。
+   數字是「誠實的假進度」——milestone 決定上限，時間讓它自己慢慢爬，
+   入口那面牆的圖真的到位（app.js 的 hideLoader）才准走到 100。
+   控制在 index.html 最後那段 inline script，因為它要在 app.js 下載完之前就會動。 */
+#load{
+  position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#0b0b0c;
+  transition:opacity .55s ease;
+}
 #load.off{opacity:0;pointer-events:none}
+#load .box{width:min(420px,76vw)}
+#load .kick{font-family:var(--f-lat);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#6B6862}
+#load .name{font-family:var(--f-title);font-size:22px;font-weight:700;color:#E9E3D6;margin-top:11px}
+#load .name span{
+  font-family:var(--f-lat);font-size:10.5px;font-weight:400;letter-spacing:.16em;
+  text-transform:uppercase;color:#8A867F;margin-left:10px;
+}
+#load .track{position:relative;height:1px;background:#2B2A27;margin-top:24px;overflow:hidden}
+#load .track i{position:absolute;inset:0;background:#CFC7B6;transform:scaleX(0);transform-origin:0 50%}
+#load .foot{display:flex;align-items:baseline;justify-content:space-between;gap:18px;margin-top:13px}
+#load .pct{
+  font-family:var(--f-lat);font-size:27px;line-height:1;color:#E9E3D6;
+  font-variant-numeric:tabular-nums;letter-spacing:.02em;
+}
+#load .pct em{font-style:normal;font-size:12px;color:#8A867F;margin-left:3px}
+#load .step{
+  font-family:var(--f-lat);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:#6B6862;text-align:right;line-height:1.7;
+}
 
 /* ---------- 手機：不支援，給一張說明卡 ---------- */
 #desktopOnly{
@@ -258,6 +393,14 @@ body.touch #hud,body.touch #gate,body.touch #load{display:none !important}
 #desktopOnly p b{color:var(--ink-2)}
 #desktopOnly .alt{margin-top:16px;padding-top:13px;border-top:1px solid var(--rule);font-size:13.5px;line-height:2.1}
 #desktopOnly a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--ink-2)}
+/* 手機進不了 3D 展館，但展冊可以帶走。樣式是館內唯一那顆實心綠鈕
+   （跟 #sheetOffer 的下載鈕同一套），不另外發明一種按鈕。 */
+#desktopOnly .pdf{
+  display:grid;place-items:center;height:48px;margin-top:18px;border-radius:999px;
+  background:var(--green);color:#F4F1E8;text-decoration:none;border:0;
+  font-size:15px;font-weight:700;letter-spacing:.1em;transition:background .18s;
+}
+#desktopOnly .pdf:hover{background:#17453A}
 
 @media (max-width:900px){
   #focus{width:min(352px,92vw);left:auto;right:12px;top:12px;max-height:calc(100vh - 24px)}
@@ -293,7 +436,24 @@ body.touch #hud,body.touch #gate,body.touch #load{display:none !important}
 
   <div id="sheet">
     <button class="close" id="sheetClose" title="關閉（Esc）">×</button>
+    <a class="dl" id="sheetDl" download hidden>PDF · 下載</a>
     <figure><img id="sheetImg" alt="" draggable="false"><figcaption id="sheetCap"></figcaption></figure>
+    <!-- 「免費紀念冊」那面告示攤平時開的不是大圖，是這一頁：左邊封面、
+         中間下載鈕。紙就掛在觀眾眼前，把它再放大一遍等於同一句話說兩次；
+         人點它是想把電子版帶走。文案由 app.js 的 CATALOGUE 填（cover / pdf /
+         dlTitle / dlTitleEn / dlMeta），換版本不會只改到一半。 -->
+    <div class="offer" id="sheetOffer" hidden>
+      <img id="offerCover" alt="" draggable="false">
+      <div class="offer-main">
+        <h3 id="offerTitle"></h3>
+        <div class="en" id="offerEn"></div>
+        <a class="big" id="offerDl" download>下載 PDF</a>
+        <div class="meta" id="offerMeta"></div>
+      </div>
+      <!-- 空欄，跟封面那一欄一樣寬：三欄的兩邊對稱，中間那一欄的中心才會
+           落在面板正中央（下載鈕在正中間、封面在最左邊）。 -->
+      <div class="pad" aria-hidden="true"></div>
+    </div>
     <div class="zoom">
       <button id="sheetOut" title="縮小（－）" aria-label="縮小">－</button>
       <button class="pct" id="sheetPct" title="回到剛好放滿（0）">100%</button>
@@ -311,7 +471,17 @@ body.touch #hud,body.touch #gate,body.touch #load{display:none !important}
   <div id="tip"></div>
 </div>
 
-<div id="load">Preparing the galleries…</div>
+<div id="load">
+  <div class="box">
+    <div class="kick">The Meowseum · Vol. I</div>
+    <div class="name">喵術館<span>The Meowseum</span></div>
+    <div class="track"><i id="loadBar"></i></div>
+    <div class="foot">
+      <div class="pct"><span id="loadPct">0</span><em>%</em></div>
+      <div class="step" id="loadStep">正在下載入口主視覺</div>
+    </div>
+  </div>
+</div>
 
 <div id="desktopOnly">
   <div class="card">
@@ -325,14 +495,18 @@ body.touch #hud,body.touch #gate,body.touch #load{display:none !important}
     </p>
     <div class="alt">
       手機上先看平面的：<br>
-      <a href="../labels/labels.html">展簽物料 · labels.html</a><br>
+      <a href="labels/labels.html">展簽物料 · labels.html</a><br>
       展簽、廳牌、主視覺都在裡面，任何裝置都開得起來。
     </div>
+    <!-- 下載的是商店那面告示（與 #sheetOffer 面板）指的同一份電子版（繁體）。
+         打包時 ../ 會被 make_dist.py 收掉一層（線上只有 gallery/ 一個資料夾）。 -->
+    <a class="pdf" href="assets/brochures/meowseum-catalogue-hant.pdf" download>下載免費紀念冊 · PDF</a>
   </div>
 </div>
 
 <div id="gate">
-  <div id="gateCard" class="card">
+  <!-- 第一張：這是什麼展 -->
+  <div id="gateCard" class="card gatecard step on">
     <div class="kicker" id="gKicker">The Meowseum · Vol. I · 1486–1942</div>
     <h1 id="gName">喵術館</h1>
     <div class="en" id="gNameEn">The Meowseum</div>
@@ -351,6 +525,17 @@ body.touch #hud,body.touch #gate,body.touch #load{display:none !important}
         </div>
       </div>
     </div>
+    <div class="tag" id="gTag"></div>
+    <button class="go" id="gStep2">繼續　Continue</button>
+    <div class="hint">或按 Enter</div>
+  </div>
+
+  <!-- 第二張：怎麼逛 -->
+  <div id="gateCard2" class="card gatecard step">
+    <div class="kicker">入場須知 · Before You Enter</div>
+    <h1>怎麼逛這個展</h1>
+    <div class="en">How to walk the galleries</div>
+    <hr class="rule">
     <div class="block keys">
       <div class="hd">操作</div>
       <dl>
@@ -362,11 +547,54 @@ body.touch #hud,body.touch #gate,body.touch #load{display:none !important}
         <dt><kbd>←</kbd><kbd>→</kbd></dt><dd>細看時換上一件 / 下一件</dd>
       </dl>
     </div>
-    <div class="tag" id="gTag"></div>
+    <ul class="notes">
+      <li>展籤、廳牌、海報、商品照：<b>準星對準點一下</b>，攤平放大，滾輪再縮放。</li>
+      <li>畫作：走近，<b>點一下</b>靠近細看，再用 <b>←</b> <b>→</b> 換件。</li>
+      <li>逛到不知道在哪裡：右上角那圈是<b>雷達地圖</b>，跟著人轉。</li>
+    </ul>
     <button class="go" id="gGo">進場　Enter</button>
+    <button class="back" id="gBack">← 回上一步</button>
   </div>
 </div>
 
+<script>
+/* 準備畫面。跑在 app.js 之前——它要在 three.js 與 app.js 還在下載的時候就會動，
+   不然使用者會盯著一個不會動的 0%。
+   數字是「誠實的假進度」：milestone（LOAD.mile）決定上限，時間讓它自己慢慢爬，
+   真的東西到齊（入口那面牆的圖，app.js 的 hideLoader）才准走到 100。
+   爬得比上限多一點點是故意的——停在同一個數字不動比數字偏大更像壞掉。 */
+window.LOAD = (() => {
+  const box = document.getElementById('load');
+  const bar = document.getElementById('loadBar');
+  const pct = document.getElementById('loadPct');
+  const step = document.getElementById('loadStep');
+  const KM = 1.1;                     // 逼近目標的速度
+  let shown = 0, ceil = 15, creep = 0, done = false, last = performance.now();
+
+  function frame(now) {
+    const dt = Math.min(0.3, (now - last) / 1000); last = now;
+    if (!done) creep = Math.min(creep + dt * 2.4, 13);
+    const target = done ? 100 : Math.min(ceil + creep, 96);
+    shown += (target - shown) * Math.min(1, KM * dt * (done ? 4 : 1));
+    if (target - shown < 0.35) shown = target;
+    const v = Math.max(0, Math.min(100, shown));
+    bar.style.transform = 'scaleX(' + (v / 100).toFixed(4) + ')';
+    pct.textContent = String(Math.round(v));
+    if (done && v > 99.5) { box.classList.add('off'); return; }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  return {
+    /* 上限往上抬，順便換一句「現在在做什麼」 */
+    mile(v, text) { ceil = Math.max(ceil, v); if (text && !done) step.textContent = text; },
+    done() { if (done) return; done = true; step.textContent = '展廳已備妥 · Ready'; },
+    /* 保險：真的有什麼卡住，15 秒後還是讓人進場 */
+    bail() { setTimeout(() => { done = true; }, 15000); },
+  };
+})();
+LOAD.bail();
+</script>
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.min.js" } }
 </script>

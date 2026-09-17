@@ -5,6 +5,11 @@
 import * as THREE from 'three';
 import { DATA } from './data.js';
 
+/* index.html 裡的準備畫面（window.LOAD）。這裡只負責往上報進度——
+   最後一格是入口那面牆的圖到位，見 hideLoader()。 */
+const LOAD = window.LOAD || { mile() {}, done() {} };
+LOAD.mile(18, '下載入口主視覺 · Loading the entrance wall');
+
 /* 牆上的字有一半是畫在 canvas 上的（展籤、廳牌、海報），而 canvas 的 fillText
    不會等 webfont：字型還沒到就畫，缺字會直接烤成替代字形、之後補不回來。
    所以先把兩個字重都確定就緒，才開始蓋展館。
@@ -21,6 +26,8 @@ try {
   ]);
 } catch (_) {}
 
+LOAD.mile(38, '布置展廳 · Building the galleries');
+
 /* ---------------- 展館尺寸 ---------------- */
 const T      = 0.28;    // 牆厚
 const PORTAL = 1.35;    // 門洞半寬 → 淨寬 2.7 m
@@ -30,6 +37,8 @@ const RADIUS = 0.34;    // 玩家碰撞半徑
 const WALK   = 2.55;
 const RUN    = 4.60;
 const FOV    = 55;
+const HEAD_R = 0.030;   // 燈頭半徑（刻意做小：交代光源，不搶戲）
+const HEAD_L = 0.085;   // 燈頭長度
 
 /* ---------------- 平面圖 ----------------
    房間以 (x0…x1, z0…z1) 表示，入口在南（+z），動線往北（-z）推進。 */
@@ -62,12 +71,12 @@ const WALLS = [
   { a: [-10, -24], b: [10, -24], h: 5.2, mat: 'wallA', openings: [[-PORTAL, PORTAL]] },
   { a: [-10, -24], b: [-10, -40], h: 5.2, mat: 'wallA' },
   { a: [10, -24],  b: [10, -40],  h: 5.2, mat: 'wallA' },
-  { a: [-10, -40], b: [10, -40],  h: 5.2, mat: 'wallA', openings: [[5.6, 7.4]] },
+  { a: [-10, -40], b: [10, -40],  h: 5.2, mat: 'wallA', openings: [[-7.4, -5.6]] },
   // 通道 C
-  { a: [5.6, -40], b: [5.6, -44], h: 5.6, mat: 'wallB' },
-  { a: [7.4, -40], b: [7.4, -44], h: 5.6, mat: 'wallB' },
+  { a: [-5.6, -40], b: [-5.6, -44], h: 5.6, mat: 'wallB' },
+  { a: [-7.4, -40], b: [-7.4, -44], h: 5.6, mat: 'wallB' },
   // Room III
-  { a: [-10, -44], b: [10, -44], h: 5.6, mat: 'wallB', openings: [[5.6, 7.4]] },
+  { a: [-10, -44], b: [10, -44], h: 5.6, mat: 'wallB', openings: [[-7.4, -5.6]] },
   { a: [-10, -44], b: [-10, -60], h: 5.6, mat: 'wallB' },
   { a: [10, -44],  b: [10, -60],  h: 5.6, mat: 'wallB', openings: [[-48.7, -46.3]] },
   { a: [-10, -60], b: [10, -60],  h: 5.6, mat: 'wallB' },
@@ -82,7 +91,7 @@ const WALLS = [
 const PASSAGES = [
   { x0: -PORTAL, x1: PORTAL, z0: 0,   z1: -5,  y: DOOR, mat: 'ceil' },
   { x0: -PORTAL, x1: PORTAL, z0: -19, z1: -24, y: DOOR, mat: 'ceil' },
-  { x0: 5.6,     x1: 7.4,    z0: -40, z1: -44, y: DOOR, mat: 'ceil' },
+  { x0: -7.4,    x1: -5.6,   z0: -40, z1: -44, y: DOOR, mat: 'ceil' },
 ];
 
 /* ---------------- 作品掛位 ----------------
@@ -113,8 +122,8 @@ const INK = '#111213', INK2 = '#23262A', GREY = '#575B5F', GREY2 = '#8B9095', RU
 const CREAM = '#F4F1E8', GREEN = '#0E2B22';
 // 廳牌（深綠底）上的字：不純白，帶一點米，跟主視覺牆同一組
 const CARD_TXT = '#D8D2C2', CARD_DIM = '#948F80', CARD_RULE = 'rgba(216,210,194,.30)';
-const FT = 'Songti TC,"宋体-繁","Songti SC","Songti","Noto Serif TC",serif';
-const FL = 'Baskerville,"Iowan Old Style","Times New Roman",serif';
+const FT = '"Meowseum Serif",Songti TC,"宋体-繁","Songti SC","Songti","Noto Serif TC",serif';
+const FL = 'Baskerville,"Iowan Old Style","Times New Roman","Meowseum Serif",serif';
 const MM = 25.4 / 72;                       // pt → mm
 
 const songti = (px, w = 700) => `${w} ${px}px ${FT}`;
@@ -149,189 +158,203 @@ function wrapText(ctx, text, maxW) {
   return lines;
 }
 
-/* 展簽：148 × 105 mm（A6 橫版），白卡黑字，細線是唯一的裝飾 */
+/* ---------------- 規範頁的行盒 ----------------
+   labels/labels.html 是這一套牌子的設計源。那一頁的每個文字塊都有三件事：
+   字級、line-height、以及跟前一塊之間的毫米外距。canvas 沒有行盒只有基線，
+   所以這裡把 CSS 的盒子還原回來——盒高 = 字級 × line-height，
+   基線 = 盒頂 + 半行距 + 字體 ascent。下面每張貼圖的外距常數就是照著
+   labels.html 量出來的毫米值填的，改文案不會讓版面走位。 */
+function boxBase(ctx, txt, top, boxH) {
+  const m = ctx.measureText(txt);
+  const a = m.fontBoundingBoxAscent, d = m.fontBoundingBoxDescent;
+  if (a == null) return top + boxH * 0.75;      // 沒有這兩個欄位的舊瀏覽器
+  return top + (boxH - (a + d)) / 2 + a;
+}
+
+/* 宋體的字身自帶左邊距，標題會往內縮約 0.07 em。
+   規範頁靠 margin-left:-.07em 拉回來，canvas 這邊用同一個數值做光學對齊。 */
+const OPTICAL = 0.07;
+
+/* 展簽：148 × 105 mm（A6 橫版），白卡黑字，無裝飾。
+   版式照 labels/labels.html 的「展签」整組搬過來：題名 → 英文題名 →
+   11 mm 留白 → 考據段落 →（彈性留白）→ 收尾短句貼底。中間那條細線已拿掉。 */
 function labelTexture(work, room) {
   const S = 2048 / 148, W = 2048, H = Math.round(105 * S);
   const { c, x } = makeCanvas(W, H);
-  const M = (v) => v * S;
+  const M = (v) => v * S;                        // mm → px
+  const PT = (v) => v * MM;                      // pt → mm
   x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, W, H);
-  x.textBaseline = 'alphabetic';
+  x.textBaseline = 'alphabetic'; x.textAlign = 'left';
 
-  const L = M(14), R = W - M(14);
-  const width = R - L;
-  let y = M(12);
+  const PADT = 12, PADX = 14, PADB = 11;
+  const L = M(PADX), R = W - M(PADX), width = R - L;
 
-  const line = (txt, font, color, lh, gap) => {
+  /* 一個文字塊；gap 是上一塊盒底到這一塊盒頂的外距，回傳這一塊的盒底 */
+  const put = (txt, font, color, lh, gap, top, optical) => {
     x.font = font; x.fillStyle = color;
     const size = parseFloat(font.match(/([\d.]+)px/)[1]);
+    const boxH = size * lh;
+    const dx = optical ? -size * OPTICAL : 0;
+    let t0 = top + M(gap);
     for (const t of wrapText(x, txt, width)) {
-      y += size * 0.86; x.fillText(t, L, y); y += size * (lh - 0.86) + gap;
+      x.fillText(t, L + dx, boxBase(x, t, t0, boxH));
+      t0 += boxH;
     }
+    return t0;
   };
 
-  line(work.titleCn, songti(M(29 * MM)), INK, 1.2, 0);
-  line(work.titleEn, bask(M(13 * MM)), GREY, 1.3, M(3.2));
+  let y = M(PADT);
+  y = put(work.titleCn, songti(M(PT(29))), INK, 1.16, 0, y, true);
+  y = put(work.titleEn, bask(M(PT(13))), GREY, 1.3, 1.9, y);
 
-  y = Math.round(y) + M(6.6);
-  x.fillStyle = RULE; x.fillRect(L, y, width, 1);
-  y += M(5.2);
+  y = put(work.noteCn, songti(M(PT(8.9)), 400), GREY, 2.02, 11, y);
 
-  line(work.noteCn, songti(M(8.9 * MM), 400), GREY, 2.02, 0);
-
-  // 收尾短句固定貼底
-  const ps = M(8.9 * MM), es = M(8.4 * MM);
-  const punchLines = (x.font = songti(ps, 700), wrapText(x, work.punchCn, width));
-  const enLines = (x.font = bask(es, true), wrapText(x, work.punchEn, width));
-  let by = H - M(11) - (enLines.length * es * 1.5) - (punchLines.length * ps * 2.02);
+  /* 收尾短句固定貼底：先量行數，再從 105 − 11 mm 往上排。
+     規範頁的 padding-top:7 mm 在 canvas 這裡是多餘的——貼底之後那段距離
+     本來就會空出來，只有段落短到不佔位時才需要它，所以留著 0.2 mm 的行距。 */
+  const ps = M(PT(8.9)), es = M(PT(8.4));
+  x.font = songti(ps, 700); const pl = wrapText(x, work.punchCn, width);
+  x.font = bask(es, true);  const el = wrapText(x, work.punchEn, width);
+  const enBox = es * 1.5, cnBox = ps * 2.02;
+  const enTop = H - M(PADB) - el.length * enBox;
+  const cnTop = enTop - M(0.2) - pl.length * cnBox;
   x.font = songti(ps, 700); x.fillStyle = INK2;
-  for (const t of punchLines) { by += ps * 0.86; x.fillText(t, L, by); by += ps * (2.02 - 0.86); }
+  pl.forEach((t, i) => x.fillText(t, L, boxBase(x, t, cnTop + i * cnBox, cnBox)));
   x.font = bask(es, true); x.fillStyle = GREY2;
-  by += M(0.2);
-  for (const t of enLines) { by += es * 0.86; x.fillText(t, L, by); by += es * (1.5 - 0.86); }
+  el.forEach((t, i) => x.fillText(t, L, boxBase(x, t, enTop + i * enBox, enBox)));
 
   return canvasTex(c);
 }
 
-/* 廳牌：A4 豎版的版式，但底色是展館的深綠，不是白紙。
-   白紙在淺色牆上會整片糊掉，深綠底 + 米白字才撐得住展場的暗，
-   也跟入口主視覺牆同一套色。 */
-function roomCardTexture(room, works) {
+/* 廳牌：A4 豎版，版式照 labels/labels.html 的「厅牌」整組搬過來。
+   規範頁那張的紙色是白（可切深綠／酒紅），展館這裡固定用深綠——白紙掛在
+   淺色牆上會整片糊掉，深綠底配米白字才撐得住展場的暗。色票直接取規範頁
+   body.theme-dark 那一組，所以兩邊是同一套色。
+   規範頁拿掉了屋簷式的資訊列，也明講厅牌不列作品清單（作品明細在展簽上），
+   這裡就跟著不放。 */
+function roomCardTexture(room) {
   const S = 2100 / 210, W = 2100, H = Math.round(297 * S);
   const { c, x } = makeCanvas(W, H);
-  const M = (v) => v * S;
-  const INK = CREAM, INK2 = CARD_TXT, GREY = CARD_TXT, GREY2 = CARD_DIM, RULE = CARD_RULE;
-  x.fillStyle = GREEN; x.fillRect(0, 0, W, H);
-  x.textBaseline = 'alphabetic';
-  const L = M(24), R = W - M(24), width = R - L;
-  let y = M(24);
+  const M = (v) => v * S;                        // mm → px
+  const PT = (v) => v * MM;                      // pt → mm
+  const PAPER = GREEN, INK = CREAM;
+  const INK2 = '#E8E4D9', GREY = '#B4BDB7', GREY2 = '#93A29A';
+  x.fillStyle = PAPER; x.fillRect(0, 0, W, H);
+  x.textBaseline = 'alphabetic'; x.textAlign = 'left';
 
-  const put = (txt, font, color, lh, gap, align) => {
-    x.font = font; x.fillStyle = color; x.textAlign = align || 'left';
+  const PAD = 24;
+  const L = M(PAD), R = W - M(PAD), width = R - L;
+
+  /* 一個文字塊；gap 是上一塊盒底到這一塊盒頂的外距，回傳這一塊的盒底。
+     line-height 沒寫的那些（英文廳名、年代）用瀏覽器的 normal 值 1.15。 */
+  const put = (txt, font, color, lh, gap, top, optical) => {
+    x.font = font; x.fillStyle = color;
     const size = parseFloat(font.match(/([\d.]+)px/)[1]);
-    const px = align === 'right' ? R : L;
-    for (const t of wrapText(x, txt, width)) { y += size * 0.86; x.fillText(t, px, y); y += size * (lh - 0.86) + gap; }
-    x.textAlign = 'left';
+    const boxH = size * (lh || 1.15);
+    const dx = optical ? -size * OPTICAL : 0;
+    let t0 = top + M(gap || 0);
+    for (const t of wrapText(x, txt, width)) {
+      x.fillText(t, L + dx, boxBase(x, t, t0, boxH));
+      t0 += boxH;
+    }
+    return t0;
   };
 
-  x.font = bask(M(8.6 * MM)); x.fillStyle = GREY2;
-  x.fillText('THE MEOWSEUM · VOL. I     ·     ROOM', L, y + M(8.6 * MM) * 0.86);
-  x.textAlign = 'right'; x.fillText(room.range, R, y + M(8.6 * MM) * 0.86); x.textAlign = 'left';
-  y += M(8.6 * MM) * 1.1;
+  let y = M(PAD);
+  y = put(room.numeral,     bask(M(PT(132))),         INK,   0.84, 5,   y);
+  y = put(room.nameCn,      songti(M(PT(40))),        INK,   1.16, 7,   y, true);
+  y = put(room.nameEn,      bask(M(PT(15))),          GREY,  1.15, 2.4, y);
+  y = put(room.range,       bask(M(PT(10))),          GREY2, 1.15, 2.6, y);
+  y = put(room.statementCn, songti(M(PT(10.4)), 400), GREY,  2.15, 11,  y);
+  y = put(room.statementEn, bask(M(PT(8.8))),         GREY2, 1.85, 6,   y);
 
-  x.font = bask(M(132 * MM)); x.fillStyle = INK;
-  y += M(132 * MM) * 0.79; x.fillText(room.numeral, L, y);
-  y += M(132 * MM) * 0.13;
-
-  y += M(7);
-  put(room.nameCn, songti(M(40 * MM)), INK, 1.14, 0);
-  y += M(4);
-  put(room.nameEn, bask(M(15 * MM)), GREY, 1.3, 0);
-
-  y = Math.round(y) + M(10);
-  x.fillStyle = RULE; x.fillRect(L, y, width, 1);
-  y += M(7);
-
-  put(room.statementCn, songti(M(10.4 * MM), 400), GREY, 2.15, 0);
-  y += M(6);
-  put(room.statementEn, bask(M(8.8 * MM), true), GREY2, 1.85, 0);
-
-  // 本廳作品，貼底
-  const items = works.map((w, i) => ({
-    n: w.no, cn: w.titleCn, en: w.titleEn,
-  }));
-  const fs = M(10 * MM), lh = fs * 1.8;
-  const hdrH = M(6 + 7.6 * MM * 1.2);
-  const blockH = hdrH + items.length * (lh + M(1.6) * 2) + M(9);
-  let by = H - M(24) - blockH;
-
-  x.fillStyle = RULE; x.fillRect(L, by, width, 1);
-  x.font = songti(M(7.6 * MM), 400); x.fillStyle = GREY2;
-  x.fillText(room.itemsHeading || DATA.ui.worksHeading, L, by + M(6) + M(7.6 * MM) * 0.86);
-
-  let iy = by + hdrH;
-  for (const it of items) {
-    x.font = bask(fs); x.fillStyle = GREY2; x.fillText(it.n, L, iy + fs * 0.86);
-    x.font = songti(fs, 400); x.fillStyle = INK2; x.fillText(it.cn, L + M(9), iy + fs * 0.86);
-    const cw = x.measureText(it.cn).width;
-    x.font = bask(fs * 0.92); x.fillStyle = GREY2;
-    x.fillText(it.en, L + M(9) + cw + M(4), iy + fs * 0.86);
-    x.fillStyle = RULE; x.fillRect(L, iy + lh, width, 0);
-    iy += lh + M(1.6) * 2;
-  }
-
-  x.font = bask(M(7.6 * MM)); x.fillStyle = GREY2;
-  x.fillText('LADY MIMI · A RETROSPECTIVE IN NINE LIVES', L, H - M(24) + M(7.6 * MM) * 0.86);
+  /* 頁腳貼底，左右各一句：左邊館名（中文用宋體、拉丁用 Baskerville，
+     兩種字型接在同一行上），右邊檔期。 */
+  const fs = M(PT(7.6)), fh = fs * 1.15, fy = H - M(PAD) - fh;
+  const lb = boxBase(x, 'Hg', fy, fh);
+  x.font = songti(fs, 400); x.fillStyle = GREY2;
+  x.fillText(DATA.brand.museumCn, L, lb);
+  const w1 = x.measureText(DATA.brand.museumCn).width;
+  x.font = bask(fs);
+  x.fillText(` \u00b7 ${DATA.brand.museumEn.toUpperCase()}`, L + w1, lb);
   x.textAlign = 'right';
-  x.fillText(DATA.brand.vol.toUpperCase(), R, H - M(24) + M(7.6 * MM) * 0.86);
+  x.fillText(`Lady Mimi \u00b7 ${DATA.brand.vol}`, R, lb);
   x.textAlign = 'left';
 
   return canvasTex(c);
 }
 
-/* 館內內容海報：A3 豎版（297 × 420 mm），深綠底。
-   掛在大廳通往 Room I 的牆上、門洞兩側——走過主視覺牆之後，
-   第二眼看到的就是「這裡到底展了什麼」。
-   內容全部從 data.js 來，不另外寫一份文案。 */
-let POSTER_CANVAS = null;
-function posterTexture() {
+/* ---------------- 館內海報 ----------------
+   大廳通往 Room I 的那面牆、門洞兩側各一張 A3 豎版（297 × 420 mm）。
+   面向那面牆時，左手邊是總介紹、右手邊是展場平面圖——先知道這是什麼展，
+   再知道要往哪走。兩張同一個抬頭、同一套色，而且都不畫橫線：
+   分節靠留白，跟展籤同一條規矩。
+   平面圖不是另外描的圖，是直接從 ROOMS / WALLS / WORK_LOOK 畫出來，
+   展場改了海報就會跟著改。 */
+let POSTER_CANVAS = null, POSTER_MAP_CANVAS = null;
+
+const POSTER_SHEET = { W: 2600, H: Math.round(2600 / 297 * 420), PAD: 22 };
+
+/* 兩張共用的抬頭：館名與卷次各據一端 */
+function posterMasthead(x, M, L, R) {
+  const fs = M(8.4 * MM), base = M(POSTER_SHEET.PAD) + fs * 0.86;
+  x.font = bask(fs); x.fillStyle = CARD_DIM; x.textAlign = 'left';
+  x.fillText('THE MEOWSEUM', L, base);
+  x.textAlign = 'right';
+  x.fillText(DATA.brand.vol.toUpperCase(), R, base);
+  x.textAlign = 'left';
+  return base + fs * 0.9;
+}
+
+/* 兩張共用的頁腳：檔期與地點 */
+function posterFoot(x, M, L, R) {
+  const B = DATA.brand, fy = POSTER_SHEET.H - M(30) + M(11 * MM) * 0.4;
+  x.font = songti(M(11 * MM), 700); x.fillStyle = CREAM; x.textAlign = 'left';
+  x.fillText(B.datesCn, L, fy);
+  x.font = bask(M(9.5 * MM)); x.fillStyle = CARD_DIM;
+  x.fillText(B.placeCn, L, fy + M(7));
+  x.textAlign = 'right';
+  x.fillText(B.taglines[0] ? B.taglines[0].en : '', R, fy);
+  x.textAlign = 'left';
+}
+
+/* 左邊那張：館名、Lady Mimi、展名，然後十件作品。
+   四廳的資訊留給右邊那張平面圖，這裡不再列一次「展覽內容」。 */
+function posterIntroTexture() {
   const B = DATA.brand;
-  const S = 2600 / 297, W = 2600, H = Math.round(420 * S);
+  const W = POSTER_SHEET.W, H = POSTER_SHEET.H;
   const { c, x } = makeCanvas(W, H);
   POSTER_CANVAS = c;
-  const M = (v) => v * S;
-  const dim = (a) => `rgba(244,241,232,${a})`;
-  const L = M(22), R = W - M(22), width = R - L;
-  let y = M(22);
+  const M = (v) => v * (W / 297);
+  const L = M(POSTER_SHEET.PAD), R = W - M(POSTER_SHEET.PAD), width = R - L;
 
   x.fillStyle = GREEN; x.fillRect(0, 0, W, H);
   x.textBaseline = 'alphabetic'; x.textAlign = 'left';
 
-  const rule = (a) => { x.strokeStyle = dim(a); x.lineWidth = 1.6; x.beginPath(); x.moveTo(L, Math.round(y)); x.lineTo(R, Math.round(y)); x.stroke(); };
   const put = (txt, font, color, lh, gap) => {
     x.font = font; x.fillStyle = color;
     const size = parseFloat(font.match(/([\d.]+)px/)[1]);
     for (const t of wrapText(x, txt, width)) { y += size * 0.86; x.fillText(t, L, y); y += size * (lh - 0.86) + gap; }
   };
+  let y = posterMasthead(x, M, L, R);
 
-  x.font = bask(M(8.4 * MM)); x.fillStyle = CARD_DIM;
-  x.fillText('THE MEOWSEUM', L, y + M(8.4 * MM) * 0.86);
-  x.textAlign = 'right'; x.fillText(B.vol.toUpperCase(), R, y + M(8.4 * MM) * 0.86); x.textAlign = 'left';
-  y += M(8.4 * MM) * 1.4; rule(0.26); y += M(9);
-
+  y += M(30);
   put(B.museumCn, songti(M(60 * MM)), CREAM, 1.12, 0);
-  y += M(4);
+  y += M(5);
   put(B.museumEn.toUpperCase(), bask(M(15 * MM)), CARD_DIM, 1.3, 0);
-  y += M(9); rule(0.20); y += M(9);
 
+  y += M(32);
   put(B.heroEn, bask(M(30 * MM)), CREAM, 1.15, 0);
-  y += M(2);
+  y += M(6);
   put(`${B.heroCn}　·　${B.attributionCn}`, songti(M(12 * MM), 400), CARD_TXT, 1.75, 0);
   put(B.attributionEn, bask(M(10 * MM), true), CARD_DIM, 1.6, 0);
-  y += M(9); rule(0.20); y += M(10);
 
+  y += M(36);
   put(B.subtitleCn, songti(M(15 * MM), 700), CREAM, 1.7, 0);
-  y += M(1.5);
+  y += M(5);
   put(B.subtitleEn, bask(M(11 * MM), true), CARD_DIM, 1.55, 0);
-  y += M(14); rule(0.20); y += M(10);
 
-  // 展覽內容：三廳
-  x.font = songti(M(9 * MM), 400); x.fillStyle = CARD_DIM;
-  x.fillText('展覽內容　CONTENTS', L, y + M(9 * MM) * 0.86);
-  y += M(9 * MM) * 2.1;
-  for (const room of DATA.rooms) {
-    const n = DATA.works.filter((w) => w.room === room.numeral).length;
-    const base = y;
-    x.font = bask(M(17 * MM)); x.fillStyle = CARD_DIM; x.fillText(room.numeral, L, base + M(17 * MM) * 0.8);
-    x.font = songti(M(15 * MM), 700); x.fillStyle = CREAM; x.fillText(room.nameCn, L + M(22), base + M(15 * MM) * 0.8);
-    x.font = bask(M(9.5 * MM)); x.fillStyle = CARD_DIM;
-    x.textAlign = 'right'; x.fillText(`${room.range}　·　${n} 件`, R, base + M(15 * MM) * 0.8); x.textAlign = 'left';
-    y = base + M(17 * MM) * 0.8 + M(4);
-    x.font = bask(M(9.5 * MM), true); x.fillStyle = CARD_DIM;
-    x.fillText(room.nameEn, L + M(22), y + M(9.5 * MM) * 0.8);
-    y += M(9.5 * MM) * 0.8 + M(7);
-  }
-
-  y += M(4); rule(0.20); y += M(9);
+  y += M(50);
   x.font = songti(M(9 * MM), 400); x.fillStyle = CARD_DIM;
   x.fillText('本回作品　WORKS', L, y + M(9 * MM) * 0.86);
   y += M(9 * MM) * 2.0;
@@ -343,18 +366,118 @@ function posterTexture() {
     y += lh;
   }
 
-  // 頁腳：檔期與地點
-  const fy = H - M(30);
-  x.strokeStyle = dim(0.26); x.lineWidth = 1.6;
-  x.beginPath(); x.moveTo(L, fy - M(11)); x.lineTo(R, fy - M(11)); x.stroke();
-  x.font = songti(M(11 * MM), 700); x.fillStyle = CREAM;
-  x.fillText(B.datesCn, L, fy + M(11 * MM) * 0.4);
-  x.font = bask(M(9.5 * MM)); x.fillStyle = CARD_DIM;
-  x.fillText(B.placeCn, L, fy + M(11 * MM) * 0.4 + M(7));
-  x.textAlign = 'right';
-  x.fillText(B.taglines[0] ? B.taglines[0].en : '', R, fy + M(11 * MM) * 0.4);
-  x.textAlign = 'left';
+  posterFoot(x, M, L, R);
+  return canvasTex(c);
+}
 
+/* 右邊那張：展場平面圖。北（−z）在上，所以動線是從紙的下緣往上走。 */
+function posterMapTexture() {
+  const W = POSTER_SHEET.W, H = POSTER_SHEET.H;
+  const { c, x } = makeCanvas(W, H);
+  POSTER_MAP_CANVAS = c;
+  const M = (v) => v * (W / 297);
+  const L = M(POSTER_SHEET.PAD), R = W - M(POSTER_SHEET.PAD);
+
+  x.fillStyle = GREEN; x.fillRect(0, 0, W, H);
+  x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+  let y = posterMasthead(x, M, L, R);
+
+  y += M(15);
+  x.font = songti(M(30 * MM)); x.fillStyle = CREAM;
+  x.fillText('展場平面圖', L, y + M(30 * MM) * 0.95);
+  y += M(30 * MM) * 1.35;
+  x.font = bask(M(11 * MM)); x.fillStyle = CARD_DIM;
+  x.fillText('FLOOR PLAN　·　NORTH UP', L, y + M(11 * MM) * 0.9);
+  y += M(11 * MM) * 2.4;
+
+  /* 世界座標 → 紙面：北（−z）在上，所以 z 越大越靠下緣。
+     比例取「塞得進剩下的版面」的那一個，另一軸置中。 */
+  const PADM = 1.4;
+  const bx0 = -10 - PADM, bx1 = 22 + PADM, bz0 = -60 - PADM, bz1 = 12 + PADM;
+  const planH = H - M(112) - y;                       // 下面留給圖例與頁腳
+  const k = Math.min((R - L) / (bx1 - bx0), planH / (bz1 - bz0));
+  const pw = (bx1 - bx0) * k, ph = (bz1 - bz0) * k;
+  const ox = L + ((R - L) - pw) / 2, oy = y;
+  const PX = (wx) => ox + (wx - bx0) * k;
+  const PZ = (wz) => oy + (wz - bz0) * k;
+
+  const roomFill = 'rgba(244,241,232,.075)';
+  for (const r of Object.values(ROOMS)) {
+    x.fillStyle = roomFill;
+    x.fillRect(PX(r.x0), PZ(r.z0), (r.x1 - r.x0) * k, (r.z1 - r.z0) * k);
+  }
+  for (const p of PASSAGES) {
+    const z0 = Math.min(p.z0, p.z1), z1 = Math.max(p.z0, p.z1);
+    x.fillStyle = roomFill;
+    x.fillRect(PX(Math.min(p.x0, p.x1)), PZ(z0), Math.abs(p.x1 - p.x0) * k, (z1 - z0) * k);
+  }
+
+  /* 牆走 wallSegs，門洞就會自動留空——平面圖上的開口是真的開口 */
+  x.strokeStyle = 'rgba(244,241,232,.46)'; x.lineWidth = M(0.5); x.lineCap = 'butt';
+  for (const w of WALLS) {
+    const { alongX, fixed, segs } = wallSegs(w);
+    for (const [s0, s1] of segs) {
+      x.beginPath();
+      if (alongX) { x.moveTo(PX(s0), PZ(fixed)); x.lineTo(PX(s1), PZ(fixed)); }
+      else { x.moveTo(PX(fixed), PZ(s0)); x.lineTo(PX(fixed), PZ(s1)); }
+      x.stroke();
+    }
+  }
+
+  /* 十件作品：點貼在牆上，編號跟在旁邊 */
+  x.font = bask(M(6.6 * MM));
+  for (const work of DATA.works) {
+    const wl = WORK_LOOK[work.slug];
+    if (!wl) continue;
+    const px = PX(wl.pos.x), pz = PZ(wl.pos.z);
+    x.beginPath(); x.arc(px, pz, M(1.45), 0, 7);
+    x.fillStyle = CREAM; x.fill();
+    x.fillStyle = CARD_DIM;
+    x.fillText(work.no, px + M(2.9), pz + M(2.3));
+  }
+
+  /* 廳名：擺在廳的中央 */
+  for (const key of ['hall', 'I', 'II', 'III', 'IV']) {
+    const r = ROOMS[key], t = ROOM_TITLE[key];
+    if (!r || !t) continue;
+    const cx = PX((r.x0 + r.x1) / 2);
+    const mid = PZ((r.z0 + r.z1) / 2);
+    const nf = bask(M(key === 'hall' ? 0 : 19 * MM));
+    const cf = songti(M(10.5 * MM)), ef = bask(M(7.4 * MM), true);
+    const nh = key === 'hall' ? 0 : M(19 * MM) * 1.05;
+    const ch = M(10.5 * MM) * 1.25, eh = M(7.4 * MM) * 1.45;
+    let ty = mid - (nh + ch + eh) / 2;
+    x.textAlign = 'center';
+    if (nh) { ty += M(19 * MM) * 0.82; x.font = nf; x.fillStyle = CARD_DIM; x.fillText(key, cx, ty); ty += M(19 * MM) * 0.23; }
+    ty += ch * 0.78; x.font = cf; x.fillStyle = CREAM; x.fillText(t.cn, cx, ty);
+    ty += ch * 0.22 + eh * 0.8; x.font = ef; x.fillStyle = CARD_DIM; x.fillText(t.en, cx, ty);
+    x.textAlign = 'left';
+  }
+
+  /* 入口：大廳南牆內側一個朝北的箭頭，跟 HUD 的小地圖同一個符號 */
+  const ex = PX(0), ey = PZ(10.7), a = M(6.2);
+  x.beginPath();
+  x.moveTo(ex, ey - a); x.lineTo(ex + a * 0.62, ey + a * 0.42);
+  x.lineTo(ex, ey - a * 0.08); x.lineTo(ex - a * 0.62, ey + a * 0.42);
+  x.closePath(); x.fillStyle = CREAM; x.fill();
+
+  /* 圖例：貼在平面圖下方一排 */
+  const ly = oy + ph + M(13);
+  let lx = ox;
+  const item = (glyph, label, gapAfter) => {
+    x.textAlign = 'left';
+    x.font = bask(M(8 * MM)); x.fillStyle = CREAM;
+    x.fillText(glyph, lx, ly);
+    const gw = x.measureText(glyph).width;
+    x.font = songti(M(8 * MM), 400); x.fillStyle = CARD_DIM;
+    x.fillText(label, lx + gw + M(3.4), ly);
+    lx += gw + M(3.4) + x.measureText(label).width + M(gapAfter);
+  };
+  item('▸', '入口　ENTRANCE', 16);
+  item('●', '展品位置　WORKS', 16);
+  item('Ⅰ–Ⅳ', '四個展廳　ROOMS', 0);
+
+  posterFoot(x, M, L, R);
   return canvasTex(c);
 }
 
@@ -469,7 +592,8 @@ function titleWallTexture() {
   return canvasTex(c);
 }
 
-/* 禮品店門口的告示：白紙黑字、公文語氣，笑點全部放在內容 */
+/* 禮品店門口的告示：白紙黑字、公文語氣，笑點全部放在內容。
+   這張紙是給站在店門口的人讀的，不是給人點開讀的——所以字要大、句子要少。 */
 function noticeTexture() {
   const BW = 400, BH = 560;                    // 板面尺寸（mm）
   const W = 1120, H = Math.round(BH * W / BW);
@@ -498,47 +622,30 @@ function noticeTexture() {
   x.textAlign = 'left';
   y += M(3.6) * 1.1;
 
-  y = Math.round(y) + M(9);
-  x.fillStyle = RULE; x.fillRect(L, y, width, 1.5);
-  y += M(22);
+  /* 這張紙上不放分隔線：標題變大、正文縮排、行距拉開，層次就夠了。
+     橫線在這種尺寸的白紙上會變成一排黑槓，比字還搶眼。 */
+  y = Math.round(y) + M(34);
 
-  put('本廳商品　暫時售罄', songti(M(20), 700), INK, 1.2, 0);
-  y += M(4);
-  put('Temporarily Out of Stock', bask(M(9.5)), GREY, 1.3, 0);
+  put('本廳商品　僅存一件', songti(M(22), 700), INK, 1.2, 0);
+  y += M(6);
+  put('One Item Left', bask(M(10.5)), GREY, 1.3, 0);
 
-  y = Math.round(y) + M(11);
-  x.fillStyle = RULE; x.fillRect(L, y, width, 1.5);
-  y += M(11);
+  y = Math.round(y) + M(36);
 
-  const body = songti(M(6.2), 400);
-  put('各位觀眾：', body, INK2, 1.95, M(3));
-  put('本廳文創商品已全數售罄。原因與銷量無關。', body, GREY, 1.95, M(6));
-  put('前天凌晨，Lady Mimi 小姐進入本廳，對架上商品做了一次未經預約的藝術評論。' +
-      '她認為其中若干件把她畫得不像她本人，並在現場表達了明確的不滿。' +
-      '本館尊重她的意見，但商品已經沒有了。', body, GREY, 1.95, M(8));
-
-  put('受影響品項：', songti(M(6.2), 700), INK2, 1.95, M(4));
-  for (const [item, why] of [
-    ['冰箱貼 · 牛軋糖時期限定', '她指出那是她體重最高的一年。'],
-    ['明信片 · 修復前後對照', '她拒絕對照「修復前」那一張。'],
-    ['帆布袋 · 側臉', '她否認自己有側臉，說那是角度問題。'],
-    ['馬克杯 · 打哈欠', '她堅持那是《喵喊》。我們同意，但杯子確實比較好賣。'],
-  ]) {
-    put(item, songti(M(6.2), 400), INK2, 1.95, 0, M(9));
-    put(why, songti(M(5.4), 400), GREY, 1.9, M(3.4), M(9));
-  }
-
-  y += M(4);
-  put('損失統計：展櫃一面、明信片兩箱、絨毛玩具若干。本館員工均安，她也非常健康。',
-      body, GREY, 1.95, M(6));
-  put('新一批商品已在製作中，上架前會先送她審閱。', body, GREY, 1.95, M(4));
+  const body = songti(M(10.2), 400);
+  put('各位觀眾：', body, INK, 2.05, M(4));
+  put('前天凌晨，Lady Mimi 小姐進到本廳，破壞了不少紀念品。' +
+      '她說架上沒有一件像她。', body, INK, 2.05, M(4));
+  put('架上現在只剩這一件裙子。裙子掛在東牆上，不賣。' +
+      '請不要伸手——她會記得的。', body, INK, 2.05, M(4));
+  put('新一批商品已在製作中，上架前會先送她審閱。', body, GREY, 2.05, 0);
 
   // 收尾短句固定貼底
-  const ps = M(6.6), es = M(5.2);
+  const ps = M(7.0), es = M(5.4);
   x.font = songti(ps, 700);
-  const pl = wrapText(x, '她對自己的形象有很明確的意見。', width);
+  const pl = wrapText(x, '本館不會追究。追究也沒有用。', width);
   x.font = bask(es, true);
-  const el2 = wrapText(x, 'She has very clear opinions about her likeness.', width);
+  const el2 = wrapText(x, 'We are not pursuing damages. It would not help.', width);
   let by = H - M(34) - el2.length * es * 1.5 - pl.length * ps * 1.9;
   x.font = songti(ps, 700); x.fillStyle = INK2;
   for (const t of pl) { by += ps * 0.86; x.fillText(t, L, by); by += ps * (1.9 - 0.86); }
@@ -546,25 +653,161 @@ function noticeTexture() {
   by += M(1.2);
   for (const t of el2) { by += es * 0.86; x.fillText(t, L, by); by += es * (1.5 - 0.86); }
 
-  // 售罄章：壓在段落與短句之間的空白上
-  const cy = by - M(58);
+  // 僅存一件章：跟在正文後面，不飄到紙的中間
+  const foot = by - el2.length * es * 1.5 - pl.length * ps * 1.9;
+  const cy = y + (foot - y) * 0.42;
   x.save();
-  x.translate(R - M(38), cy);
+  x.translate(R - M(40), cy);
   x.rotate(-0.15);
-  const sw = M(120), sh = M(58);
-  x.strokeStyle = 'rgba(17,18,19,.40)';
+  const sw = M(130), sh = M(58);
+  x.strokeStyle = 'rgba(17,18,19,.42)';
   x.lineWidth = M(1.6); x.strokeRect(-sw, -sh / 2, sw, sh);
   x.lineWidth = M(0.5); x.strokeRect(-sw + M(3.4), -sh / 2 + M(3.4), sw - M(6.8), sh - M(6.8));
-  x.fillStyle = 'rgba(17,18,19,.40)';
+  x.fillStyle = 'rgba(17,18,19,.42)';
   x.textAlign = 'center';
-  x.font = songti(M(24), 700);
-  x.fillText('售罄', -sw / 2, sh / 2 - M(19));
+  x.font = songti(M(23), 700);
+  x.fillText('僅存一件', -sw / 2, sh / 2 - M(18));
   x.font = bask(M(10));
-  x.fillText('SOLD  OUT', -sw / 2, sh / 2 - M(7));
+  x.fillText('ONE  LEFT', -sw / 2, sh / 2 - M(6));
   x.restore();
   x.textAlign = 'left';
 
   return canvasTex(c);
+}
+
+/* ---------------- 禮品店桌上的紀念冊 ----------------
+   桌上那四本是同一本 Vol. I 展冊（繁體版）——真的可以拿的那一種。封面不是
+   另外畫的，直接抽 brochure/out/hant 那份 PDF 的第 1 頁（見
+   scripts/make_brochure_assets.py）：桌上的書與觀眾下載的 PDF 得是同一張臉，
+   不然「照著封面找那一本」這件事就不成立。
+
+   `pdf` 是下載連結：點桌上的書，攤平放大時大圖右上角會多一顆下載鈕
+   （index.html 的 #sheetDl，openSheet 負責開關）；點牆上那面「免費紀念冊」
+   告示則是直接開下載面板（index.html 的 #sheetOffer）。 */
+const CATALOGUE = {
+  cover: 'assets/brochures/cover-hant.webp',
+  pdf: 'assets/brochures/meowseum-catalogue-hant.pdf',
+  cap: 'CAT-ALOGUE RAISONNÉ · Lady Mimi, Vol. I · 桌上',
+  short: '看展冊',
+  dlTitle: '免費紀念冊',
+  dlTitleEn: 'Free Souvenir Catalogue',
+  /* 面板上只留封面沒說的那幾個數字：館名、題名、卷次封面自己已經寫了，
+     再印一次只是把同一句話說兩遍。 */
+  dlMeta: '25 頁 · 繁體中文 · 148 × 210 mm',
+};
+const TABLE_BOOKS = 4;                    // 桌上四本，都是同一本
+
+/* 封面先畫進 canvas 再當貼圖：SHEET（點一下攤平）只認 canvas，而貼圖在開場
+   就得有一張（圖是非同步下載的）——所以先鋪展冊自己的深綠底，圖到了再畫上去。
+   蓋的那塊綠就是封面底色，慢半拍也看不出來。 */
+function catalogueCoverTexture(src) {
+  const W = 1240, H = 1759;               // 與 assets/brochures/cover-hant.webp 同尺寸（A5）
+  const { c, x } = makeCanvas(W, H);
+  x.fillStyle = GREEN; x.fillRect(0, 0, W, H);
+  const tex = canvasTex(c);
+  const img = new Image();
+  img.onload = () => { x.drawImage(img, 0, 0, W, H); tex.needsUpdate = true; };
+  img.src = src;
+  return tex;
+}
+
+/* 牆上那面「免費紀念冊」的告示：白卡黑字，跟展籤同一套（宋體 + Baskerville、
+   靠留白分節、不放裝飾線）。它掛在展示桌正後方的南牆上——觀眾低頭看完桌上
+   那四本，抬頭會看到的就是這張。
+
+   版面三分：左上標題、右邊展冊封面（跟桌上的書同一張圖，所以不會走版）、
+   正文貼底。中間那一大塊留白是刻意的，展籤與展冊封面都是同一個做法。
+
+   尺寸 A1 橫版（841 × 594 mm）。條子原本是 A2，2026-09-17 放大成 A1——原因不是
+   「A2 不夠體面」，是**看不清**：展籤在 1 m 內讀，這面告示在 2 m 外讀，而宋體的
+   橫畫只有字身的 1/20，A2 在 2 m 處只剩 1 px 寬，被降採樣平均成一條灰線。
+   放大紙而不放大字，觀眾看到的字還是一樣小，所以整個版面連字級、封面一起等比
+   放大 K = √2（A2 → A1 的標準跳級，面積 ×2）——下面所有數字仍是當初 A2 版的
+   那一組，換算時一次乘 K。
+
+   封面跟著大 1.41 倍，比桌上那四本（148 × 210 mm）大了。桌上那四本才是實物，
+   這面告示的封面只負責讓人在 2 m 外認得出「就是這一本」，一比一在這個距離沒有
+   意義（真要看實物大小，桌上有四本可以疊上去比）。
+
+   S = 3.5 px/mm 而不是 A2 版的 5：紙大了 1.41 倍，3.5 × 1.41 ≈ 5，貼圖的實際
+   畫素密度與原本同一個量級（2944 × 2079 vs 2970 × 2100），記憶體沒有變重。 */
+function catalogueSignTexture() {
+  const S = 3.5, K = Math.SQRT2;          // A1 橫版（841 × 594 mm）
+  const W = 841 * S, H = 594 * S;
+  const { c, x } = makeCanvas(W, H);
+  const M = (v) => v * K * S;             // 版面單位（A2 版的 mm）→ px
+  const PT = (v) => v * MM;               // pt → mm
+  x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, W, H);
+  x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+
+  const PADT = 40, PADX = 40, PADB = 40;
+  const L = M(PADX), R = W - M(PADX), width = M(330);   // 左欄：文字只佔到封面左邊
+  const CVR = { x: 400, y: 105, w: 148, h: 210 };       // 右欄：展冊實物大小（A5）
+
+  /* 一個文字塊；gap 是上一塊盒底到這一塊盒頂的外距，回傳這一塊的盒底 */
+  const put = (txt, font, color, lh, gap, top, optical) => {
+    x.font = font; x.fillStyle = color;
+    const size = parseFloat(font.match(/([\d.]+)px/)[1]);
+    const boxH = size * lh;
+    const dx = optical ? -size * OPTICAL : 0;
+    let t0 = top + M(gap);
+    for (const t of wrapText(x, txt, width)) {
+      x.fillText(t, L + dx, boxBase(x, t, t0, boxH));
+      t0 += boxH;
+    }
+    return t0;
+  };
+
+  let y = M(PADT);
+  y = put('THE MEOWSEUM · THE GIFT SHOP', bask(M(PT(12)), true), GREY2, 1.15, 0, y);
+  y = put('免費紀念冊', songti(M(PT(76)), 700), INK, 1.16, 15, y, true);
+  y = put('Free Souvenir Catalogue', bask(M(PT(24))), GREY, 1.25, 4, y);
+  y = put('CAT-ALOGUE RAISONNÉ: Lady Mimi, Vol. I', bask(M(PT(13))), GREY2, 1.3, 13, y);
+  y = put('25 頁 · 繁體中文版 · 148 × 210 mm', songti(M(PT(11.5)), 400), GREY2, 1.5, 1.5, y);
+
+  /* 右欄的封面。圖是非同步下載的，所以先鋪一塊紙灰當底（跟商店那張原照
+     同一個做法），圖到了再畫上去；那塊灰也順便當成封面自己的投影底座。 */
+  const cx = M(CVR.x), cy = M(CVR.y), cw = M(CVR.w), ch = M(CVR.h);
+  x.fillStyle = 'rgba(0,0,0,.13)'; x.fillRect(cx + M(2.5), cy + M(3.5), cw, ch);
+  x.fillStyle = '#E7E3DC'; x.fillRect(cx, cy, cw, ch);
+  const tex = canvasTex(c);
+  const img = new Image();
+  img.onload = () => { x.drawImage(img, cx, cy, cw, ch); tex.needsUpdate = true; };
+  img.src = CATALOGUE.cover;
+
+  /* 正文貼底（展籤、告示都是這個規矩：收尾短句固定貼底） */
+  const bs = M(PT(16)), es = M(PT(13));
+  x.font = songti(bs, 400);
+  const bl = wrapText(x, '桌上的四本請自取。電子版也可以帶走——點桌上的書，或點這面告示。', width);
+  x.font = bask(es);
+  const el2 = wrapText(x, 'Take one. The PDF is free to download: click a book on the table, or this sign.', width);
+  const cnBox = bs * 1.95, enBox = es * 1.65;
+  const fs = M(PT(11)), fh = fs * 1.15, fy = H - M(PADB) - fh;
+  const enTop = fy - M(12) - el2.length * enBox;
+  const cnTop = enTop - M(4) - bl.length * cnBox;
+  x.fillStyle = INK2;
+  bl.forEach((t, i) => {
+    x.font = songti(bs, 400);
+    x.fillText(t, L, boxBase(x, t, cnTop + i * cnBox, cnBox));
+  });
+  x.fillStyle = GREY;
+  el2.forEach((t, i) => {
+    x.font = bask(es);
+    x.fillText(t, L, boxBase(x, t, enTop + i * enBox, enBox));
+  });
+
+  /* 頁腳貼底，左右各一句（跟廳牌同一個做法） */
+  const lb = boxBase(x, 'Hg', fy, fh);
+  x.font = songti(fs, 400); x.fillStyle = GREY2;
+  x.fillText(DATA.brand.museumCn, L, lb);
+  const w1 = x.measureText(DATA.brand.museumCn).width;
+  x.font = bask(fs);
+  x.fillText(` \u00b7 ${DATA.brand.museumEn.toUpperCase()}`, L + w1, lb);
+  x.textAlign = 'right';
+  x.fillText(DATA.brand.vol.toUpperCase(), R, lb);
+  x.textAlign = 'left';
+
+  return tex;
 }
 
 /* 「修復中」占位：畫還沒生成時掛這張，深綠底、白字，和廳牌同套色 */
@@ -694,6 +937,31 @@ function canvasTex(canvas) {
   return t;
 }
 
+/* 從一張圖做貼圖（取代 TextureLoader），差別只有 fetchPriority：
+   入口那面牆是「進館第一眼」，10 件作品的圖在進場之前一張也看不到，
+   兩邊一起抓就是讓那 1.8 MB 去搶那面牆的頻寬。所以牆 high、作品 low。
+   onReady 一律排進 microtask：圖在快取裡時 ready() 會同步跑，
+   而它要呼叫的 hideLoader 還在檔案後面（TDZ），同步叫會炸掉整個模組。 */
+function imageTex(src, onReady, priority) {
+  const tex = new THREE.Texture();
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  const img = new Image();
+  img.decoding = 'async';
+  if (priority) img.fetchPriority = priority;
+  let fired = false;
+  const ready = () => {
+    if (fired) return; fired = true;
+    if (img.naturalWidth) { tex.image = img; tex.needsUpdate = true; }
+    if (onReady) queueMicrotask(onReady);
+  };
+  img.onload = ready;
+  img.onerror = ready;
+  img.src = src;
+  if (img.complete) ready();
+  return tex;
+}
+
 /* ============================================================
    場景
    ============================================================ */
@@ -755,6 +1023,10 @@ const MATS = {
   pool:   new THREE.MeshBasicMaterial({ map: POOL, transparent: true, opacity: 0.20, blending: THREE.AdditiveBlending, depthWrite: false }),
   coral:  new THREE.MeshStandardMaterial({ color: 0xE8E4DC, roughness: 0.90, metalness: 0.0 }),
   merch:  new THREE.MeshStandardMaterial({ color: 0xF6F4F0, roughness: 0.90, metalness: 0.0 }),
+  board:  new THREE.MeshStandardMaterial({ color: 0x7E7A73, roughness: 0.94, metalness: 0.0 }),
+  tee:    new THREE.MeshStandardMaterial({ color: 0x17181A, roughness: 0.88, metalness: 0.0 }),
+  lace:   new THREE.MeshStandardMaterial({ color: 0xF2EFE9, roughness: 0.94, metalness: 0.0, side: THREE.DoubleSide }),
+  laceB:  new THREE.MeshStandardMaterial({ color: 0xFBF9F5, roughness: 0.86, metalness: 0.0, side: THREE.DoubleSide }),
   exit:   new THREE.MeshStandardMaterial({ color: 0x1E7A44, emissive: 0x2FBF6B, emissiveIntensity: 1.5, roughness: 0.4 }),
 };
 
@@ -856,14 +1128,18 @@ const SCREEN = { z: -6.45, hw: 1.50, h: 3.10, th: 0.24 };
     x.globalAlpha = 1;
     x.textAlign = 'center'; x.textBaseline = 'middle';
 
-    const MAIN = '歡迎光臨';                      // 換句子只要改這一行，級數會自己重算
+    /* 一句話加一行英文，整組垂直置中；兩行之間的距離是固定的，
+       不隨字級浮動（1 px ≈ 2.4 mm，所以 62 px ≈ 0.15 m）。 */
+    const MAIN = '歡迎';                          // 換句子只要改這一行，級數會自己重算
+    const CAP = 140, GAP = 62, EH = 31;           // 級數上限 / 中英文間距 / 英文行高
     x.font = songti(150, 700);
-    const size = Math.min(160, 150 * (W * 0.80 / x.measureText(MAIN).width));
-    x.font = songti(size, 700); x.fillStyle = INK;
-    x.fillText(MAIN, W / 2, H * 0.46);
+    const size = Math.max(58, Math.min(CAP, 150 * (W * 0.53 / x.measureText(MAIN).width)));
+    const top = H * 0.485 - (size + GAP + EH) / 2;
 
-    x.font = bask(31, true); x.fillStyle = INK; x.globalAlpha = 0.48;
-    x.fillText('Welcome to The Meowseum.', W / 2, H * 0.46 + size * 0.92 + 66);
+    x.font = songti(size, 700); x.fillStyle = INK;
+    x.fillText(MAIN, W / 2, top + size / 2);
+    x.font = bask(EH, true); x.fillStyle = INK; x.globalAlpha = 0.48;
+    x.fillText('Welcome to The Meowseum.', W / 2, top + size + GAP + EH / 2);
 
     const tex = canvasTex(c);
     const face = new THREE.Mesh(
@@ -876,9 +1152,11 @@ const SCREEN = { z: -6.45, hw: 1.50, h: 3.10, th: 0.24 };
 
   /* 洗牆燈：只有一顆，光暈落在碑面上，地上留一點餘光 */
   const wash = new THREE.SpotLight(0xFFEFD6, 15, 10, 0.58, 0.80, 1.4);
-  wash.position.set(0, 4.45, -5.20);
+  wash.position.set(0, 4.56, -5.20);
   wash.target.position.set(0, 1.45, S.z - 0.20);
   scene.add(wash, wash.target);
+  /* 燈長在碑牆上緣，不掛天花板 */
+  lightHead(wash.position, wash.target.position);
   const pool = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 2.6), MATS.pool.clone());
   pool.rotation.x = -Math.PI / 2; pool.position.set(0, 0.012, S.z + 1.55);
   scene.add(pool);
@@ -913,7 +1191,7 @@ const TW_ART = (DATA.titleWall && DATA.titleWall.image) || null;
 
   // 正面：整面圖稿
   const faceTex = TW_ART
-    ? new THREE.TextureLoader().load(TW_ART, () => hideLoader())
+    ? imageTex(TW_ART, hideLoader, 'high')       // <link rel=preload> 已經在抓了，這裡只是接手
     : titleWallTexture();
   faceTex.colorSpace = THREE.SRGBColorSpace;
   faceTex.anisotropy = 8;
@@ -988,22 +1266,8 @@ const TW_ART = (DATA.titleWall && DATA.titleWall.image) || null;
     sp.target.position.set(tgt.x, 2.05, tgt.z);
     scene.add(sp, sp.target);
 
-    const th = Math.atan2(tgt.x, tgt.z - TW.ZC);
-    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.055, 2.35), MATS.dark);
-    rail.position.copy(fp).setY(4.63);
-    rail.rotation.y = th;
-    scene.add(rail);
-
-    const dir = new THREE.Vector3().subVectors(sp.target.position, fp).normalize();
-    const can = new THREE.Group();
-    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.066, 0.20, 16), MATS.dark);
-    tube.position.y = -0.10;
-    const lens = new THREE.Mesh(new THREE.CircleGeometry(0.054, 16), new THREE.MeshBasicMaterial({ color: 0xFFEFD8 }));
-    lens.position.y = -0.20; lens.rotation.x = -Math.PI / 2;
-    can.add(tube, lens);
-    can.position.copy(fp);
-    can.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), dir);
-    scene.add(can);
+    /* 燈貼在弧面上沿、不掛天花板——大廳頂上不留燈 */
+    lightHead(sp.position, sp.target.position);
   }
 }
 
@@ -1031,7 +1295,8 @@ function buildWork(work, hang) {
   const bottomY = h > 1.70 ? 1.02 : (h > 1.00 ? 1.10 : 1.32);
   const cy = bottomY + h / 2;
   pos.y = cy;
-  WORK_LOOK[work.slug] = { pos: pos.clone(), normal: n.clone(), h, w, cy };
+  const fw = THREE.MathUtils.clamp(0.052 + Math.min(w, h) * 0.06, 0.058, 0.145);
+  WORK_LOOK[work.slug] = { pos: pos.clone(), normal: n.clone(), h, w, cy, fw };
 
   const g = new THREE.Group();
   g.position.copy(pos);
@@ -1041,7 +1306,6 @@ function buildWork(work, hang) {
   scene.add(g);
   WORK_GROUPS.push(g);
 
-  const fw = THREE.MathUtils.clamp(0.052 + Math.min(w, h) * 0.06, 0.058, 0.145);
   const shape = new THREE.Shape();
   shape.moveTo(-w / 2 - fw, -h / 2 - fw); shape.lineTo(w / 2 + fw, -h / 2 - fw);
   shape.lineTo(w / 2 + fw, h / 2 + fw); shape.lineTo(-w / 2 - fw, h / 2 + fw); shape.closePath();
@@ -1068,14 +1332,12 @@ function buildWork(work, hang) {
 
   let art;
   if (work.image) {
-    const tex = new THREE.TextureLoader().load(work.image, () => hideLoader());
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 8;
+    const tex = imageTex(work.image, null, 'low');
     art = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
       new THREE.MeshStandardMaterial({ map: tex, roughness: 0.74, metalness: 0.0 }));
   } else {
     art = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
-      new THREE.MeshStandardMaterial({ map: placeholderTexture(work, hideLoader), roughness: 0.92, metalness: 0.0 }));
+      new THREE.MeshStandardMaterial({ map: placeholderTexture(work, null), roughness: 0.92, metalness: 0.0 }));
   }
   art.position.z = 0.058;
   g.add(art);
@@ -1108,7 +1370,7 @@ function buildWork(work, hang) {
   pool.position.set(0, h * 0.10, 0.004);
   g.add(pool);
 
-  return { work, g, pos, n, cy };
+  return { work, g, pos, n, cy, fw };
 }
 
 const BUILT = [];
@@ -1126,29 +1388,32 @@ for (const work of DATA.works) {
    2. 環境光只負責把暗部從純黑拉起來一點點，不做照明用。
    3. 每一件作品、每一面說明牆都有自己的投射燈，光暈只落在它身上。
    ============================================================ */
-scene.add(new THREE.AmbientLight(0xB9B2A6, 0.065));
-scene.add(new THREE.HemisphereLight(0xC8D2DA, 0x2A2620, 0.12));
+/* 天花板上沒有燈之後，走道與地板只剩全域微光墊著——
+   它沒有形體，所以不會變成「有光、卻找不到燈」的那種光。 */
+scene.add(new THREE.AmbientLight(0xB9B2A6, 0.105));
+scene.add(new THREE.HemisphereLight(0xC8D2DA, 0x2A2620, 0.20));
 
-/* 軌道燈具：一根軌道 + 一顆燈頭，方向由 from → to 決定 */
-function trackLamp(from, to, railLen) {
-  const dir = new THREE.Vector3().subVectors(to, from).normalize();
-
-  const along = new THREE.Vector3(-dir.z, 0, dir.x);
-  const rail = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.055, railLen), MATS.dark);
-  rail.position.copy(from).setY(from.y + 0.15);
-  rail.rotation.y = orient(along);
-  scene.add(rail);
-
-  const can = new THREE.Group();
-  const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.062, 0.19, 16), MATS.dark);
-  tube.position.y = -0.095;
-  const lens = new THREE.Mesh(new THREE.CircleGeometry(0.05, 16),
-    new THREE.MeshBasicMaterial({ color: 0xFFEFD8 }));
-  lens.position.y = -0.19; lens.rotation.x = -Math.PI / 2;
-  can.add(tube, lens);
-  can.position.copy(from);
-  can.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), dir);
-  scene.add(can);
+/* ------------------------------------------------------------
+   燈頭：真的有光的那一點才掛燈
+   ------------------------------------------------------------
+   做得很小——它的工作是交代「這團光是從哪來的」，不是當裝飾。
+   所以位置一律吃 `spot.position`，方向吃 `spot.target.position`，
+   不在別的地方另外擺一顆好看的燈：燈擺在光斑正上方，光卻是從別處來的，
+   看起來就是假的。過去那些吊在天花板的軌道與吊桿都撤掉了。
+   ============================================================ */
+function lightHead(pos, target) {
+  const g = new THREE.Group();
+  const tube = new THREE.Mesh(new THREE.CylinderGeometry(HEAD_R, HEAD_R * 1.18, HEAD_L, 14), MATS.dark);
+  tube.position.y = -HEAD_L / 2;
+  const lens = new THREE.Mesh(new THREE.CircleGeometry(HEAD_R * 1.05, 14),
+    new THREE.MeshBasicMaterial({ color: 0xFFF0DA }));
+  lens.position.y = -HEAD_L; lens.rotation.x = Math.PI / 2;     // 發光面朝光的方向
+  g.add(tube, lens);
+  g.position.copy(pos);
+  g.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0),
+    new THREE.Vector3().subVectors(target, pos).normalize());
+  scene.add(g);
+  return g;
 }
 
 const SPOT_I = 66;
@@ -1163,33 +1428,32 @@ for (const b of BUILT) {
   spot.target.position.copy(pos);
   scene.add(spot, spot.target);
 
-  trackLamp(fp, pos, b.work.w + 1.5);
+  // 燈長在畫框上緣的正上方，站在畫前面抬頭就看得到
+  lightHead(spot.position, spot.target.position);
 }
 
-// 展廳只剩一點點「看得見路」的餘光，不構成照明
-for (const [k, r] of Object.entries(ROOMS)) {
-  if (k === 'IV') continue;
-  const p = new THREE.PointLight(0xFFF3E2, 4.2, 26, 1.7);
-  p.position.set((r.x0 + r.x1) / 2, r.h - 1.4, (r.z0 + r.z1) / 2);
-  scene.add(p);
+/* 展廳、走道沒有自己的燈——天花板上不該有燈。
+   天花板只留全域微光把暗部墊起來（下面的 AmbientLight / HemisphereLight），
+   地板與走道的亮度靠作品燈與說明牌燈的餘光。 */
+
+/* 禮品店：唯一的「牆上的東西」是北牆那一排貨架，燈就長在貨架上面，
+   一顆一顆往店裡斜打——貨架看得見，店裡也還走得動。 */
+for (const [x, w] of [[13.4, 2.4], [16.0, 2.4], [18.6, 2.4]]) {
+  const c = new THREE.Vector3(x, 0, ROOMS.IV.z0 + T / 2);
+  const n = new THREE.Vector3(0, 0, 1);
+  const sp = new THREE.SpotLight(0xFFE7C6, 25, 12, 0.95, 0.92, 1.4);
+  sp.position.set(x, 2.95, ROOMS.IV.z0 + T / 2 + 0.36);
+  sp.target.position.set(x, 1.5, -54.6);        // 掠過貨架，順便灑一點到地板
+  scene.add(sp, sp.target);
+  lightHead(sp.position, sp.target.position);
 }
-// 走道補光，不然門洞看過去是一條黑帶
-for (const p of PASSAGES) {
-  const l = new THREE.PointLight(0xFFF1DE, 3.6, 11, 1.6);
-  l.position.set((p.x0 + p.x1) / 2, p.y - 0.35, (p.z0 + p.z1) / 2);
-  scene.add(l);
-}
-// 禮品店：還是要能挑東西，但底光只留到剛好看見貨架
 {
-  const p = new THREE.PointLight(0xFFE2B8, 34, 24, 1.6);
-  p.position.set(16, 3.0, -48);
-  scene.add(p);
-  for (const [x, z] of [[13.2, -46], [19.2, -52]]) {
-    const sp = new THREE.SpotLight(0xFFE7C6, 62, 14, 0.74, 0.84, 1.5);
-    sp.position.set(x, 3.25, z);
-    sp.target.position.set(x, 0.2, z);
-    scene.add(sp, sp.target);
-  }
+  /* 東牆那片陳列板也補一顆 */
+  const sp = new THREE.SpotLight(0xFFE7C6, 24, 11, 0.86, 0.90, 1.35);
+  sp.position.set(21.24, 2.48, -52.90);
+  sp.target.position.set(21.84, 1.46, -53.95);       // 一件裙子 + 一張原照，一起顧到
+  scene.add(sp, sp.target);
+  lightHead(sp.position, sp.target.position);
 }
 
 /* ---------------- 廳牌 ---------------- */
@@ -1225,14 +1489,13 @@ const CARD_MESH = {};
 const CARD_AT = {
   I:   { wall: 'W', at: -6.9 },
   II:  { wall: 'W', at: -25.9 },
-  III: { wall: 'E', at: -45.3 },
+  III: { wall: 'W', at: -45.3 },   // 不放東牆：東牆上是商店的門，牌子會替商店掛名
   IV:  { wall: 'E', at: -48.2 },
 };
 for (const room of DATA.rooms) {
   const c = CARD_AT[room.numeral];
   if (!c) continue;
-  const ws = DATA.works.filter((w) => w.room === room.numeral);
-  CARD_MESH[room.numeral] = mountCard(room.numeral, c.wall, c.at, 1.62, roomCardTexture(room, ws), 0.841, 1.189,
+  CARD_MESH[room.numeral] = mountCard(room.numeral, c.wall, c.at, 1.62, roomCardTexture(room), 0.841, 1.189,
       `ROOM ${room.numeral} · 廳牌 · ${room.nameCn}`);
 
   // 說明牆跟作品一樣有自己的一盞燈：光只落在這張廳牌上。
@@ -1242,27 +1505,29 @@ for (const room of DATA.rooms) {
   sp.position.copy(fp);
   sp.target.position.set(p.x, 1.55, p.z);
   scene.add(sp, sp.target);
-  trackLamp(fp, sp.target.position, 1.75);
+  lightHead(sp.position, sp.target.position);
 }
 
 /* 內容海報：貼在大廳通往 Room I 的牆上，門洞兩側各一張。
    這裡是「走過主視覺牆之後」的下一眼，所以放的是館內到底展了什麼。 */
 {
-  const POSTER = { w: 1.190, h: 1.682, y: 1.88, at: [-3.50, 3.50] };   // 約 A0 的兩倍
-
-  const tex = posterTexture();
-  POSTER.at.forEach((at, i) => {
-    const m = mountCard('hall', 'N', at, POSTER.y, tex, POSTER.w, POSTER.h,
-      'THE MEOWSEUM · VOL. I · 展覽內容海報');
+  const P = { w: 1.190, h: 1.682, y: 1.88 };                 // 約 A0 的兩倍
+  /* 面向這面牆時，−x 在人的左手邊 */
+  const SIDES = [
+    { at: -3.50, tex: posterIntroTexture(), cap: 'THE MEOWSEUM · VOL. I · 展覽總介紹' },
+    { at:  3.50, tex: posterMapTexture(),   cap: 'THE MEOWSEUM · VOL. I · 展場平面圖' },
+  ];
+  SIDES.forEach((side, i) => {
+    const m = mountCard('hall', 'N', side.at, P.y, side.tex, P.w, P.h, side.cap);
     CARD_MESH['poster' + i] = m;
 
-    const { p, n } = surfacePoint('hall', 'N', at);
+    const { p, n } = surfacePoint('hall', 'N', side.at);
     const fp = new THREE.Vector3(p.x + n.x * 2.70, ROOMS.hall.h - 0.30, p.z + n.z * 2.70);
     const sp = new THREE.SpotLight(0xFFEFD6, 82, 15, 0.34, 0.86, 1.42);
     sp.position.copy(fp);
-    sp.target.position.set(p.x, POSTER.y, p.z);
+    sp.target.position.set(p.x, P.y, p.z);
     scene.add(sp, sp.target);
-    trackLamp(fp, sp.target.position, 2.10);
+    lightHead(sp.position, sp.target.position);
   });
 }
 
@@ -1276,9 +1541,115 @@ for (const [x, z] of [[0, -32], [0, -52]]) {
 }
 
 /* 禮品店 */
-box(15.6, 0.50, -41.5, 3.2, 1.00, 0.70, 'coral', { collide: true });
-box(15.6, 1.02, -41.5, 3.3, 0.05, 0.80, 'dark', { collide: false });
-box(14.4, 1.12, -41.5, 0.34, 0.16, 0.22, 'merch', { collide: false });
+/* 中央那張展示桌。桌面很寬，平放的手冊照實體尺寸排開——
+   手冊是 210 × 297 mm，四本並排加起來還不到桌子的一半。
+
+   原本想在南牆／東牆做一座立式手冊架，後來撤掉了：這個空間只有 12 × 16 m，
+   再加一座 1.1 m 寬、1.7 m 高的架子，四張牆就擠滿了，弧面也救不回來。
+   手冊改放桌上——觀眾本來就會走到桌前，紙在桌上也讀得到。 */
+box(15.6, 0.50, -41.5, 3.2, 1.00, 0.70, 'bench', { collide: true });
+box(15.6, 1.02, -41.5, 3.3, 0.05, 0.80, 'coral', { collide: false });
+
+/* 桌上平放的展冊：面朝上、稍微轉一個角度。四本都是同一本，尺寸就是展冊的
+   實物尺寸 A5（148 × 210 mm）。紙很薄，所以只是一片 6 mm 的板子貼封面；
+   真正厚度的陰影在這個暗室裡看不到。
+
+   ★ 封面要朝著店裡（北側）。觀眾從西牆的門（z ≈ −47.5）進來，走到桌前是站在
+   桌子的北邊低頭看；第一版讓封面朝南牆，一行人從店裡看過去四本全是倒的。 */
+{
+  const BW = 0.148, BH = 0.210, D = 0.006, TOP = 1.045 + D / 2;
+  const PITCH = 0.178, Z = -41.62;
+  const x0 = 15.6 - PITCH * (TABLE_BOOKS - 1) / 2;      // 四本以桌子中心排開
+  const tex = catalogueCoverTexture(CATALOGUE.cover);
+  for (let i = 0; i < TABLE_BOOKS; i++) {
+    const side = new THREE.MeshStandardMaterial({ color: GREEN, roughness: 0.94, metalness: 0.0 });
+    const m = new THREE.Mesh(new THREE.BoxGeometry(BW, D, BH), [
+      side,                              // +x 書口
+      side,                              // −x 書口
+      new THREE.MeshStandardMaterial({   // +y 封面
+        map: tex, roughness: 0.90, metalness: 0.0, emissive: 0xFFFFFF,
+        emissiveMap: tex, emissiveIntensity: 0.10,
+      }),
+      side,                              // −y 封底
+      side,                              // +z 頁尾
+      side,                              // −z 書脊
+    ]);
+    m.position.set(x0 + i * PITCH, TOP, Z);
+    m.rotation.y = Math.PI + 0.05 - i * 0.03;   // π：封面轉向店裡那一側
+    scene.add(m);
+    OCCLUDERS.push(m);
+    SHEET.push({ mesh: m, room: 'IV', pdf: CATALOGUE.pdf,
+      cap: CATALOGUE.cap, short: CATALOGUE.short });
+  }
+  COLLIDERS.push({ x0: x0 - BW / 2 - 0.03, x1: x0 + PITCH * (TABLE_BOOKS - 1) + BW / 2 + 0.03,
+    z0: Z - BH / 2, z1: Z + BH / 2 });
+
+  /* 桌燈。這一顆不是裝飾——展示桌原本落在貨架燈的射程外，
+     桌面整片是黑的，桌上的東西等於不存在。燈從北邊斜下來（北牆那排燈的位置），
+     光才不會跟著觀眾的頭一起擋住紙面。 */
+  /* 強度與高度是量出來的：桌面是消光材質、燈又離得遠，
+     照「貨架燈那個數量級」（i=25、離 0.6 m）換算，桌面上只有它的 1/7，
+     等於沒開燈。所以燈收近到 1.9 m 高、正對桌上那排紙，強度提到 70。 */
+  /* 桌面的亮度不能只靠 SpotLight：這個場景的燈衰減是 1.4 次方，
+     燈掛在 2 m 高的話，桌面拿到的能量只有貨架燈（燈離貨架 0.6 m）的 1/8，
+     白桌面也會變成一片灰。所以照展籤的做法——紙自己帶 ±，
+     桌面再補一片 additive 的柔光暈（MATS.pool 同一套貼圖），
+     燈只負責在桌面上留下一個看得出來源的亮斑。 */
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 0.66),
+    new THREE.MeshBasicMaterial({ map: POOL, transparent: true, opacity: 0.12,
+      blending: THREE.AdditiveBlending, depthWrite: false }));
+  glow.rotation.x = -Math.PI / 2;
+  glow.position.set(15.6, 1.047, -41.50);
+  scene.add(glow);
+
+  for (const dx of [-0.42, 0.42]) {
+    const sp = new THREE.SpotLight(0xFFE7C6, 62, 6, 0.72, 0.86, 1.4);
+    sp.position.set(15.6 + dx, 2.05, -43.55);      // 往店裡退開，別壓在桌沿上
+    sp.target.position.set(15.6 + dx * 0.55, 1.00, -41.70);
+    scene.add(sp, sp.target);
+    lightHead(sp.position, sp.target.position);
+  }
+}
+
+/* ---------------- 牆上的「免費紀念冊」告示 ----------------
+   展示桌的正後方就是南牆（z = −40）：觀眾站在桌子北側低頭看那四本，
+   抬頭看到的就是這面牆，告示掛這裡才成對。掛法用廳牌那一支 mountCard
+   （白卡、貼牆、進 SHEET、點一下攤平放大），所以它本身也可以點開、
+   也可以下載（paper.pdf）。
+
+   點它的時候不攤平那張紙（紙就掛在觀眾眼前，放大一遍只是把同一句話再說
+   一次），直接開下載面板：左邊封面、中間下載鈕（paper.offer，見 openSheet）。 */
+{
+  const W = 0.841, H = 0.594, SIGN_Y = 1.98;        // A1 橫版
+  const sign = mountCard('IV', 'S', 15.6, SIGN_Y, catalogueSignTexture(), W, H,
+    '免費紀念冊 · 商店告示');
+  const paper = SHEET.find((s) => s.mesh === sign);
+  if (paper) {
+    paper.pdf = CATALOGUE.pdf; paper.short = '看告示';
+    paper.offer = CATALOGUE;
+    /* 白卡在 mountCard 裡帶 0.10 的自發光：對深綠底的廳牌是好事（暗室裡
+       讓它不要沉下去），對這張滿版白紙是多餘的亮——紙面被推上滿白，墨色
+       跟著一起被抬起來。 */
+    sign.material.emissiveIntensity = 0.04;
+  }
+
+  /* 這面牆原本一顆燈也沒有，告示會整片掉進黑裡。燈從店裡斜打上去，
+     位置比桌燈更靠天花板，觀眾的影子才不會蓋在紙上。
+
+     強度是量出來的（2026-09-17，站在 2 m 外截圖數像素）：34 打在 A2 上，
+     紙面 251（近滿白）、標題的墨只剩 74——「太亮，直接看不清」就是這件事：
+     白紙本來就吃光，而 ACES 在高光端是壓縮的，紙面越接近滿白，墨色被抬得
+     越兇。燈壓到 8 之後**紙面還是 249**（白紙壓不下去），墨從 74 回到 41。
+     要壓的是墨，所以燈要壓得比「紙看起來太亮」那個直覺更低。 */
+  const sp = new THREE.SpotLight(0xFFE7C6, 8, 8, 0.62, 0.86, 1.4);
+  sp.position.set(15.6, 3.10, -42.55);
+  /* 目標點放在紙面上，不是牆面上：紙貼在牆前 13 mm，目標點壓在牆面的話，
+     光軸穿過紙面時會偏掉 6 cm（燈是斜的，13 mm 的落差在 2.7 m 的光程上被放大）。 */
+  const face = surfacePoint('IV', 'S', 15.6);
+  sp.target.position.set(face.p.x, SIGN_Y, face.p.z);
+  scene.add(sp, sp.target);
+  lightHead(sp.position, sp.target.position);
+}
 
 for (const y of [1.02, 1.50, 1.98, 2.46]) {
   box(16, y, -55.70, 7.2, 0.045, 0.32, 'merch', { collide: false });
@@ -1291,59 +1662,168 @@ for (const x of [12.6, 16, 19.4]) box(x, 1.4, -55.7, 0.06, 2.8, 0.36, 'dark', { 
 box(13.5, 0.42, -50, 1.7, 0.06, 0.95, 'bench', { collide: true });
 for (const [dx, dz] of [[-0.78, -0.4], [0.78, -0.4], [-0.78, 0.4], [0.78, 0.4]])
   box(13.5 + dx, 0.20, -50 + dz, 0.06, 0.40, 0.06, 'dark', { collide: false });
-for (let i = 0; i < 4; i++) box(13.1 + i * 0.28, 0.47, -50, 0.22, 0.03, 0.32, 'paper', { collide: false });
 
 box(9.80, 3.62, -47.5, 0.10, 0.24, 0.66, 'exit', { collide: false });   // 掛在門楣上，不要浮在門洞中間
 
-/* 禮品店門口的告示架：底座 + 立柱 + 斜面板，板上夾一張 A 字級的白紙 */
+/* ---------------- 僅存的那件裙子 ----------------
+   東牆陳列板前面掛著店裡唯一一件還在的商品：小貴婦尺寸的黑 T 恤 + 白蕾絲裙。
+   尺寸照她的身量做（上身 + 裙子約 42 cm）——這是她的衣服，不是童裝。
+   吊牌寫「非賣品」，跟門口那張告示同一件事。
+   衣架、裙身都在同一個平面上，牆上那根釘子沿著法線穿過衣架勾——
+   吊衣架就是這樣掛的，勾面跟衣服同一個平面，桿子穿過去。 */
+function dressTagTexture() {
+  const W = 360, H = 226;
+  const { c, x } = makeCanvas(W, H);
+  x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, W, H);
+  x.strokeStyle = 'rgba(17,18,19,.48)'; x.lineWidth = 3.5;
+  x.strokeRect(12, 12, W - 24, H - 24);
+  x.textAlign = 'center';
+  x.fillStyle = INK; x.font = songti(74, 700);
+  x.fillText('非賣品', W / 2, 106);
+  x.fillStyle = GREY; x.font = bask(30);
+  x.fillText('NOT FOR SALE', W / 2, 154);
+  x.fillStyle = GREY2; x.font = songti(25, 400);
+  x.fillText('僅存一件', W / 2, 194);
+  x.textAlign = 'left';
+  return canvasTex(c);
+}
+
 {
-  /* 位置有兩個條件：
-     1) 要在店裡、不能出現在門洞的視線上。站在 Room III（x < 8）往東看時，
-        視線切過 x = 10 的落點必須落在門洞南側的牆面（z > -46.3），
-        所以告示要往門的右手邊、靠南一點擺，才不會被看成「還放在上一廳」。
-     2) 一進門（往 +x 走）往右一看就要看到它，所以貼著門內側、斜朝門口。
-     以 (11.95, -45.05) 為例：從 (7.5, -47.5) 看過去，視線在 x = 10 的落點
-     是 z ≈ -46.12，被門南側那道牆擋住；人一站進門就整個露出來。 */
-  const NX = 11.95, NZ = -45.05, RY = -2.02;
+  const DZ = -53.50, WALLX = ROOMS.IV.x1 - T / 2;      // 牆面 x = 21.86
   const g = new THREE.Group();
-  g.position.set(NX, 0, NZ);
-  g.rotation.y = RY;
+  g.position.set(WALLX - 0.07, 0, DZ);
+  g.rotation.y = -Math.PI / 2;                          // 正面朝 −x（店裡）
   scene.add(g);
 
-  const part = (w, h, d, px, py, pz, mat, tilt) => {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), MATS[mat]);
-    m.position.set(px, py, pz);
-    if (tilt) m.rotation.x = tilt;
-    g.add(m);
-    OCCLUDERS.push(m);
-    return m;
+  const add = (mesh) => { g.add(mesh); OCCLUDERS.push(mesh); return mesh; };
+  const rod = (x1, y1, x2, y2, th, d, matKey) => {      // 平面上兩點之間的一根桿件
+    const m = new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(x2 - x1, y2 - y1), th, d), MATS[matKey]);
+    m.position.set((x1 + x2) / 2, (y1 + y2) / 2, 0);
+    m.rotation.z = Math.atan2(y2 - y1, x2 - x1);
+    return add(m);
   };
 
-  const TILT = -0.13;
-  part(0.42, 0.035, 0.30, 0, 0.018, 0, 'dark');            // 底座
-  part(0.045, 0.88, 0.045, 0, 0.475, -0.02, 'dark');       // 立柱
-  part(0.46, 0.64, 0.022, 0, 1.20, 0.03, 'dark', TILT);    // 背板
+  const HOOK_Y = 1.760;                 // 牆上那根釘子的高度
+  const SY = HOOK_Y - 0.040;            // 衣架頂點，衣服的肩線掛在這兩支木臂上
 
-  const tex = noticeTexture();
-  const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.41, 0.575), new THREE.MeshStandardMaterial({
-    map: tex, roughness: 0.92, metalness: 0.0, envMapIntensity: 0.2,
-    emissive: 0xFFFFFF, emissiveMap: tex, emissiveIntensity: 0.05,
+  // 釘子 + 衣架勾
+  const peg = new THREE.Mesh(new THREE.CylinderGeometry(0.0045, 0.0045, 0.085, 10), MATS.dark);
+  peg.rotation.x = Math.PI / 2;
+  peg.position.set(0, HOOK_Y, -0.015);
+  add(peg);
+  const hook = new THREE.Mesh(new THREE.TorusGeometry(0.016, 0.0030, 6, 20), MATS.dark);
+  hook.position.set(0, HOOK_Y - 0.019, 0);
+  add(hook);
+
+  // 木衣架：頂點兩側各一支臂
+  rod(0, SY, -0.155, SY - 0.038, 0.010, 0.014, 'wood');
+  rod(0, SY, 0.155, SY - 0.038, 0.010, 0.014, 'wood');
+  rod(-0.150, SY - 0.037, 0.150, SY - 0.037, 0.011, 0.016, 'wood');
+
+  // T 恤：肩線貼著衣架臂，袖口垂下來，領口往下凹
+  const tee = new THREE.Shape();
+  tee.moveTo(-0.050, SY - 0.011);
+  tee.lineTo(-0.116, SY - 0.029);       // 左肩
+  tee.lineTo(-0.163, SY - 0.072);       // 左袖外上
+  tee.lineTo(-0.160, SY - 0.132);       // 左袖外下
+  tee.lineTo(-0.124, SY - 0.124);       // 左袖內下
+  tee.lineTo(-0.104, SY - 0.086);       // 左腋
+  tee.lineTo(-0.106, SY - 0.216);       // 左下襬
+  tee.lineTo(0.106, SY - 0.216);
+  tee.lineTo(0.104, SY - 0.086);
+  tee.lineTo(0.124, SY - 0.124);
+  tee.lineTo(0.160, SY - 0.132);
+  tee.lineTo(0.163, SY - 0.072);
+  tee.lineTo(0.116, SY - 0.029);
+  tee.lineTo(0.050, SY - 0.011);
+  tee.quadraticCurveTo(0, SY - 0.042, -0.050, SY - 0.011);
+  const teeGeo = new THREE.ExtrudeGeometry(tee, { depth: 0.052, bevelEnabled: false });
+  teeGeo.translate(0, 0, -0.026);
+  add(new THREE.Mesh(teeGeo, MATS.tee));
+
+  // 蕾絲裙：車出來的 A 字，深度壓扁；花邊是一圈一圈疊上去的蕾絲
+  const CY = SY - 0.192, SH = 0.200;
+  const A = [
+    [0.100, 0.00], [0.110, -0.26], [0.124, -0.52], [0.141, -0.78], [0.156, -1.00],
+  ];
+  const skirtGeo = new THREE.LatheGeometry(A.map(([r, t]) => new THREE.Vector2(r, t * SH)), 30);
+  skirtGeo.scale(1, 1, 0.62);
+  const skirt = new THREE.Mesh(skirtGeo, MATS.lace);
+  skirt.position.set(0, CY, 0);
+  add(skirt);
+  const rAt = (t) => {
+    for (let i = 1; i < A.length; i++) {
+      if (t <= -A[i][1] || i === A.length - 1) {
+        const [r0, t0] = A[i - 1], [r1, t1] = A[i];
+        const k = (-t - -t0) / (t1 - t0);
+        return r0 + (r1 - r0) * Math.min(1, Math.max(0, k));
+      }
+    }
+    return A[0][0];
+  };
+  const layer = (t0, t1, d0, d1, matKey) => {           // 疊在裙身上的一層蕾絲
+    const pts = [];
+    for (let i = 0; i <= 6; i++) {
+      const k = i / 6, t = t0 + (t1 - t0) * k;
+      pts.push(new THREE.Vector2(rAt(t) + d0 + (d1 - d0) * k, -SH * t));
+    }
+    const geo = new THREE.LatheGeometry(pts, 30);
+    geo.scale(1, 1, 0.62);
+    const m = new THREE.Mesh(geo, MATS.laceB);
+    m.position.set(0, CY, 0);
+    return add(m);
+  };
+  layer(0.50, 1.00, 0.0000, 0.0055);                    // 裙襬那一層
+  layer(0.86, 1.00, 0.0055, 0.0120);                    // 最下面再壓一圈
+
+  // 吊牌：別在左袖口
+  rod(-0.150, SY - 0.100, -0.150, SY - 0.124, 0.0022, 0.0022, 'dark');
+  const tagTex = dressTagTexture();
+  const tag = new THREE.Mesh(new THREE.PlaneGeometry(0.050, 0.0314), new THREE.MeshStandardMaterial({
+    map: tagTex, roughness: 0.92, metalness: 0.0,
+    emissive: 0xFFFFFF, emissiveMap: tagTex, emissiveIntensity: 0.05,
   }));
-  paper.position.set(0, 1.20, 0.058);
-  paper.rotation.x = TILT;
-  g.add(paper);
-  SHEET.push({ mesh: paper, room: 'IV', cap: '告示 · Notice', short: '看告示' });
-
-  COLLIDERS.push({ x0: NX - 0.28, x1: NX + 0.28, z0: NZ - 0.28, z1: NZ + 0.28 });
-
-  // 告示燈：店裡的底光只夠看見貨架，這張不補光會讀不到
-  const fn = new THREE.Vector3(Math.sin(RY), 0, Math.cos(RY));   // 告示正面朝向
-  const sp = new THREE.SpotLight(0xFFEFD6, 19, 7, 0.62, 0.85, 1.5);
-  sp.position.set(NX + fn.x * 0.62, 2.50, NZ + fn.z * 0.62);
-  sp.target.position.set(NX, 1.20, NZ);
-  scene.add(sp, sp.target);
+  tag.position.set(-0.152, SY - 0.140, 0.032);
+  tag.rotation.set(-0.20, 0.10, 0.15);
+  add(tag);
 }
-box(22 - T / 2 - 0.02, 1.5, -53.5, 0.04, 1.1, 0.8, 'merch', { collide: false });
+
+/* ---------------- 相框裡的那張原照 ----------------
+   店裡除了實物，還掛著這件裙子唯一的照片：小貴婦本人穿著它。
+   照片先畫到 canvas 上再當貼圖——SHEET（點一下攤平放大）只認 canvas，
+   認不得 HTMLImageElement，所以不能直接把圖丟給 TextureLoader。 */
+function shopPhotoTexture(src) {
+  const W = 1400, H = Math.round(W * 4 / 3);          // 原圖 3072 × 4096
+  const { c, x } = makeCanvas(W, H);
+  x.fillStyle = '#E7E3DC'; x.fillRect(0, 0, W, H);
+  const tex = canvasTex(c);
+  const img = new Image();
+  img.onload = () => { x.drawImage(img, 0, 0, W, H); tex.needsUpdate = true; };
+  img.src = src;
+  return tex;
+}
+
+if (DATA.shopPhoto && DATA.shopPhoto.image) {
+  const PW = 0.166, PH = PW * 4 / 3;
+  const g = new THREE.Group();
+  g.position.set(ROOMS.IV.x1 - T / 2, 1.50, -54.44);   // 東牆，陳列板的北邊
+  g.rotation.y = -Math.PI / 2;                          // 正面朝 −x（店裡）
+  scene.add(g);
+
+  const back = new THREE.Mesh(new THREE.BoxGeometry(PW + 0.020, PH + 0.020, 0.014), MATS.dark);
+  back.position.set(0, 0, 0.007);
+  g.add(back); OCCLUDERS.push(back);
+
+  const tex = shopPhotoTexture(DATA.shopPhoto.image);
+  const photo = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshStandardMaterial({
+    map: tex, roughness: 0.48, metalness: 0.0, envMap: ENV, envMapIntensity: 0.22,
+  }));
+  photo.position.set(0, 0, 0.0152);
+  g.add(photo);
+  SHEET.push({ mesh: photo, room: 'IV', cap: '商品照 · 原圖', short: '看照片' });
+}
+
+box(22 - T / 2 - 0.02, 1.5, -53.5, 0.04, 1.1, 0.8, 'board', { collide: false });
 
 /* ============================================================
    第一展廳的牆上投影
@@ -1397,13 +1877,17 @@ function projTexture(phrase) {
   }
   const lines = [phrase.cn];
   const lh = fs * 1.22;
-  const es = Math.round(H * 0.055);
-  const gap = H * 0.11;                       // 主句與小字之間
-  const total = lines.length * lh + gap + es * 0.92;
-  let y = H / 2 - total / 2 + fs * 0.80;
+  const es = Math.round(H * 0.055);           // 英文那行
+  const cs = Math.round(H * 0.036);           // 出處那行（最小一級）
+  /* 四層——索引／主句／英文／出處——當成一整組在版面裡垂直置中，
+     三個 gap 都是基線到基線的距離。 */
+  const g0 = fs * 1.15, g1 = H * 0.20, g2 = H * 0.115;
+  const top = H / 2 - (g0 + g1 + g2) / 2;
+  const yEn = top + g0 + g1, yCre = yEn + g2;
+  let y = top + g0;
 
   // 索引：主句上方一段距離，兩側各一條短線
-  const ry = y - fs * 1.55;
+  const ry = top;
   x.font = bask(Math.round(H * 0.034), true);
   x.fillStyle = 'rgba(242,234,216,.42)';
   x.fillText(phrase.i, W / 2, ry);
@@ -1426,7 +1910,19 @@ function projTexture(phrase) {
 
   x.font = bask(es, true);
   x.fillStyle = 'rgba(232,222,200,.58)';
-  x.fillText(phrase.en, W / 2, y + gap * 0.20 + es * 0.60);
+  x.fillText(phrase.en, W / 2, yEn);
+
+  /* 出處：牆上這些話是小貴婦說的。最小一級，壓在英文下面。 */
+  const c1 = '—— 小貴婦', c2 = 'LADY MIMI';
+  x.font = songti(cs, 400);
+  const w1 = x.measureText(c1).width;
+  x.font = bask(cs * 0.92);
+  const w2 = x.measureText(c2).width;
+  const sep = cs * 1.3, x0 = W / 2 - (w1 + sep + w2) / 2;
+  x.textAlign = 'left'; x.fillStyle = 'rgba(232,222,200,.46)';
+  x.font = songti(cs, 400); x.fillText(c1, x0, yCre);
+  x.font = bask(cs * 0.92); x.fillText(c2, x0 + w1 + sep, yCre);
+  x.textAlign = 'center';
 
   return canvasTex(c);
 }
@@ -1793,20 +2289,72 @@ function openFocus(slug) {
 }
 let focusPose = { pos: new THREE.Vector3(), yaw: 0, pitch: 0 };
 
-let sheetEntry = null;
+let sheetEntry = null, sheetCloseTimer = 0;
 function openSheet(entry) {
   sheetEntry = entry;
   const src = entry.mesh.material.map && entry.mesh.material.map.image;
-  el('sheetImg').src = src && src.toDataURL ? src.toDataURL('image/png') : '';
+  const sh = el('sheet');
+  clearTimeout(sheetCloseTimer);
+  sh.classList.remove('off');
+  /* 換一張紙（已經開著的時候）不重跑進場動畫，直接換圖就好 */
+  if (!sh.classList.contains('on')) {
+    void sh.offsetWidth;               // 強制重排，動畫才會每次都從頭跑
+    sh.classList.add('on');
+  }
+  /* 先把 canvas 的像素尺寸寫進 width/height：那兩個屬性就是「載入前」的內在尺寸，
+     少了它，src 剛換上去、圖還沒解碼的那一瞬間整張紙是 0×0，
+     進場動畫會從一粒米彈成一張海報。CSS 的 max-* 還是照樣把它夾進視窗。 */
+  /* 告示那一張不攤平：紙就掛在觀眾眼前，放大只是把同一句話再說一次。人點它
+     是想把電子版帶走，所以換成一片下載面板（左邊封面、中間下載鈕）。面板上
+     那顆下載鈕和右上角那顆指向同一份檔案，只是這張紙不需要右上角那顆。 */
+  const offer = el('sheetOffer');
+  sh.classList.toggle('offer', !!entry.offer);
+  if (entry.offer) {
+    const o = entry.offer;
+    el('offerCover').src = o.cover;
+    el('offerTitle').textContent = o.dlTitle;
+    el('offerEn').textContent = o.dlTitleEn;
+    el('offerMeta').textContent = o.dlMeta;
+    el('offerDl').href = o.pdf;
+  }
+  const img = el('sheetImg');
+  if (entry.offer) {
+    /* 面板底下那張圖不載入。留著上一張紙的 src 也無所謂——CSS 在 .offer 時
+       把 figure 整個收起來；這裡只是不做白工（那張 canvas 轉 dataURL 是
+       2944 px，要幾十毫秒）。 */
+  } else if (src && src.toDataURL) {
+    /* 比例相關的三個宣告也寫一份 inline。width/height 屬性的值在 CSS 裡算 px，
+       只要 index.html 還是舊版（`#sheet img` 少了 width:auto;height:auto），
+       兩個方向就會各自被 max-* 夾一次而變形——2026-09-17 那次就是這樣：
+       app.js 已經換好、index.html 的 CSS 還沒跟上，開著舊頁面的人點開廳牌
+       看到一張被拉寬的 A0（2100×2970 被夾成 1293×607）。寫在元素上就不看
+       index.html 的版本：舊頁面配新程式也會是對的形狀。 */
+    img.style.width = 'auto'; img.style.height = 'auto'; img.style.objectFit = 'contain';
+    img.width = src.width; img.height = src.height;
+    img.src = src.toDataURL('image/png');
+  } else {
+    img.removeAttribute('width'); img.removeAttribute('height'); img.removeAttribute('src');
+  }
   el('sheetCap').textContent = entry.cap || '';
-  el('sheet').classList.add('on');
+  /* 有電子版的紙（桌上的展冊）多一顆下載鈕。沒有的紙連 href 都不留——留著
+     會讓瀏覽器把「下載」當成離開頁面。告示那張不掛這顆：面板上已經有一顆
+     大的，同一份檔案掛兩顆只是讓人猶豫要按哪一顆。 */
+  const dl = el('sheetDl');
+  if (entry.pdf && !entry.offer) { dl.href = entry.pdf; dl.hidden = false; }
+  else { dl.hidden = true; dl.removeAttribute('href'); }
   zReset();
   if (document.pointerLockElement) document.exitPointerLock();
 }
 function closeSheet() {
+  const sh = el('sheet');
+  if (!sh.classList.contains('on')) return;
   sheetEntry = null;
-  el('sheet').classList.remove('on');
-  el('sheetImg').removeAttribute('src');
+  sh.classList.add('off');             // 收場動畫（CSS），跑完才真的收起來
+  clearTimeout(sheetCloseTimer);
+  sheetCloseTimer = setTimeout(() => {
+    sh.classList.remove('on', 'off');
+    el('sheetImg').removeAttribute('src');   // 太早拿掉，圖會在淡出的半路上先消失
+  }, 260);
   zReset();
   if (!isTouch) tryLock();
 }
@@ -2113,10 +2661,35 @@ function updateHUD() {
     hideLoader();
     tryLock();
   };
+  /* 兩段式入場：第一張「這是什麼展」，第二張「怎麼逛」。
+     換段時前一張先淡出、空一拍（GATE_GAP）、下一張才淡入——
+     兩張卡同時疊上去會讀成一張很長的表單，不像兩個彈窗。 */
+  const GATE_GAP = 340;
+  const cards = { 1: el('gateCard'), 2: el('gateCard2') };
+  let gateStep = 1;
+  function gotoStep(n) {
+    if (gateOff || n === gateStep) return;
+    const cur = cards[gateStep];
+    gateStep = n;
+    el('gate').dataset.step = String(n);
+    cur.classList.remove('on');
+    cur.classList.add('out');
+    setTimeout(() => {
+      cur.classList.remove('out');
+      cards[n].classList.add('on');
+    }, GATE_GAP);
+  }
+  el('gStep2').onclick = () => gotoStep(2);
+  el('gBack').onclick = () => gotoStep(1);
   el('gGo').onclick = enter;
   addEventListener('keydown', (e) => {
     if (gateOff) return;
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enter(); }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (gateStep === 1) gotoStep(2); else enter();
+    } else if (e.key === 'Escape' && gateStep === 2) {
+      gotoStep(1);
+    }
   });
 }
 
@@ -2124,12 +2697,15 @@ let loaderHidden = false;
 function hideLoader() {
   if (loaderHidden) return;
   loaderHidden = true;
-  el('load').classList.add('off');
+  /* 不直接關掉：讓準備畫面自己把數字補到 100 再淡出。
+     分頁被切到背景時 rAF 會停，所以補一個保險。 */
+  LOAD.done();
+  setTimeout(() => el('load').classList.add('off'), 2600);
 }
 
-/* 收掉「Preparing the galleries…」的時機是入口那面牆的圖稿到位（見 TW_ART 的
-   callback）——那面牆是進館第一眼，寧可多等一秒也不要空牆。這裡放個保險，
-   圖稿萬一掛掉也不會永遠停在準備畫面。 */
+/* 收掉準備畫面的時機只有一個：入口那面牆的圖稿到位（見 TW_ART 的 callback）。
+   那面牆是進館第一眼，寧可多等一秒也不要空牆——作品的圖再快都不算數。
+   index.html 那邊另有一個 15 秒的保險，圖稿萬一掛掉也不會永遠停在準備畫面。 */
 setTimeout(hideLoader, 15000);
 
 /* ============================================================
@@ -2291,13 +2867,22 @@ window.MEOWSEUM = {
     const m = CARD_MESH[numeral];
     return m ? facePose(m, m.userData.n, dist) : null;
   },
+  /* 沒有 slug、也沒有廳號的紙（桌上的展冊、牆上那面告示）：用 cap 找。
+     跟 cardPose / labelPose 同一支，驗收截圖才不用把機位寫死。 */
+  paperPose(key, dist = 2.0) {
+    scene.updateMatrixWorld(true);
+    const e = SHEET.find((s) => (s.cap || '').includes(key));
+    return e ? facePose(e.mesh, e.mesh.userData.n, dist) : null;
+  },
   rooms: ROOMS, works: WORK_LOOK, featureWall: TW, titleWallArt: TW_ART,
   flatTitleWall() { if (!TW_CANVAS) titleWallTexture(); return TW_CANVAS.toDataURL('image/png'); },
-  flatPoster() { if (!POSTER_CANVAS) posterTexture(); return POSTER_CANVAS.toDataURL('image/png'); },
+  flatPoster() { if (!POSTER_CANVAS) posterIntroTexture(); return POSTER_CANVAS.toDataURL('image/png'); },
+  flatPosterMap() { if (!POSTER_MAP_CANVAS) posterMapTexture(); return POSTER_MAP_CANVAS.toDataURL('image/png'); },
   colliders: COLLIDERS,
 };
 
 renderMap();
+LOAD.mile(76, '等入口主視覺 · Waiting for the entrance wall');
 if (isTouch) hideLoader();          // 手機只顯示說明卡，不必跑 3D 迴圈
 else requestAnimationFrame(tick);
 console.log('%cTHE MEOWSEUM', 'font:600 13px Baskerville,serif', '展館已載入 · Vol. I');
