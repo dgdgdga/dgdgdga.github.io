@@ -599,7 +599,11 @@ function titleWallTexture() {
 }
 
 /* 禮品店門口的告示：白紙黑字、公文語氣，笑點全部放在內容。
-   這張紙是給站在店門口的人讀的，不是給人點開讀的——所以字要大、句子要少。 */
+   這張紙是給站在店門口的人讀的，不是給人點開讀的——所以字要大、句子要少。
+
+   文案以展冊（brochure/copy.json 的 /shop，繁中版見
+   brochure/out/hant/pdf/…-A5.pdf 第 20 頁）為準：展冊是唯一有「最新稿」的地方，
+   這面告示只是把它貼到牆上。2026-09-17 對過一次，逐句照抄，沒有自己加話。 */
 function noticeTexture() {
   const BW = 400, BH = 560;                    // 板面尺寸（mm）
   const W = 1120, H = Math.round(BH * W / BW);
@@ -632,26 +636,26 @@ function noticeTexture() {
      橫線在這種尺寸的白紙上會變成一排黑槓，比字還搶眼。 */
   y = Math.round(y) + M(34);
 
-  put('本廳商品　僅存一件', songti(M(22), 700), INK, 1.2, 0);
+  put('本廳商品', songti(M(28), 700), INK, 1.2, 0);
   y += M(6);
-  put('One Item Left', bask(M(10.5)), GREY, 1.3, 0);
+  put('Temporarily Out of Stock', bask(M(11)), GREY, 1.3, 0);
 
   y = Math.round(y) + M(36);
 
   const body = songti(M(10.2), 400);
   put('各位觀眾：', body, INK, 2.05, M(4));
-  put('前天凌晨，Lady Mimi 小姐進到本廳，破壞了不少紀念品。' +
-      '她說架上沒有一件像她。', body, INK, 2.05, M(4));
-  put('架上現在只剩這一件裙子。裙子掛在東牆上，不賣。' +
-      '請不要伸手——她會記得的。', body, INK, 2.05, M(4));
-  put('新一批商品已在製作中，上架前會先送她審閱。', body, GREY, 2.05, 0);
+  put('本廳文創商品已全數售罄，原因與銷量無關。前天凌晨，小貴婦進廳，' +
+      '把架上商品砸了一遍。本館尊重她的意見，但商品已經沒有。', body, INK, 2.05, M(4));
+  put('損失統計：展櫃一面、明信片兩箱、絨毛玩具若干。本館員工均安，' +
+      '她也非常健康。新一批上架前會先送她審閲。', body, GREY, 2.05, M(4));
+  put('現僅存一件——她自己的。', body, INK, 2.05, 0);
 
   // 收尾短句固定貼底
   const ps = M(7.0), es = M(5.4);
   x.font = songti(ps, 700);
-  const pl = wrapText(x, '本館不會追究。追究也沒有用。', width);
+  const pl = wrapText(x, '她對自己的形象有很明確的意見。', width);
   x.font = bask(es, true);
-  const el2 = wrapText(x, 'We are not pursuing damages. It would not help.', width);
+  const el2 = wrapText(x, 'She has very clear opinions about her likeness.', width);
   let by = H - M(34) - el2.length * es * 1.5 - pl.length * ps * 1.9;
   x.font = songti(ps, 700); x.fillStyle = INK2;
   for (const t of pl) { by += ps * 0.86; x.fillText(t, L, by); by += ps * (1.9 - 0.86); }
@@ -672,9 +676,9 @@ function noticeTexture() {
   x.fillStyle = 'rgba(17,18,19,.42)';
   x.textAlign = 'center';
   x.font = songti(M(23), 700);
-  x.fillText('僅存一件', -sw / 2, sh / 2 - M(18));
+  x.fillText('全數售罄', -sw / 2, sh / 2 - M(18));
   x.font = bask(M(10));
-  x.fillText('ONE  LEFT', -sw / 2, sh / 2 - M(6));
+  x.fillText('SOLD  OUT', -sw / 2, sh / 2 - M(6));
   x.restore();
   x.textAlign = 'left';
 
@@ -1670,6 +1674,66 @@ for (const [dx, dz] of [[-0.78, -0.4], [0.78, -0.4], [-0.78, 0.4], [0.78, 0.4]])
   box(13.5 + dx, 0.20, -50 + dz, 0.06, 0.40, 0.06, 'dark', { collide: false });
 
 box(9.80, 3.62, -47.5, 0.10, 0.24, 0.66, 'exit', { collide: false });   // 掛在門楣上，不要浮在門洞中間
+
+/* ---------------- 禮品店門口的告示架 ----------------
+   底座 + 立柱 + 斜面板，板上夾一張 A2 的白紙（noticeTexture）。店裡的貨架是空的，
+   這張紙負責回答「東西呢」。
+
+   2026-09-17：534c46a 那次把這一整段刪掉、用「僅存的那件裙子」取代，材質函式
+   noticeTexture() 卻留著沒人叫（孤兒），所以牆上少了這張紙。使用者回報
+   「告示牌不見了」就是這件事；這裡照原樣補回來。
+
+   位置有兩個條件：
+   1) 要在店裡、不能出現在門洞的視線上。站在 Room III（x < 8）往東看時，
+      視線切過 x = 10 的落點必須落在門洞南側的牆面（z > -46.3），
+      所以告示要往門的右手邊、靠南一點擺，才不會被看成「還放在上一廳」。
+   2) 一進門（往 +x 走）往右一看就要看到它，所以貼著門內側、斜朝門口。
+   以 (11.95, -45.05) 為例：從 (7.5, -47.5) 看過去，視線在 x = 10 的落點
+   是 z = -46.12，被門南側那道牆擋住；人一站進門就整個露出來。 */
+{
+  const NX = 11.95, NZ = -45.05, RY = -2.02;
+  const g = new THREE.Group();
+  g.position.set(NX, 0, NZ);
+  g.rotation.y = RY;
+  scene.add(g);
+
+  const part = (w, h, d, px, py, pz, mat, tilt) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), MATS[mat]);
+    m.position.set(px, py, pz);
+    if (tilt) m.rotation.x = tilt;
+    g.add(m);
+    OCCLUDERS.push(m);
+    return m;
+  };
+
+  const TILT = -0.13;
+  part(0.42, 0.035, 0.30, 0, 0.018, 0, 'dark');            // 底座
+  part(0.045, 0.88, 0.045, 0, 0.475, -0.02, 'dark');       // 立柱
+  part(0.46, 0.64, 0.022, 0, 1.20, 0.03, 'dark', TILT);    // 背板
+
+  const tex = noticeTexture();
+  const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.41, 0.575), new THREE.MeshStandardMaterial({
+    map: tex, roughness: 0.92, metalness: 0.0, envMapIntensity: 0.2,
+    emissive: 0xFFFFFF, emissiveMap: tex, emissiveIntensity: 0.05,
+  }));
+  paper.position.set(0, 1.20, 0.058);
+  paper.rotation.x = TILT;
+  paper.userData.n = new THREE.Vector3(Math.sin(RY), 0, Math.cos(RY));   // 牌面朝門
+  g.add(paper);
+  SHEET.push({ mesh: paper, room: 'IV', cap: '本廳商品 · 門口告示', short: '看告示' });
+
+  COLLIDERS.push({ x0: NX - 0.28, x1: NX + 0.28, z0: NZ - 0.28, z1: NZ + 0.28 });
+
+  // 告示燈：店裡的底光只夠看見貨架，這張不補光會讀不到
+  const fn = paper.userData.n;                                    // 告示正面朝向
+  /* 這顆不畫燈頭：燈就掛在紙前面 0.62 m、跟紙一樣高，畫出來會是一顆
+     浮在告示正中央的小點（觀眾看的是紙，不是燈）。旁邊那些燈頭交代的是
+     「光從哪來」，這一顆不需要——店裡已經有貨架燈、桌燈、陳列燈在交代。 */
+  const sp = new THREE.SpotLight(0xFFEFD6, 19, 7, 0.62, 0.85, 1.5);
+  sp.position.set(NX + fn.x * 0.62, 2.50, NZ + fn.z * 0.62);
+  sp.target.position.set(NX, 1.20, NZ);
+  scene.add(sp, sp.target);
+}
 
 /* ---------------- 僅存的那件裙子 ----------------
    東牆陳列板前面掛著店裡唯一一件還在的商品：小貴婦尺寸的黑 T 恤 + 白蕾絲裙。
