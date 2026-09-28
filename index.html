@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Travel Archive</title>
 
-    <!-- 使用飞机 Emoji 作为 Favicon -->
+    <!-- Plane emoji favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -52,11 +52,32 @@
 
         /* Card Hover Effects */
         .trip-card {
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .trip-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+            box-shadow: 0 16px 36px -14px rgba(15, 23, 42, 0.16);
+        }
+        .trip-card > div:first-child {
+            background-size: 165% 165%;
+            background-position: 0% 50%;
+            transition: background-position 0.75s cubic-bezier(0.16, 1, 0.3, 1), filter 0.45s ease;
+        }
+        .trip-card > div:first-child::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.18) 50%, transparent 72%);
+            transform: translateX(-125%);
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .trip-card:hover > div:first-child {
+            background-position: 100% 50%;
+            filter: saturate(1.14) brightness(1.04);
+        }
+        .trip-card:hover > div:first-child::after {
+            transform: translateX(125%);
         }
 
         /* Pulse Animation Keyframes */
@@ -91,28 +112,94 @@
             </span>
         </h1>
         <p class="text-xl md:text-2xl text-slate-500 font-bold leading-relaxed max-w-2xl font-sf tracking-tight">
-            拥抱世界各地的风和日丽。
+            Somewhere in the world, the weather is beautiful.
         </p>
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
 
-        <!-- 0. 北京 Beijing - 故地重游 -->
-        <a href="./travel/beijing/index.html" class="block reveal-on-scroll group">
+        <!-- Shanghai - current trip -->
+        <a href="./travel/shanghai/index.html" class="block reveal-on-scroll group">
             <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
-                <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-red-700 to-rose-950 p-8 flex flex-col justify-between relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+                <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-slate-800 via-slate-700 to-amber-500 p-8 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-amber-200 opacity-20 rounded-full -mr-16 -mt-16 blur-3xl"></div>
 
                     <div class="flex justify-between items-start z-10">
                         <span class="status-pulse inline-flex items-center px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-wide uppercase border border-white/30">
-                            Upcoming
+                            Now
+                        </span>
+                        <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">24H</span>
+                    </div>
+
+                    <div class="z-10">
+                        <h2 class="text-3xl font-black text-white leading-none mb-1 uppercase">Shanghai</h2>
+                        <p class="text-amber-100/90 font-medium text-sm">A Slow Day in the City</p>
+                    </div>
+                </div>
+
+                <div class="p-6 pt-5">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date</div>
+                            <div class="text-slate-800 font-bold font-sf">Sep 29 — Sep 30, 2026</div>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <!-- Taiwan clockwise loop - planned -->
+        <article class="block reveal-on-scroll group">
+            <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
+                <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-sky-400 via-cyan-500 to-emerald-500 p-8 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute bottom-0 right-0 w-72 h-72 bg-white opacity-15 rounded-full -mr-20 -mb-20 blur-3xl"></div>
+
+                    <div class="flex justify-between items-start z-10">
+                        <span class="inline-flex items-center px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-wide uppercase border border-white/30">
+                            Planned
+                        </span>
+                        <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">360°</span>
+                    </div>
+
+                    <div class="z-10">
+                        <h2 class="text-3xl font-black text-white leading-none mb-1">Taiwan Loop</h2>
+                        <p class="text-cyan-50 font-medium text-sm">Clockwise Around the Island</p>
+                    </div>
+                </div>
+
+                <div class="p-6 pt-5">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Planned</div>
+                            <div class="text-slate-800 font-bold font-sf">November 2026 · Dates TBD</div>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 21a9 9 0 100-18 9 9 0 000 18zm0 0c2.5-2.4 4-5.5 4-9s-1.5-6.6-4-9m0 18c-2.5-2.4-4-5.5-4-9s1.5-6.6 4-9M3 12h18"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Beijing - completed -->
+        <a href="./travel/beijing/index.html" class="block reveal-on-scroll group">
+            <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
+                <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-red-700 to-rose-950 p-8 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+
+                    <div class="flex justify-between items-start z-10">
+                        <span class="inline-flex items-center px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-wide uppercase border border-white/30">
+                            Completed
                         </span>
                         <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">PKX</span>
                     </div>
 
                     <div class="z-10">
                         <h2 class="text-3xl font-black text-white leading-none mb-1 uppercase">Beijing</h2>
-                        <p class="text-rose-100/80 font-medium text-sm">三顾 · 故地重游</p>
+                        <p class="text-rose-100/80 font-medium text-sm">Third Time, Same City</p>
                     </div>
                 </div>
 
@@ -130,15 +217,15 @@
             </div>
         </a>
 
-        <!-- 1. 江门 Jiangmen - 即将开始 -->
+        <!-- Jiangmen - completed -->
         <a href="./travel/jiangmen/index.html" class="block reveal-on-scroll group">
             <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
                 <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-rose-500 to-red-950 p-8 flex flex-col justify-between relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
 
                     <div class="flex justify-between items-start z-10">
-                        <span class="status-pulse inline-flex items-center px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-wide uppercase border border-white/30">
-                            Upcoming
+                        <span class="inline-flex items-center px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-wide uppercase border border-white/30">
+                            Completed
                         </span>
                         <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">JMN</span>
                     </div>
@@ -163,30 +250,30 @@
             </div>
         </a>
 
-        <!-- 2. 台湾 Taiwan - 环岛游 -->
+        <!-- Taiwan - completed -->
         <a href="./travel/taiwan/index.html" class="block reveal-on-scroll group" style="transition-delay: 50ms;">
             <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
                 <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-blue-400 to-indigo-500 p-8 flex flex-col justify-between relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
 
                     <div class="flex justify-between items-start z-10">
-                        <span class="status-pulse inline-flex items-center px-3 py-1 bg-cyan-500/20 backdrop-blur-md rounded-full text-cyan-100 text-xs font-bold tracking-wide uppercase border border-cyan-200/30">
-                            Upcoming
+                        <span class="inline-flex items-center px-3 py-1 bg-cyan-500/20 backdrop-blur-md rounded-full text-cyan-100 text-xs font-bold tracking-wide uppercase border border-cyan-200/30">
+                            Completed
                         </span>
                         <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">TPE</span>
                     </div>
 
                     <div class="z-10">
                         <h2 class="text-3xl font-black text-white leading-none mb-1">Taiwan</h2>
-                        <p class="text-blue-100 font-medium text-sm">Full Circle Island Railway Adventure</p>
+                        <p class="text-blue-100 font-medium text-sm">Taipei, Taichung &amp; Sun Moon Lake</p>
                     </div>
                 </div>
 
                 <div class="p-6 pt-5">
                     <div class="flex justify-between items-end">
                         <div>
-                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Departure</div>
-                            <div class="text-slate-800 font-bold font-sf">Jun 02 — Jun 12, 2026</div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date</div>
+                            <div class="text-slate-800 font-bold font-sf">Jun 02 — Jun 05, 2026</div>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -196,7 +283,7 @@
             </div>
         </a>
 
-        <!-- 3. 曼谷 Bangkok - 待定日期 -->
+        <!-- Bangkok - completed -->
         <a href="./travel/bangkok/index.html" class="block reveal-on-scroll group" style="transition-delay: 100ms;">
             <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
                 <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-fuchsia-400 to-purple-500 p-8 flex flex-col justify-between relative overflow-hidden">
@@ -204,7 +291,7 @@
 
                     <div class="flex justify-between items-start z-10">
                         <span class="inline-flex px-3 py-1 bg-fuchsia-500/20 backdrop-blur-md rounded-full text-fuchsia-100 text-xs font-bold tracking-wide uppercase border border-fuchsia-200/30">
-                            Planned
+                            Completed
                         </span>
                         <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">BKK</span>
                     </div>
@@ -218,8 +305,8 @@
                 <div class="p-6 pt-5">
                     <div class="flex justify-between items-end">
                         <div>
-                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Status</div>
-                            <div class="text-slate-400 font-bold font-sf">Date TBD</div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date</div>
+                            <div class="text-slate-800 font-bold font-sf">Jan 12 — Jan 16, 2026</div>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-fuchsia-600 group-hover:text-white transition-colors duration-300">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -229,7 +316,7 @@
             </div>
         </a>
 
-        <!-- 4. 亚庇 Kota Kinabalu - 待定日期 -->
+        <!-- Kota Kinabalu - completed -->
         <a href="./travel/kotakinabalu/index.html" class="block reveal-on-scroll group" style="transition-delay: 150ms;">
             <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
                 <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-cyan-400 to-teal-500 p-8 flex flex-col justify-between relative overflow-hidden">
@@ -237,7 +324,7 @@
 
                     <div class="flex justify-between items-start z-10">
                         <span class="inline-flex px-3 py-1 bg-teal-500/20 backdrop-blur-md rounded-full text-teal-100 text-xs font-bold tracking-wide uppercase border border-teal-200/30">
-                            Planned
+                            Completed
                         </span>
                         <span class="text-white/80 font-sf font-black text-4xl tracking-tighter">BKI</span>
                     </div>
@@ -251,8 +338,8 @@
                 <div class="p-6 pt-5">
                     <div class="flex justify-between items-end">
                         <div>
-                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Status</div>
-                            <div class="text-slate-400 font-bold font-sf">Date TBD</div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date</div>
+                            <div class="text-slate-800 font-bold font-sf">Jan 05 — Jan 09, 2026</div>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-cyan-600 group-hover:text-white transition-colors duration-300">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -262,11 +349,11 @@
             </div>
         </a>
 
-        <!-- 5. 广州 Guangzhou - 已完成 -->
+        <!-- Guangzhou - completed -->
         <a href="./travel/guangzhou/index.html" class="block reveal-on-scroll group" style="transition-delay: 200ms;">
             <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full">
                 <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-emerald-400 to-green-600 p-8 flex flex-col justify-between relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -ml-16 -mb-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -ml-16 -mb-16 blur-3xl"></div>
 
                     <div class="flex justify-between items-start z-10">
                         <span class="inline-flex items-center px-3 py-1 bg-emerald-800/20 backdrop-blur-md rounded-full text-emerald-100 text-xs font-bold tracking-wide uppercase border border-emerald-200/30">
@@ -295,11 +382,11 @@
             </div>
         </a>
 
-        <!-- 6. 西北 Lanzhou & Xining - 已完成 -->
+        <!-- Lanzhou & Xining - completed -->
         <a href="./travel/northwest/index.html" class="block reveal-on-scroll group" style="transition-delay: 250ms;">
             <div class="trip-card bg-white rounded-[2rem] p-2 shadow-sm border border-slate-100 h-full relative">
                 <div class="h-64 rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-600 p-8 flex flex-col justify-between relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -ml-16 -mb-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -ml-16 -mb-16 blur-3xl"></div>
 
                     <div class="flex justify-between items-start z-10">
                         <span class="inline-flex items-center px-3 py-1 bg-amber-900/20 backdrop-blur-md rounded-full text-amber-100 text-xs font-bold tracking-wide uppercase border border-amber-200/30">
@@ -333,7 +420,7 @@
     <footer class="mt-32 border-t border-gray-200 pt-10 text-center">
         <div class="flex flex-col items-center justify-center gap-4">
             <p class="text-slate-400 text-sm font-bold tracking-widest font-sf uppercase">
-                For Personal Reference Only · 仅供个人参考
+                For Personal Reference Only
             </p>
         </div>
     </footer>
